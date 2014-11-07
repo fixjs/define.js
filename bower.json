@@ -1,0 +1,17 @@
+{
+    "name": "definejs",
+    "description": "A JavaScript module loader, an implementation of AMD (Asynchronous Module Definition).",
+    "version": "0.1.0a",
+    "main": "define.js",
+    "ignore": [
+        "test",
+        ".jshintrc",
+        ".travis.yml",
+        "CHANGELOG.md",
+        "karma.conf.js",
+        "package.json"
+    ],
+    "devDependencies": {
+        "chai": "*"
+    }
+}
