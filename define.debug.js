@@ -1,4 +1,4 @@
-/*! define.debug.js v0.0.0 - MIT license */
+/*! define.debug.js v0.1.1a - MIT license */
 (function (global, undefined) {
   'use strict';
 
@@ -365,7 +365,7 @@
   }
 
   /*
-   * This way you can reduce the pain of exposing the fixDefine functionality to your global object
+   * This way you can reduce the pain of exposing the DefineJS functionality to your global object
    * for instance if your global object is "myGlobal":
    * <script>
    *   var myGlobal = {};
@@ -374,7 +374,7 @@
    *
    * you can expose it by adding the global attribute to the script tag like:
    *
-   * <script global="myGlobal" src="fixdefine.js"></script>
+   * <script global="myGlobal" src="define.js"></script>
    *
    * Then you can require modules and require them like:
    * myGlobal.define(['dependency'], function(dependency){
@@ -404,7 +404,7 @@
     console.warn('You already have an amd module why do you need me!');
     console.warn('But anyway here we go! you could require it now!');
     /*
-     *require("fixdefine", function(fixDefine){
+     *require("define", function(fixDefine){
      *   fixDefine(myGlobal);
      *
      *   //Now you can use it to define and require your modules
@@ -422,7 +422,7 @@
 
     // @if DEBUG
     console.warn('Not a good practice! you\'d better add "global" attribute to your script tag!');
-    console.warn('But anyway here we go! you could expose the "fixDefine" by passing your global object to the fixDefine function');
+    console.warn('But anyway here we go! you could expose the DefineJS by passing your global object to the fixDefine function');
     // @endif
 
     global.fixDefine = fixDefine;

@@ -1,4 +1,4 @@
-/*! fixdefine.js v0.0.0 - MIT license */
+/*! define.js v0.1.1a - MIT license */
 (function (global, undefined) {
   'use strict';
 

@@ -1,6 +1,6 @@
-# FixDefineJS
+# DefineJS
 
-[![Build Status](https://secure.travis-ci.org/fixjs/fixdefine.js.png?branch=master)](http://travis-ci.org/fixjs/fixdefine.js)
+[![Build Status](https://secure.travis-ci.org/fixjs/define.js.png?branch=master)](http://travis-ci.org/fixjs/define.js)
 
 
 ## Installation
