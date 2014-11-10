@@ -17,5 +17,6 @@ describe('fixDefine()', function () {
     it('global.require', function () {
       expect(testGlobal.require).to.be.a('function');
     });
+
   });
 });

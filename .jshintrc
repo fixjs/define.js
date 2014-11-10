@@ -13,8 +13,13 @@
     "newcap": true,
     "noarg": true,
     "undef": true,
-    "strict": true,
+    "strict": false,
     "trailing": true,
     "smarttabs": true,
-    "white": true
+    "white": true,
+    "globals": [
+    "it",
+    "define",
+    "require"
+    ]
 }

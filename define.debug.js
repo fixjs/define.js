@@ -16,6 +16,7 @@
       timeStamp: {},
       scripts: {}
     },
+    debugStorage = {},
     // @endif
 
     baseFileInfo,
@@ -123,7 +124,7 @@
       }
       // @endif
 
-      //dependency is loaded successfully 
+      //dependency is loaded successfully
       if (typeof callback === 'function') {
         callback('success');
       }
@@ -251,7 +252,7 @@
       moduleName = undefined;
       array = emptyArray;
     }
-    //define(array, moduleDefinition) 
+    //define(array, moduleDefinition)
     else if (Array.isArray(moduleName)) {
       moduleDefinition = array;
       array = moduleName;
@@ -352,53 +353,55 @@
   fxdefine.amd = {};
 
   function fixDefine(g) {
-    g.require = fxrequire;
-    g.define = fxdefine;
-    g.config = fxconfig;
+      g.require = fxrequire;
+      g.define = fxdefine;
+      g.config = fxconfig;
 
+      // @if DEBUG
+      g.modules = modules;
+      g.installed = installed;
+      g.failedList = failedList;
+      g.waitingList = waitingList;
+      g.scriptsTiming = scriptsTiming;
+      // @endif
+    }
     // @if DEBUG
-    g.modules = modules;
-    g.installed = installed;
-    g.failedList = failedList;
-    g.waitingList = waitingList;
+    /*
+     * This way you can reduce the pain of exposing the DefineJS functionality to your global object
+     * for instance if your global object is "myGlobal":
+     * <script>
+     *   var myGlobal = {};
+     *   window.myGlobal = myGlobal;
+     * </script>
+     *
+     * you can expose it by adding the global attribute to the script tag like:
+     *
+     * <script global="myGlobal" src="define.js"></script>
+     *
+     * Then you can require modules and require them like:
+     * myGlobal.define(['dependency'], function(dependency){
+     *   //module code
+     * });
+     *
+     * and to require them:
+     * myGlobal.require(['dependency'], function(dependency){
+     *   console.log(dependency);
+     * });
+     *
+     */
     // @endif
-  }
-
-  /*
-   * This way you can reduce the pain of exposing the DefineJS functionality to your global object
-   * for instance if your global object is "myGlobal":
-   * <script>
-   *   var myGlobal = {};
-   *   window.myGlobal = myGlobal;
-   * </script>
-   *
-   * you can expose it by adding the global attribute to the script tag like:
-   *
-   * <script global="myGlobal" src="define.js"></script>
-   *
-   * Then you can require modules and require them like:
-   * myGlobal.define(['dependency'], function(dependency){
-   *   //module code
-   * });
-   *
-   * and to require them:
-   * myGlobal.require(['dependency'], function(dependency){
-   *   console.log(dependency);
-   * });
-   *
-   */
   if (baseGlobal && typeof global[baseGlobal] === 'object') {
     fixDefine(global[baseGlobal]);
   }
-
+  // @if DEBUG
   /*
    * Note:
-   * Just remember the exposed "fixDefine" function provides you a way of exposing the library
+   * Just remember that the exposed "fixDefine" function provides you a way of exposing the library
    */
+  // @endif
   if (typeof exports === 'object') {
     module.exports = fixDefine;
   } else if (typeof define === 'function' && define.amd) {
-
     // @if DEBUG
     console.warn('It is funny!');
     console.warn('You already have an amd module why do you need me!');
@@ -414,17 +417,16 @@
      * });
      */
     // @endif
-
     define([], function () {
       return fixDefine;
     });
   } else {
-
     // @if DEBUG
     console.warn('Not a good practice! you\'d better add "global" attribute to your script tag!');
-    console.warn('But anyway here we go! you could expose the DefineJS by passing your global object to the fixDefine function');
+    console.warn(
+      'But anyway here we go! you could expose the DefineJS by passing your global object to the fixDefine function'
+    );
     // @endif
-
     global.fixDefine = fixDefine;
   }
 

@@ -1,0 +1,3 @@
+[submodule "amdjs-tests"]
+	path = amdjs-tests
+	url = https://github.com/amdjs/amdjs-tests

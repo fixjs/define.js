@@ -17,8 +17,8 @@ module.exports = function (config) {
     // list of files / patterns to load in the browser
     files: [
       'bower_components/chai/chai.js',
-      'define.js',
-      'test/**/*.js'
+      'define.debug.js',
+      'test/define.js'
     ],
 
     // use dots reporter, as travis terminal does not support escaping sequences
