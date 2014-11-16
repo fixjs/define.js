@@ -93,7 +93,7 @@ module.exports = function (grunt) {
     'preprocess:js',
     'preprocess:example_regular',
     'preprocess:example_promise',
-    'preprocess:node',
+    //'preprocess:node',
     'jshint:js'
   ]);
 
