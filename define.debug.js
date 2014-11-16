@@ -1,7 +1,7 @@
 /*! define.debug.js v0.1.1a - MIT license */
 (function (global, undefined) {
 
-  function defineModuleDefinition(Q) {
+  function defineModuleDefinition() {
     'use strict';
 
     var
