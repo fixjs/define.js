@@ -160,18 +160,6 @@
       elem.src = getUrl(url);
     }
 
-
-    function getScriptPromise(url) {
-      return new Promise(function (fulfill, reject) {
-        var elem = doc.createElement('script');
-        elem.addEventListener('error', reject);
-        elem.addEventListener('load', fulfill);
-        doc.head.appendChild(elem);
-        elem.src = getUrl(url);
-      });
-    }
-
-
     function executeModule(moduleName, moduleDefinition, args) {
       var moduleData;
 
