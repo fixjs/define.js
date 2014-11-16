@@ -1,0 +1,4 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DefineJS</title>    <script>      var fix = {};      window.fix = fix;    </script>    <script global="fix" src="define.js"></script>    <script>      fix.config({        baseUrl: 'lib',        paths:{          'util': '../util'        }      });      fix.require(['app'], function(app){        console.log('required app object:', app);        app.lunch();      });    </script></head><body></body></html>

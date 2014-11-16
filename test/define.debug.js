@@ -6,7 +6,7 @@ describe('fixDefine()', function () {
   });
 
   var testGlobal = {};
-  
+
   fixDefine(testGlobal);
 
   describe('global.define and global.require', function () {

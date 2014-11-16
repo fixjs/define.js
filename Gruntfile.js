@@ -1,14 +1,25 @@
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
 
     //We only have two active files under development, define.debug.js and test/define.debug.js
-    //The rest could be considered auto generated files with our grunt tasks
+    //The rest are only auto generated files with our grunt tasks
     preprocess: {
       options: {
         context: {
-          DEBUG: false
+          DEBUG: false,
+          NODE: false
+        }
+      },
+      node: {
+        src: 'define.debug.js',
+        dest: 'define.node.js',
+        options: {
+          context: {
+            DEBUG: false,
+            NODE: true
+          }
         }
       },
       js: {
@@ -19,6 +30,10 @@ module.exports = function(grunt) {
         src: 'define.debug.js',
         dest: 'dist/define.js'
       },
+      examples: {
+        src: 'define.debug.js',
+        dest: 'examples/define.js'
+      },
       debugdist: {
         src: 'define.debug.js',
         dest: 'dist/define.debug.js',
@@ -27,24 +42,20 @@ module.exports = function(grunt) {
             DEBUG: true
           }
         }
-      },
-      test: {
-        src: 'test/define.debug.js',
-        dest: 'test/define.js'
-      },
-      debugtest: {
-        src: 'test/define.debug.js',
-        dest: 'test/define.js',
-        options: {
-          context: {
-            DEBUG: true
-          }
-        }
-      }
-    },
-
-    exec: {
-      test: 'npm test'
+      } //,
+      // test: {
+      //   src: 'test/define.debug.js',
+      //   dest: 'test/define.js'
+      // },
+      // debugtest: {
+      //   src: 'test/define.debug.js',
+      //   dest: 'test/define.js',
+      //   options: {
+      //     context: {
+      //       DEBUG: true
+      //     }
+      //   }
+      // }
     },
 
     jshint: {
@@ -72,23 +83,19 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-preprocess');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-exec');
 
   grunt.registerTask('build', [
     'jshint:debug',
     'preprocess:js',
+    'preprocess:examples',
+    'preprocess:node',
     'jshint:js'
   ]);
 
-  grunt.registerTask('test', [
-    'preprocess:test',
-    'exec:test'
-  ]);
-
-  grunt.registerTask('test:debug', [
-    'preprocess:debugtest',
-    'exec:test'
-  ]);
+  // grunt.registerTask('test:debug', [
+  //   'preprocess:debugtest',
+  //   'exec:test'
+  // ]);
 
   grunt.registerTask('build:dist', [
     'jshint:debug',

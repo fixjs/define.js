@@ -5,6 +5,7 @@
     'use strict';
 
     var
+      isNode = true,
       doc = global.document,
       currentScript = document.currentScript,
 
