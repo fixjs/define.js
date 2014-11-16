@@ -30,9 +30,13 @@ module.exports = function (grunt) {
         src: 'define.debug.js',
         dest: 'dist/define.js'
       },
-      examples: {
+      example_regular: {
         src: 'define.debug.js',
-        dest: 'examples/define.js'
+        dest: 'examples/regular-amd-style/define.js'
+      },
+      example_promise: {
+        src: 'define.debug.js',
+        dest: 'examples/definejs-promise-style/define.js'
       },
       debugdist: {
         src: 'define.debug.js',
@@ -87,7 +91,8 @@ module.exports = function (grunt) {
   grunt.registerTask('build', [
     'jshint:debug',
     'preprocess:js',
-    'preprocess:examples',
+    'preprocess:example_regular',
+    'preprocess:example_promise',
     'preprocess:node',
     'jshint:js'
   ]);
