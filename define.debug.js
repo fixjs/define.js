@@ -5,9 +5,6 @@
     'use strict';
 
     var
-    // @if NODE
-      isNode = true,
-      // @endif
       doc = global.document,
       currentScript = document.currentScript,
 
@@ -343,7 +340,7 @@
             len = array.length;
 
           for (; i < len; i += 1) {
-            args.push(modules[array[i]]);
+            args.push(modules[getFileInfo(array[i]).fileName]);
           }
 
           executeModule(false, fn, args);
@@ -351,6 +348,14 @@
       } else {
         executeModule(false, fn);
       }
+
+    }
+
+    function promiseUse(array) {
+
+      return new Promise(function (fulfill, reject) {
+        fxrequire(array, fulfill);
+      });
 
     }
 
@@ -379,13 +384,15 @@
       g.config = fxconfig;
       g.options = options;
 
+      //Nonstandards
+      g.use = promiseUse;
+
       // @if DEBUG
       g.modules = modules;
       g.installed = installed;
       g.failedList = failedList;
       g.waitingList = waitingList;
       g.scriptsTiming = scriptsTiming;
-
       g.urlCache = urlCache;
       g.moduleUrls = moduleUrls;
       // @endif

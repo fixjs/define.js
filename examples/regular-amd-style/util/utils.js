@@ -1,4 +1,4 @@
-fix.define(['core/core.js'], function (core) {
+fix.define(['core/core'], function (core) {
 
   var util = {
     version: core.getVersion(),

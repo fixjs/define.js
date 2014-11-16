@@ -1,7 +1,7 @@
 /*! define.debug.js v0.1.1a - MIT license */
 (function (global, undefined) {
 
-  function defineModuleDefinition(Q) {
+  function defineModuleDefinition() {
     'use strict';
 
     var
@@ -317,7 +317,7 @@
             len = array.length;
 
           for (; i < len; i += 1) {
-            args.push(modules[array[i]]);
+            args.push(modules[getFileInfo(array[i]).fileName]);
           }
 
           executeModule(false, fn, args);
@@ -325,6 +325,14 @@
       } else {
         executeModule(false, fn);
       }
+
+    }
+
+    function promiseUse(array) {
+
+      return new Promise(function (fulfill, reject) {
+        fxrequire(array, fulfill);
+      });
 
     }
 
@@ -352,6 +360,9 @@
       g.define = fxdefine;
       g.config = fxconfig;
       g.options = options;
+
+      //Nonstandards
+      g.use = promiseUse;
 
     }
 
