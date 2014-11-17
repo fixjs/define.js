@@ -16,7 +16,7 @@
     "Gruntfile.js",
     ".travis.yml",
     ".gitignore",
-    "define.debug.js"
+    "amdjs-tests"
   ],
   "devDependencies": {
     "chai": "*"
