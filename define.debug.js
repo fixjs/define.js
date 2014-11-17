@@ -1,4 +1,9 @@
-/*! define.debug.js v0.1.1a - MIT license */
+/**
+ * DefineJS v0.2.1
+ * Copyright (c) 2014 Mehran Hatami and define.js contributors.
+ * Available via the MIT license.
+ * license found at http://github.com/fixjs/define.js/raw/master/LICENSE
+ */
 (function (global, undefined) {
 
   function defineModuleDefinition() {

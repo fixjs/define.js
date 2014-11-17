@@ -75,7 +75,7 @@ module.exports = function (grunt) {
 
     uglify: {
       options: {
-        banner: '/*! define.js <%= grunt.template.today("yyyy-mm-dd") %> */\n'
+        banner: '/*! DefineJS v<%= pkg.version %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
       },
       build: {
         src: 'dist/define.js',
