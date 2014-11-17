@@ -36,10 +36,14 @@
       installed = {},
       failedList = [];
 
+    function isObject(obj) {
+      return obj === Object(obj);
+    }
+
     function getFileInfo(url) {
       var info = files[url],
         ind;
-      if (typeof info !== 'object') {
+      if (!isObject(info)) {
         info = {};
 
         ind = url.indexOf('#');
@@ -89,7 +93,7 @@
         url = baseUrl;
       }
 
-      if (typeof options.paths === 'object') {
+      if (isObject(options.paths)) {
         for (path in options.paths) {
           if (options.paths.hasOwnProperty(path) &&
             typeof (pathUrl = options.paths[path]) === 'string') {
@@ -357,17 +361,17 @@
 
     function fxconfig(cnfOptions) {
 
-      if (typeof cnfOptions !== 'object') {
+      if (!isObject(cnfOptions)) {
         return;
       }
 
       var keys = Object.keys(cnfOptions),
-        i = 0,
         len = keys.length,
-        key;
-      for (; i < len; i += 1) {
-        key = keys[i];
-        options[key] = cnfOptions[key];
+        i = 0;
+
+      while (i < len) {
+        options[keys[i]] = cnfOptions[keys[i]];
+        i++;
       }
 
     }
