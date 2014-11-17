@@ -5,19 +5,22 @@
  * license found at http://github.com/fixjs/define.js/raw/master/LICENSE
  */
 (function (global, undefined) {
+  'use strict';
+
+  //polyfills
+  if (!Array.isArray) {
+    Array.isArray = function (arg) {
+      return Object.prototype.toString.call(arg) === '[object Array]';
+    };
+  }
 
   function defineModuleDefinition() {
-    'use strict';
-
     var
       doc = global.document,
       currentScript = document.currentScript,
-
       emptyArray = [],
-
       options = {},
       files = {},
-
       // @if DEBUG
       scriptsTiming = {
         timeStamp: {},
@@ -25,11 +28,9 @@
       },
       debugStorage = {},
       // @endif
-
       baseFileInfo,
       baseUrl = '',
       baseGlobal = '',
-
       moduleUrls = {},
       waitingList = {},
       urlCache = {},
@@ -146,15 +147,12 @@
           scriptsTiming.scripts[url].loadedAt = e.timeStamp;
         }
         // @endif
-
         //dependency is loaded successfully
         if (typeof callback === 'function') {
           callback('success');
         }
       });
-
       doc.head.appendChild(elem);
-
       // @if DEBUG
       if (options.captureTiming) {
         scriptsTiming.scripts[url] = {
@@ -162,7 +160,6 @@
         };
       }
       // @endif
-
       elem.src = getUrl(url);
     }
 
@@ -218,11 +215,8 @@
         moduleName = moduleInfo.fileName;
 
       if (installed[moduleName]) {
-
         callback(modules[moduleName]);
-
       } else {
-
         if (!Array.isArray(waitingList[moduleName])) {
           waitingList[moduleName] = [];
           isFirstLoadDemand = true;
@@ -231,7 +225,6 @@
         waitingList[moduleName].push(callback);
 
         if (isFirstLoadDemand) {
-
           getScript(modulePath, function (status) {
             loadedModules[moduleName] = true;
 
@@ -239,19 +232,16 @@
               moduleDependencies[moduleName].length) {
               //Do not need to do anything so far
             } else {
-
               //This code block allows using this library for regular javascript files
               //with no "define" or "require"
               installModule(moduleName, status);
             }
           });
-
         }
       }
     }
 
     function loadModules(array, callback) {
-
       var i = 0,
         len = array.length,
         loaded = [];
@@ -266,11 +256,9 @@
       for (; i < len; i += 1) {
         loadModule(array[i], pCallback);
       }
-
     }
 
     function fxdefine(moduleName, array, moduleDefinition) {
-
       //define(moduleDefinition)
       if (typeof moduleName === 'function') {
         moduleDefinition = moduleName;
@@ -331,11 +319,9 @@
         executeModule(moduleName, moduleDefinition);
         installModule(moduleName, 'success');
       }
-
     }
 
     function fxrequire(array, fn) {
-
       if (typeof fn !== 'function') {
         console.error('Invalid input parameter to require a module');
         return;
@@ -357,19 +343,15 @@
       } else {
         executeModule(false, fn);
       }
-
     }
 
     function promiseUse(array) {
-
       return new Promise(function (fulfill, reject) {
         fxrequire(array, fulfill);
       });
-
     }
 
     function fxconfig(cnfOptions) {
-
       if (!isObject(cnfOptions)) {
         return;
       }
@@ -382,7 +364,6 @@
         options[keys[i]] = cnfOptions[keys[i]];
         i++;
       }
-
     }
 
     fxdefine.amd = {};
@@ -432,7 +413,7 @@
      *
      */
     // @endif
-    if (baseGlobal && typeof global[baseGlobal] === 'object') {
+    if (baseGlobal && isObject(global[baseGlobal])) {
       fixDefine(global[baseGlobal]);
     }
 
@@ -473,5 +454,4 @@
     // @endif
     global.fixDefine = defineModuleDefinition();
   }
-
 }(this));
