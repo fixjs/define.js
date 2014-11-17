@@ -7,6 +7,7 @@
     "curly": false,
     "eqeqeq": true,
     "eqnull": true,
+    "indent": 2,
     "immed": true,
     "latedef": false,
     "laxcomma": true,
