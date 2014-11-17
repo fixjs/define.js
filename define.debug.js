@@ -129,18 +129,17 @@
     }
 
     function getScript(url, callback) {
-      var elem = doc.createElement('script');
+      var el = doc.createElement('script');
 
-      elem.addEventListener('error', function (e) {
+      el.addEventListener('error', function (e) {
         //missing dependency
         console.error('The script ' + e.target.src + ' is not accessible.');
-
         if (typeof callback === 'function') {
           callback('error');
         }
       });
 
-      elem.addEventListener('load', function (e) {
+      el.addEventListener('load', function (e) {
         // @if DEBUG
         if (options.captureTiming) {
           scriptsTiming.timeStamp[e.timeStamp] = url;
@@ -152,7 +151,7 @@
           callback('success');
         }
       });
-      doc.head.appendChild(elem);
+      doc.head.appendChild(el);
       // @if DEBUG
       if (options.captureTiming) {
         scriptsTiming.scripts[url] = {
@@ -160,12 +159,11 @@
         };
       }
       // @endif
-      elem.src = getUrl(url);
+      el.src = getUrl(url);
     }
 
     function executeModule(moduleName, moduleDefinition, args) {
       var moduleData;
-
       if (!Array.isArray(args)) {
         args = emptyArray;
       }
@@ -180,10 +178,8 @@
     }
 
     function installModule(moduleName, status) {
-      var callbacks,
-        i,
-        len,
-        fn;
+      var callbacks, fn,
+        i, len;
 
       if (status === 'success') {
         if (!installed[moduleName]) {
@@ -302,18 +298,14 @@
 
       if (Array.isArray(array) && array.length) {
         loadModules(array, function () {
-
           var args = [],
             i = 0,
             len = array.length;
-
           for (; i < len; i += 1) {
             args.push(modules[getFileInfo(array[i]).fileName]);
           }
-
           executeModule(moduleName, moduleDefinition, args);
           installModule(moduleName, 'success');
-
         });
       } else {
         executeModule(moduleName, moduleDefinition);
@@ -329,15 +321,12 @@
 
       if (Array.isArray(array) && array.length) {
         loadModules(array, function () {
-
           var args = [],
             i = 0,
             len = array.length;
-
           for (; i < len; i += 1) {
             args.push(modules[getFileInfo(array[i]).fileName]);
           }
-
           executeModule(false, fn, args);
         });
       } else {

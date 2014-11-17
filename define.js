@@ -122,30 +122,28 @@
     }
 
     function getScript(url, callback) {
-      var elem = doc.createElement('script');
+      var el = doc.createElement('script');
 
-      elem.addEventListener('error', function (e) {
+      el.addEventListener('error', function (e) {
         //missing dependency
         console.error('The script ' + e.target.src + ' is not accessible.');
-
         if (typeof callback === 'function') {
           callback('error');
         }
       });
 
-      elem.addEventListener('load', function (e) {
+      el.addEventListener('load', function (e) {
         //dependency is loaded successfully
         if (typeof callback === 'function') {
           callback('success');
         }
       });
-      doc.head.appendChild(elem);
-      elem.src = getUrl(url);
+      doc.head.appendChild(el);
+      el.src = getUrl(url);
     }
 
     function executeModule(moduleName, moduleDefinition, args) {
       var moduleData;
-
       if (!Array.isArray(args)) {
         args = emptyArray;
       }
@@ -160,10 +158,8 @@
     }
 
     function installModule(moduleName, status) {
-      var callbacks,
-        i,
-        len,
-        fn;
+      var callbacks, fn,
+        i, len;
 
       if (status === 'success') {
         if (!installed[moduleName]) {
@@ -282,18 +278,14 @@
 
       if (Array.isArray(array) && array.length) {
         loadModules(array, function () {
-
           var args = [],
             i = 0,
             len = array.length;
-
           for (; i < len; i += 1) {
             args.push(modules[getFileInfo(array[i]).fileName]);
           }
-
           executeModule(moduleName, moduleDefinition, args);
           installModule(moduleName, 'success');
-
         });
       } else {
         executeModule(moduleName, moduleDefinition);
@@ -309,15 +301,12 @@
 
       if (Array.isArray(array) && array.length) {
         loadModules(array, function () {
-
           var args = [],
             i = 0,
             len = array.length;
-
           for (; i < len; i += 1) {
             args.push(modules[getFileInfo(array[i]).fileName]);
           }
-
           executeModule(false, fn, args);
         });
       } else {
