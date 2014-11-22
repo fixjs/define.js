@@ -1,33 +1,23 @@
 config({
   baseUrl: 'lib',
   paths: {
-    'util': '../util'
+    'util': '../util',
+    'vendor': '../vendor'
   }
 });
+require(['app'], function (app) {
 
-use(['app'])
-  .then(function (app) {
-    console.log('Before lunch: [app.loaded = ' + app.loaded + ']');
-    return app;
-  })
-  .then(function (app) {
-    app.lunch();
-    return app;
-  })
-  .then(function (app) {
-    console.log('After lunch: [app.loaded = ' + app.loaded + ']');
+  var core = app.core,
+    utils = core.utils;
 
-    //return whatever needed in the next steps
-    return app.core;
-  })
-  .then(function (core) {
+  console.log('Before lunch: [app.loaded = ' + app.loaded + ']');
 
-    console.log('[core.getVersion() => ' + core.getVersion() + ']');
+  app.lunch();
 
-    return core.utils;
-  })
-  .then(function (utils) {
+  console.log('After lunch: [app.loaded = ' + app.loaded + ']');
 
-    console.log('[utils.isObject(null) => ' + utils.isObject(null) + ']');
+  console.log('[core.getVersion() => ' + core.getVersion() + ']');
 
-  });
+  console.log('[utils.isObject(null) => ' + utils.isObject(null) + ']');
+
+});

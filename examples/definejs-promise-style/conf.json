@@ -1,0 +1,9 @@
+{
+  "name": "DefineJS Promsie example",
+  "version": "0.2.2",
+  "repo":"https://github.com/fixjs/define.js",
+  "vendor":{
+  	"Q":"vendor/q/package.json",
+  	"RSVP":"vendor/rsvp/package.json"
+  }
+}

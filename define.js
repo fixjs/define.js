@@ -1,5 +1,5 @@
 /**
- * DefineJS v0.2.1
+ * DefineJS v0.2.2
  * Copyright (c) 2014 Mehran Hatami and define.js contributors.
  * Available via the MIT license.
  * license found at http://github.com/fixjs/define.js/raw/master/LICENSE
@@ -29,12 +29,17 @@
       urlCache = {},
       loadedModules = {},
       moduleDependencies = {},
+      definedModules = [],
       modules = {},
       installed = {},
       failedList = [];
 
     function isObject(obj) {
       return obj === Object(obj);
+    }
+
+    function isPromiseAlike(object) {
+      return isObject(object) && typeof object.then === "function";
     }
 
     function getFileInfo(url) {
@@ -69,16 +74,15 @@
 
     function getUrl(modulePath) {
       var moduleInfo = getFileInfo(modulePath),
-        moduleName = moduleInfo.fileName;
+        moduleName = moduleInfo.fileName,
+        url,
+        urlArgs,
+        path,
+        pathUrl;
 
       if (typeof urlCache[moduleName] === 'string') {
         return urlCache[moduleName];
       }
-
-      var url,
-        urlArgs,
-        path,
-        pathUrl;
 
       urlArgs = (typeof options.urlArgs === 'string') ?
         ('?' + options.urlArgs) :
@@ -92,12 +96,15 @@
 
       if (isObject(options.paths)) {
         for (path in options.paths) {
-          if (options.paths.hasOwnProperty(path) &&
-            typeof (pathUrl = options.paths[path]) === 'string') {
-            if (modulePath.indexOf(path + '/') === 0) {
+          if (options.paths.hasOwnProperty(path)) {
+            pathUrl = options.paths[path];
+
+            if (typeof pathUrl === 'string' &&
+              modulePath.indexOf(path + '/') === 0) {
               modulePath = modulePath.replace(path, pathUrl);
               break;
             }
+
           }
         }
       }
@@ -142,20 +149,28 @@
       el.src = getUrl(url);
     }
 
-    function executeModule(moduleName, moduleDefinition, args) {
-      var moduleData;
+    function executeFN(fn, args) {
+      var fnData;
       if (!Array.isArray(args)) {
         args = emptyArray;
       }
 
       try {
-        moduleData = moduleDefinition.apply(undefined, args);
-      } catch (ignored) {}
+        fnData = fn.apply(undefined, args);
+      } catch (ignore) {}
 
-      if (moduleName) {
-        modules[moduleName] = moduleData;
-      }
+      return fnData;
     }
+
+    // function executeModule(moduleName, moduleDefinition, args) {
+    //   var moduleData = executeFN(moduleDefinition, args);
+
+    //   if (moduleName) {
+    //     modules[moduleName] = moduleData;
+    //   }
+
+    //   return moduleData;
+    // }
 
     function installModule(moduleName, status) {
       var callbacks, fn,
@@ -204,8 +219,8 @@
           getScript(modulePath, function (status) {
             loadedModules[moduleName] = true;
 
-            if (Array.isArray(moduleDependencies[moduleName]) &&
-              moduleDependencies[moduleName].length) {
+            //moduleDependencies[moduleName].length
+            if (-1 < definedModules.indexOf(moduleName)) {
               //Do not need to do anything so far
             } else {
               //This code block allows using this library for regular javascript files
@@ -231,6 +246,40 @@
 
       for (; i < len; i += 1) {
         loadModule(array[i], pCallback);
+      }
+    }
+
+    function setUpModule(moduleName, moduleDefinition, args) {
+      var moduleData = executeFN(moduleDefinition, args),
+        setUp,
+        //we could have checked it out with (moduleData instanceof Promise)
+        //But this way we are actually being nice to nonnative promise libraries
+        isPromise = isPromiseAlike(moduleData);
+
+      setUp = function (moduleData, moduleName, isPromise) {
+        return function setUp(value) {
+          if (isPromise) {
+            modules[moduleName] = value;
+          } else {
+            modules[moduleName] = moduleData;
+          }
+
+          installModule(moduleName, 'success');
+
+        };
+      }(moduleData, moduleName, isPromise);
+
+      if (isPromise) {
+        moduleData.then(setUp);
+      } else {
+        setUp();
+        // setTimeout(setUp, 0);
+
+
+        // setTimeout(function(value) {
+        //   modules[moduleName] = moduleData;
+        //   installModule(moduleName, 'success');
+        // }, 0);
       }
     }
 
@@ -274,6 +323,7 @@
         moduleUrls[moduleName] = moduleUrl;
       }
 
+      definedModules.push(moduleName);
       moduleDependencies[moduleName] = array.slice();
 
       if (Array.isArray(array) && array.length) {
@@ -284,12 +334,15 @@
           for (; i < len; i += 1) {
             args.push(modules[getFileInfo(array[i]).fileName]);
           }
-          executeModule(moduleName, moduleDefinition, args);
-          installModule(moduleName, 'success');
+          // executeModule(moduleName, moduleDefinition, args);
+          // installModule(moduleName, 'success');
+          setUpModule(moduleName, moduleDefinition, args);
         });
       } else {
-        executeModule(moduleName, moduleDefinition);
-        installModule(moduleName, 'success');
+        setUpModule(moduleName, moduleDefinition);
+
+        //executeModule(moduleName, moduleDefinition);
+        //installModule(moduleName, 'success');
       }
     }
 
@@ -307,10 +360,12 @@
           for (; i < len; i += 1) {
             args.push(modules[getFileInfo(array[i]).fileName]);
           }
-          executeModule(false, fn, args);
+          executeFN(fn, args);
+          // executeModule(false, fn, args);
         });
       } else {
-        executeModule(false, fn);
+        executeFN(fn);
+        // executeModule(false, fn);
       }
     }
 
@@ -346,6 +401,15 @@
       //Nonstandards
       g.use = promiseUse;
 
+      // if DEBUG
+      g.modules = modules;
+      g.installed = installed;
+      g.failedList = failedList;
+      g.waitingList = waitingList;
+      //g.scriptsTiming = scriptsTiming;
+      g.urlCache = urlCache;
+      g.moduleUrls = moduleUrls;
+      // endif
     }
 
     if (baseGlobal && isObject(global[baseGlobal])) {

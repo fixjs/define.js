@@ -1,7 +1,7 @@
 define([],
   function () {
     function Core() {
-      this._version = '0.0.1';
+      this.config = 'conf.json';
     }
 
     Core.prototype.getVersion = function () {

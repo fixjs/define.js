@@ -26,26 +26,22 @@ module.exports = function (grunt) {
         src: 'define.debug.js',
         dest: 'define.js'
       },
-      dist: {
-        src: 'define.debug.js',
-        dest: 'dist/define.js'
-      },
       example_regular: {
         src: 'define.debug.js',
         dest: 'examples/regular-amd-style/define.js'
+          // options: {
+          //   context: {
+          //     DEBUG: true
+          //   }
+          // }
       },
       example_promise: {
         src: 'define.debug.js',
         dest: 'examples/definejs-promise-style/define.js'
       },
-      debugdist: {
+      example_dev: {
         src: 'define.debug.js',
-        dest: 'dist/define.debug.js',
-        options: {
-          context: {
-            DEBUG: true
-          }
-        }
+        dest: 'examples/dev/define.js'
       } //,
       // test: {
       //   src: 'test/define.debug.js',
@@ -68,7 +64,6 @@ module.exports = function (grunt) {
       },
       debug: ['define.debug.js'],
       js: ['define.js'],
-      dist: ['dist/define.debug.js', 'dist/define.js'],
       test: ['test/**/*.js'],
       all: ['define.debug.js', 'define.js', 'Gruntfile.js', 'test/**/*.js']
     },
@@ -78,8 +73,8 @@ module.exports = function (grunt) {
         banner: '/*! DefineJS v<%= pkg.version %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
       },
       build: {
-        src: 'dist/define.js',
-        dest: 'dist/define.min.js'
+        src: 'define.js',
+        dest: 'define.min.js'
       }
     }
   });
@@ -88,25 +83,18 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
 
+  grunt.registerTask('build:examples', [
+    'preprocess:example_regular',
+    'preprocess:example_promise',
+    //'preprocess:example_dev',
+  ]);
+
   grunt.registerTask('build', [
     'jshint:debug',
     'preprocess:js',
-    'preprocess:example_regular',
-    'preprocess:example_promise',
+    'build:examples',
     //'preprocess:node',
-    'jshint:js'
-  ]);
-
-  // grunt.registerTask('test:debug', [
-  //   'preprocess:debugtest',
-  //   'exec:test'
-  // ]);
-
-  grunt.registerTask('build:dist', [
-    'jshint:debug',
-    'preprocess:debugdist',
-    'preprocess:dist',
-    'jshint:dist',
+    'jshint:js',
     'uglify'
   ]);
 

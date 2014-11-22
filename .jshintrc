@@ -21,6 +21,7 @@
     "globals": [
     "it",
     "define",
-    "require"
+    "require",
+    "fix"
     ]
 }
