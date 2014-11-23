@@ -21,11 +21,11 @@ The component can be used as a Common JS module, an AMD module, or a global.
 
 ## API
 ###AMD Module format
-To use DefineJS in your JavaScript code, you could simply add it as a script tag.
+To use DefineJS in your JavaScript code, you could simply add it as a script tag:
 ```
 <script src="define.js"></script>
 ```
-Then you should call the fixDefine function to expose the amd modules functions to your desired global object.
+Then you should call the fixDefine function to expose the amd modules functions to your desired global object:
 ```
 fixDefine(myGlobal);
 ```
