@@ -31,4 +31,8 @@ use(['app'])
 
     console.log('[utils.isObject(null) => ' + utils.isObject(null) + ']');
 
+  })
+  .catch(function (err) {
+    //in case of having a rejected promised module or any async error
+    console.log(error);
   });

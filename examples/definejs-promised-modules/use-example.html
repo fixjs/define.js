@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>DefineJS: Modules promise format</title>
+  <style>
+  body {
+    font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+  }
+  </style>
+  <link href="vendor/prism/prism.css" rel="stylesheet" />
+  <!--Temporary prmise polyfill for browsers that don't support it-->
+  <script src="https://www.promisejs.org/polyfills/promise-6.0.0.min.js"></script>
+</head>
+
+<body>
+  <h1>Note:</h1>
+  <p><strong>This very page loads a working example of DefineJS use syntax along with promised modules.
+  Check out the console to see the logs and the loading process of promised modules.</strong>
+  <p>
+  <h1>use() vs require()</h1>
+  <p>You can also have the same modules flow using a new offered syntax by DefineJS:</p>
+  <p><strong>Note:</strong>we are still discussing all the possible implications of this pattern in JavaScript modular programming. So Any feedback or proposal is really really appreciated.
+  </p>
+  <pre><code class="language-javascript">use(['app'])
+  .then(function (app) {
+    console.log('Before lunch: [app.loaded = ' + app.loaded + ']');
+    return app;
+  })
+  .then(function (app) {
+    app.lunch();
+    return app;
+  })
+  .then(function (app) {
+    console.log('After lunch: [app.loaded = ' + app.loaded + ']');
+
+    //return whatever needed in the next steps
+    return app.core;
+  })
+  .then(function (core) {
+
+    console.log('[core.getVersion() => ' + core.getVersion() + ']');
+
+    return core.utils;
+  })
+  .then(function (utils) {
+
+    console.log('[utils.isObject(null) => ' + utils.isObject(null) + ']');
+
+  })
+  .catch(function (err) {
+    //in case of having a rejected promised module or any async error
+    console.log(error);
+  });</code></pre>
+  <p><a href="use-example.html">Back to Promised Modules example!</a>
+      </p>
+
+  <script global="window" src="define.js"></script>
+  <script src="main-use.js"></script>
+
+  <script src="vendor/prism/prism.js"></script>
+</body>
+
+</html>

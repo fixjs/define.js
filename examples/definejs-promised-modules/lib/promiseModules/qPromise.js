@@ -1,10 +1,13 @@
-define(['conf', 'vendor/q/q'],
-  function (conf, Q) {
+define([
+    'promiseModules/mainPromise',
+    'vendor/q/q'
+  ],
+  function (mainPromise, Q) {
 
     var deferred = Q.defer(),
       req = new XMLHttpRequest();
 
-    req.open('GET', conf.vendor.Q);
+    req.open('GET', mainPromise.vendor.Q);
     req.onreadystatechange = function () {
       if (this.readyState === 4) {
 

@@ -37,7 +37,11 @@ module.exports = function (grunt) {
       },
       example_promise: {
         src: 'define.debug.js',
-        dest: 'examples/definejs-promise-style/define.js'
+        dest: 'examples/definejs-promised-modules/define.js'
+      },
+      example_simple_promised: {
+        src: 'define.debug.js',
+        dest: 'examples/simple-promised-module/define.js'
       },
       example_dev: {
         src: 'define.debug.js',
@@ -86,6 +90,7 @@ module.exports = function (grunt) {
   grunt.registerTask('build:examples', [
     'preprocess:example_regular',
     'preprocess:example_promise',
+    'preprocess:example_simple_promised'
     //'preprocess:example_dev',
   ]);
 

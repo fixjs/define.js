@@ -22,8 +22,7 @@
     "karma-safari-launcher": "~0.1.1"
   },
   "scripts": {
-    "test": "./node_modules/.bin/karma start --browsers PhantomJS --single-run",
-    "install": "cd examples/definejs-promise-style && npm install"
+    "test": "./node_modules/.bin/karma start --browsers PhantomJS --single-run"
   },
   "dependencies": {}
 }
