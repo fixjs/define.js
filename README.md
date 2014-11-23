@@ -59,7 +59,7 @@ Other than regular AMD module pattern, DefineJS also offers couple of nonstandar
 ##Promised Modules
 Using the same AMD module style you can have privileged promise based modules. 
 All you need to do is just returning a promise in your modules, to make them promised modules. 
-To see how it works, just check out the `simple-promised-module example` in the examples folder.
+To see how it works, just check out the [simple-promised-module](https://github.com/fixjs/define.js/tree/master/examples/simple-promised-module) example in the examples folder.
 
 In this example we have a promised module named: promisedModule.js 
 which is responsible to wait for a specific global variable, and serves it as the module's promised value.
