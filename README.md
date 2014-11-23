@@ -29,7 +29,7 @@ Then you should call the fixDefine function to expose the amd modules functions 
 ```
 fixDefine(myGlobal);
 ```
-The easier approach is to pass your desired global object to the global attribute of the script tag:
+The easier way of achieving this, is to pass your desired global object to the `global` attribute of the script tag:
 ```
 <script gloabl="myGlobal" src="define.js"></script>
 ```
