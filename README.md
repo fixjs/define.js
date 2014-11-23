@@ -2,8 +2,6 @@
 
 [![Build Status](https://secure.travis-ci.org/fixjs/define.js.png?branch=master)](http://travis-ci.org/fixjs/define.js)
 
-WORK IN PROGRESS!!
-
 DefineJS is a lightweight implementation of [AMD](https://github.com/amdjs/amdjs-api) module format.
 
 > The Asynchronous Module Definition (AMD) API specifies a mechanism for defining modules such that the module and its dependencies can be asynchronously loaded.
@@ -33,7 +31,7 @@ The easier way of achieving this, is to pass your desired global object to the `
 ```
 <script gloabl="myGlobal" src="define.js"></script>
 ```
-Now you can define and require your modules like:
+Now you can `define` and `require` your modules like:
 ```
 myGlobal.define([/*'dependency'*/], function(/*dependency*/]){
   function moduleFunction(){
