@@ -24,22 +24,20 @@
       baseFileInfo,
       baseUrl = '',
       baseGlobal = '',
-      moduleUrls = {},
       waitingList = {},
       urlCache = {},
-      loadedModules = {},
-      moduleDependencies = {},
-      definedModules = [],
+      definedModules = {},
       modules = {},
       installed = {},
-      failedList = [];
+      //So far we we only capture the failure, we need to define a scenario for failed items
+      failedList = {};
 
     function isObject(obj) {
       return obj === Object(obj);
     }
 
     function isPromiseAlike(object) {
-      return isObject(object) && typeof object.then === "function";
+      return isObject(object) && typeof object.then === 'function';
     }
 
     function getFileInfo(url) {
@@ -162,16 +160,6 @@
       return fnData;
     }
 
-    // function executeModule(moduleName, moduleDefinition, args) {
-    //   var moduleData = executeFN(moduleDefinition, args);
-
-    //   if (moduleName) {
-    //     modules[moduleName] = moduleData;
-    //   }
-
-    //   return moduleData;
-    // }
-
     function installModule(moduleName, status) {
       var callbacks, fn,
         i, len;
@@ -181,7 +169,7 @@
           installed[moduleName] = true;
         }
       } else {
-        failedList.push(moduleName);
+        failedList[moduleName] = true;
       }
 
       callbacks = waitingList[moduleName];
@@ -217,10 +205,7 @@
 
         if (isFirstLoadDemand) {
           getScript(modulePath, function (status) {
-            loadedModules[moduleName] = true;
-
-            //moduleDependencies[moduleName].length
-            if (-1 < definedModules.indexOf(moduleName)) {
+            if (definedModules[moduleName] === true) {
               //Do not need to do anything so far
             } else {
               //This code block allows using this library for regular javascript files
@@ -256,7 +241,7 @@
         //But this way we are actually being nice to nonnative promise libraries
         isPromise = isPromiseAlike(moduleData);
 
-      setUp = function (moduleData, moduleName, isPromise) {
+      setUp = (function (moduleData, moduleName, isPromise) {
         return function setUp(value) {
           if (isPromise) {
             modules[moduleName] = value;
@@ -267,19 +252,13 @@
           installModule(moduleName, 'success');
 
         };
-      }(moduleData, moduleName, isPromise);
+      }(moduleData, moduleName, isPromise));
 
       if (isPromise) {
         moduleData.then(setUp);
       } else {
         setUp();
         // setTimeout(setUp, 0);
-
-
-        // setTimeout(function(value) {
-        //   modules[moduleName] = moduleData;
-        //   installModule(moduleName, 'success');
-        // }, 0);
       }
     }
 
@@ -320,11 +299,9 @@
       if (moduleName === undefined) {
         moduleInfo = getFileInfo(moduleUrl);
         moduleName = moduleInfo.fileName;
-        moduleUrls[moduleName] = moduleUrl;
       }
 
-      definedModules.push(moduleName);
-      moduleDependencies[moduleName] = array.slice();
+      definedModules[moduleName] = true;
 
       if (Array.isArray(array) && array.length) {
         loadModules(array, function () {
@@ -334,15 +311,10 @@
           for (; i < len; i += 1) {
             args.push(modules[getFileInfo(array[i]).fileName]);
           }
-          // executeModule(moduleName, moduleDefinition, args);
-          // installModule(moduleName, 'success');
           setUpModule(moduleName, moduleDefinition, args);
         });
       } else {
         setUpModule(moduleName, moduleDefinition);
-
-        //executeModule(moduleName, moduleDefinition);
-        //installModule(moduleName, 'success');
       }
     }
 
@@ -361,17 +333,30 @@
             args.push(modules[getFileInfo(array[i]).fileName]);
           }
           executeFN(fn, args);
-          // executeModule(false, fn, args);
         });
       } else {
         executeFN(fn);
-        // executeModule(false, fn);
       }
     }
 
     function promiseUse(array) {
-      return new Promise(function (fulfill, reject) {
+      return new Promise(function (fulfill) {
+        //this function accepts two params: fulfill, reject
+
         fxrequire(array, fulfill);
+
+        //FIXME: think of a useful pattern for promised module rejection
+
+        console.log('Great to see that you are using this function on DefineJS (https://www.npmjs.org/package/definejs)');
+        console.log('This function provides a way of requiring your defined modules using a Promise based coding style.');
+        console.log('Actually as you might have noticed we are actively extending this module loader, and that\'s why we need your feedback on this.');
+        console.log('You could join the chat room on Gitter (https://gitter.im/fixjs/define.js) and provide us with your great ideas and feedbacks.');
+
+        /*
+         * OPEN DISCUSSION:
+         * module rejection could offer a cool pattern when developing new modules
+         * but we first need to have the community's feedback on this
+         */
       });
     }
 
@@ -401,19 +386,11 @@
       //Nonstandards
       g.use = promiseUse;
 
-      // if DEBUG
-      g.modules = modules;
-      g.installed = installed;
-      g.failedList = failedList;
-      g.waitingList = waitingList;
-      //g.scriptsTiming = scriptsTiming;
-      g.urlCache = urlCache;
-      g.moduleUrls = moduleUrls;
-      // endif
     }
 
     if (baseGlobal && isObject(global[baseGlobal])) {
       fixDefine(global[baseGlobal]);
+      fixDefine._exposed = true;
     }
 
     return fixDefine;
@@ -424,6 +401,9 @@
   } else if (typeof define === 'function' && define.amd) {
     define([], defineModuleDefinition);
   } else {
-    global.fixDefine = defineModuleDefinition();
+    var moduleFN = defineModuleDefinition();
+    if (!moduleFN._exposed) {
+      global.fixDefine = moduleFN;
+    }
   }
 }(this));
