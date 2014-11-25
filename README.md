@@ -1,4 +1,5 @@
 # DefineJS
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/fixjs/define.js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![Build Status](https://secure.travis-ci.org/fixjs/define.js.png?branch=master)](http://travis-ci.org/fixjs/define.js)
 
@@ -29,7 +30,7 @@ fixDefine(myGlobal);
 ```
 The easier way of achieving this, is to pass your desired global object to the `global` attribute of the script tag:
 ```
-<script gloabl="myGlobal" src="define.js"></script>
+<script global="myGlobal" src="define.js"></script>
 ```
 Now you can `define` and `require` your modules like:
 ```
@@ -48,7 +49,7 @@ myGlobal.require([/*'moduleName'*/], function(/*moduleName*/]){
 ###Global define and require functions
 To use AMD module definition functions(define and require) like what you have seen so far, as global functions, you could simply add the script tag like:
 ```
-<script gloabl="window" src="define.js"></script>
+<script global="window" src="define.js"></script>
 ```
 Then it could load any standard amd modules in your page.
 
