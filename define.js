@@ -1,9 +1,10 @@
 /**
  * DefineJS v0.2.2
- * Copyright (c) 2014 Mehran Hatami and define.js contributors.
+ * Copyright (c) 2014 Mehran Hatami and other define.js contributors.
  * Available via the MIT license.
  * license found at http://github.com/fixjs/define.js/raw/master/LICENSE
  */
+
 (function (global, undefined) {
   // FIX ME! IE9 can give issues in strict mode!
   'use strict'; 
@@ -21,7 +22,12 @@
       currentScript = document.currentScript,
       isArray = Array.isArray,
       emptyArray = [],
-      options = {},
+      // Mehran!! You need a couple of pre-defined options to avoid
+      // the script from throwing in a couple of browsers
+      options = {
+          
+          // paths:  *-- Define default path or set to 'null
+      },
       files = {},
       baseFileInfo,
       baseUrl = '',
@@ -43,6 +49,10 @@
       return isObject(object) && typeof object.then === 'function';
     }
 
+// Mehran! Slow performance!! Steal ECMA7 shim from hAzzleJS,
+// and use it instead of indexOf, and reduce 'substring' usage.'
+// Nasty looking code !! :)
+
     function getFileInfo(url) {
       var info = files[url],
         ind;
@@ -51,8 +61,8 @@
 
         ind = url.indexOf('#');
         if (-1 < ind) {
-          info.hash = url.substring(ind);
-          url = url.substring(0, ind);
+          info.hash = url.substring(ind); // This code are similar to line #70. Cache and re-use !!
+          url = url.substring(0, ind);  // This code are similar to line #71. Cache and re-use !!
         }
 
         ind = url.indexOf('?');
@@ -109,7 +119,9 @@
           }
         }
       }
-
+    
+    // Mehran! Is substring best alternative? Tried e.g. mehran[0] or charAt() ???
+    
       if (url.substring(url.length - 1) !== '/' &&
         modulePath.substring(0, 1) !== '/') {
         url += '/';
@@ -130,11 +142,28 @@
     }
     
     // FIX ME! Need evalution. Loading JS files likes this need to
-    // be re-written.
-    
+    // be re-written. Main reason of memory leaks and no way here to 
+    // remove the added listeneres after script are loaded
+        
     function getScript(url, callback) {
-      var el = doc.createElement('script');
-
+        
+      var el = doc.createElement('script'),
+      func = function (e) {
+        //dependency is loaded successfully
+        if (typeof callback === 'function') {
+          callback('success');
+        }
+      };
+    
+    /* Mehran! You should add a remover for this one too, and make sure it get triggerd
+     * only once
+     * Also consider this things:
+     *
+     * - Events currentTarget (e.g. var node = evt.currentTarget || evt.srcElement; )
+     * - onreadystatechange
+     *
+     */
+    
       el.addEventListener('error', function (e) {
         //missing dependency
         console.error('The script ' + e.target.src + ' is not accessible.');
@@ -142,15 +171,25 @@
           callback('error');
         }
       });
+      
+      // Load the scripts
+      
+      el.addEventListener('load', func, /*no bubbles*/ false);
 
-      el.addEventListener('load', function (e) {
-        //dependency is loaded successfully
-        if (typeof callback === 'function') {
-          callback('success');
-        }
-      });
-      doc.head.appendChild(el);
-      el.src = getUrl(url);
+     // HTML5 spec, not supported in IE9 and older
+     // If you use hAzzleJS here or DOM Level 4 specs no worries 
+     // about this things
+     
+     doc.head.appendChild(el);
+
+     el.src = getUrl(url);
+      
+     // Remove the listeners once here.
+     
+     // MEHRAN !! You should favor detachEvent because of #IE9 issue, or do a check and do both
+     // Make sure it's not Opera then, else it will throw!
+    
+      el.removeEventListener('load', func, false);
     }
 
     function executeFN(fn, args) {
