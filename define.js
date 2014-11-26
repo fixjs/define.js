@@ -5,7 +5,8 @@
  * license found at http://github.com/fixjs/define.js/raw/master/LICENSE
  */
 (function (global, undefined) {
-  'use strict';
+  // FIX ME! IE9 can give issues in strict mode!
+  'use strict'; 
 
   //polyfills
   if (!Array.isArray) {
@@ -18,6 +19,7 @@
     var
       doc = global.document,
       currentScript = document.currentScript,
+      isArray = Array.isArray,
       emptyArray = [],
       options = {},
       files = {},
@@ -33,7 +35,8 @@
       failedList = {};
 
     function isObject(obj) {
-      return obj === Object(obj);
+      // http://jsperf.com/isobject4
+    return value !== null && typeof value === 'object';
     }
 
     function isPromiseAlike(object) {
@@ -119,13 +122,16 @@
       return url;
     }
 
-    //phantomjs does not provide the "currentScript" property in global document object
+    // Phantomjs does not provide the "currentScript" property in global document object
     if (currentScript !== undefined) {
       baseFileInfo = getFileInfo(currentScript.src);
       baseUrl = currentScript.getAttribute('base') || baseFileInfo.filePath;
       baseGlobal = currentScript.getAttribute('global');
     }
-
+    
+    // FIX ME! Need evalution. Loading JS files likes this need to
+    // be re-written.
+    
     function getScript(url, callback) {
       var el = doc.createElement('script');
 
@@ -149,7 +155,7 @@
 
     function executeFN(fn, args) {
       var fnData;
-      if (!Array.isArray(args)) {
+      if (!isArray(args)) {
         args = emptyArray;
       }
 
@@ -162,7 +168,7 @@
 
     function installModule(moduleName, status) {
       var callbacks, fn,
-        i, len;
+        i = 0, len;
 
       if (status === 'success') {
         if (!installed[moduleName]) {
@@ -174,12 +180,12 @@
 
       callbacks = waitingList[moduleName];
 
-      if (Array.isArray(callbacks)) {
-        i = 0;
+      if (isArray(callbacks)) {
         len = callbacks.length;
 
         for (; i < len; i += 1) {
           fn = callbacks[i];
+      // try / catch slow, need a workaround
           try {
             fn(status);
           } catch (ignored) {}
@@ -196,7 +202,7 @@
       if (installed[moduleName]) {
         callback(modules[moduleName]);
       } else {
-        if (!Array.isArray(waitingList[moduleName])) {
+        if (!isArray(waitingList[moduleName])) {
           waitingList[moduleName] = [];
           isFirstLoadDemand = true;
         }
@@ -233,7 +239,8 @@
         loadModule(array[i], pCallback);
       }
     }
-
+   // TODO! Maybe add 'window.Promise' as default, with option for 3Party Promise lib
+   // When we are talking about performance
     function setUpModule(moduleName, moduleDefinition, args) {
       var moduleData = executeFN(moduleDefinition, args),
         setUp,
@@ -270,7 +277,7 @@
         array = emptyArray;
       }
       //define(array, moduleDefinition)
-      else if (Array.isArray(moduleName)) {
+      else if (isArray(moduleName)) {
         moduleDefinition = array;
         array = moduleName;
         moduleName = undefined;
@@ -303,7 +310,7 @@
 
       definedModules[moduleName] = true;
 
-      if (Array.isArray(array) && array.length) {
+      if (isArray(array) && array.length) {
         loadModules(array, function () {
           var args = [],
             i = 0,
@@ -324,7 +331,7 @@
         return;
       }
 
-      if (Array.isArray(array) && array.length) {
+      if (isArray(array) && array.length) {
         loadModules(array, function () {
           var args = [],
             i = 0,
@@ -346,7 +353,8 @@
         fxrequire(array, fulfill);
 
         //FIXME: think of a useful pattern for promised module rejection
-
+        // Alternative solution: Use native browser promises if supported. See my earlier comment
+        
         console.log('Great to see that you are using this function on DefineJS (https://www.npmjs.org/package/definejs)');
         console.log('This function provides a way of requiring your defined modules using a Promise based coding style.');
         console.log('Actually as you might have noticed we are actively extending this module loader, and that\'s why we need your feedback on this.');
@@ -364,7 +372,7 @@
       if (!isObject(cnfOptions)) {
         return;
       }
-
+     // Native ( in / for ) loop are faster then Object.keys solution (14%)
       var keys = Object.keys(cnfOptions),
         len = keys.length,
         i = 0;
