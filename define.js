@@ -44,10 +44,14 @@
       // http://jsperf.com/isobject4
     return value !== null && typeof value === 'object';
     }
-
-    function isPromiseAlike(object) {
-      return isObject(object) && typeof object.then === 'function';
+    
+    function isFunction(value) {
+        return typeof value === 'function';
     }
+
+    function isPromiseLike(object) {
+         return obj && isFunction(obj.then);
+   }
 
 // Mehran! Slow performance!! Steal ECMA7 shim from hAzzleJS,
 // and use it instead of indexOf, and reduce 'substring' usage.'
@@ -97,7 +101,7 @@
 
       urlArgs = (typeof options.urlArgs === 'string') ?
         ('?' + options.urlArgs) :
-        (typeof options.urlArgs === 'function') ? ('?' + options.urlArgs()) : '';
+        (isFunction(options.urlArgs)) ? ('?' + options.urlArgs()) : '';
 
       if (options.baseUrl) {
         url = options.baseUrl;
@@ -150,7 +154,7 @@
       var el = doc.createElement('script'),
       func = function (e) {
         //dependency is loaded successfully
-        if (typeof callback === 'function') {
+        if (isFunction(typeof callback)) {
           callback('success');
         }
       };
@@ -167,7 +171,7 @@
       el.addEventListener('error', function (e) {
         //missing dependency
         console.error('The script ' + e.target.src + ' is not accessible.');
-        if (typeof callback === 'function') {
+        if (isFunction(callback)) {
           callback('error');
         }
       });
@@ -269,7 +273,7 @@
 
       function pCallback(status) {
         loaded.push(status);
-        if (loaded.length === len && typeof callback === 'function') {
+        if (loaded.length === len && isFunction(callback)) {
           callback(loaded);
         }
       }
@@ -285,7 +289,7 @@
         setUp,
         //we could have checked it out with (moduleData instanceof Promise)
         //But this way we are actually being nice to nonnative promise libraries
-        isPromise = isPromiseAlike(moduleData);
+        isPromise = isPromiseLike(moduleData);
 
       setUp = (function (moduleData, moduleName, isPromise) {
         return function setUp(value) {
@@ -310,7 +314,7 @@
 
     function fxdefine(moduleName, array, moduleDefinition) {
       //define(moduleDefinition)
-      if (typeof moduleName === 'function') {
+      if (isFunction(moduleName)) {
         moduleDefinition = moduleName;
         moduleName = undefined;
         array = emptyArray;
@@ -328,13 +332,13 @@
        */
       else if (typeof moduleName === 'string') {
         //define(moduleName, moduleDefinition)
-        if (typeof array === 'function') {
+        if (isFunction(array)) {
           moduleDefinition = array;
           array = emptyArray;
         }
       }
 
-      if (typeof moduleDefinition !== 'function') {
+      if (!isFunction(moduleDefinition)) {
         console.error('Invalid input parameter to define a module');
         return;
       }
@@ -365,7 +369,7 @@
     }
 
     function fxrequire(array, fn) {
-      if (typeof fn !== 'function') {
+      if (!isFunction(fn)) {
         console.error('Invalid input parameter to require a module');
         return;
       }
@@ -445,7 +449,7 @@
 
   if (typeof exports === 'object') {
     module.exports = defineModuleDefinition();
-  } else if (typeof define === 'function' && define.amd) {
+  } else if (isFunction(define) && define.amd) {
     define([], defineModuleDefinition);
   } else {
     var moduleFN = defineModuleDefinition();
