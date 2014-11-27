@@ -17,17 +17,18 @@
   function defineModuleDefinition() {
     var
       doc = global.document,
+      isOldOpera = typeof global.opera !== 'undefined' && global.opera.toString() === '[object Opera]',
       currentScript = document.currentScript,
       emptyArray = [],
-      options = {},
-      files = {},
+      options = {
+        paths: null
+      },
       // @if DEBUG
       scriptsTiming = {
         timeStamp: {},
         scripts: {}
       },
       // @endif
-      baseFileInfo,
       baseUrl = '',
       baseGlobal = '',
       waitingList = {},
@@ -36,49 +37,45 @@
       modules = {},
       installed = {},
       //So far we we only capture the failure, we need to define a scenario for failed items
-      failedList = {};
+      failedList = {},
+      files = {},
+      cleanUrlRgx = /[\?|#]([^]*)$/,
+      fileNameRgx = /\/([^/]*)$/,
+      cleanExtRgx = /.*?(?=\.|$)/,
+      filePathRgx = /^(.*[\\\/])/,
+      readyStateLoadedRgx = /^(complete|loaded)$/,
+
+      baseElement,
+      head;
 
     function isObject(obj) {
-      return obj === Object(obj);
+      return obj !== null && typeof obj === 'object';
     }
 
     function isPromiseAlike(object) {
       return isObject(object) && typeof object.then === 'function';
     }
 
-    function getFileInfo(url) {
-      var info = files[url],
-        ind;
-      if (!isObject(info)) {
-        info = {};
-
-        ind = url.indexOf('#');
-        if (-1 < ind) {
-          info.hash = url.substring(ind);
-          url = url.substring(0, ind);
-        }
-
-        ind = url.indexOf('?');
-        if (-1 < ind) {
-          info.search = url.substring(ind);
-          url = url.substring(0, ind);
-        }
-
-        info.fileName = url.substring(url.lastIndexOf('/') + 1);
-        ind = info.fileName.lastIndexOf('.');
-        if (-1 < ind) {
-          info.ext = info.fileName.substring(ind);
-          info.fileName = info.fileName.substring(0, ind);
-        }
-        info.filePath = url.substring(0, url.lastIndexOf('/') + 1);
-        files[url] = info;
+    function getFileName(url) {
+      var fileName = files[url],
+        matchResult;
+      if (typeof fileName === 'string') {
+        return fileName;
       }
-      return info;
+      url = url.replace(cleanUrlRgx, '');
+      matchResult = url.match(fileNameRgx);
+      if (matchResult) {
+        fileName = matchResult[1];
+      } else {
+        fileName = url;
+      }
+      fileName = fileName.match(cleanExtRgx)[0];
+      files[url] = fileName;
+      return fileName;
     }
 
     function getUrl(modulePath) {
-      var moduleInfo = getFileInfo(modulePath),
-        moduleName = moduleInfo.fileName,
+      var moduleName = getFileName(modulePath),
         url,
         urlArgs,
         path,
@@ -113,8 +110,7 @@
         }
       }
 
-      if (url.substring(url.length - 1) !== '/' &&
-        modulePath.substring(0, 1) !== '/') {
+      if (url.charAt(url.length - 1) !== '/' && modulePath.charAt(0) !== '/') {
         url += '/';
       }
 
@@ -127,35 +123,95 @@
 
     //phantomjs does not provide the "currentScript" property in global document object
     if (currentScript !== undefined) {
-      baseFileInfo = getFileInfo(currentScript.src);
-      baseUrl = currentScript.getAttribute('base') || baseFileInfo.filePath;
+      baseUrl = currentScript.getAttribute('base') || currentScript.src.match(filePathRgx)[1];
       baseGlobal = currentScript.getAttribute('global');
     }
 
+    //script injection when using BASE tag is now supported
+    head = doc.getElementsByTagName('head')[0];
+    baseElement = doc.getElementsByTagName('base')[0];
+    if (baseElement) {
+      head = baseElement.parentNode;
+    }
+
+    function createScript() {
+      var el;
+      //in case DefineJS were used along with something like svg in XML based use-cases 
+      if (options.xhtml) {
+        el = doc.createElementNS('http://www.w3.org/1999/xhtml', 'script');
+      } else {
+        el = doc.createElement('script');
+      }
+
+      //Do we really need to set the async attribute to "true"?
+      //So far its default value in all the browsers I have tested is "true"
+      //so I put it here to make sure in case of any unforseen situations
+      el.async = true;
+
+      //As Douglas says: Since Netscape 2, the default programming language in all browsers has been JavaScript.
+      //In XHTML, this attribute is required and unnecessary.
+      //In HTML, it is better to leave it out. The browser knows what to do.
+      //So that, We don't need to specify the default value of "type" attribute
+      if (options.scriptType && options.scriptType !== 'text/javascript') {
+        el.type = options.scriptType;
+      }
+      el.charset = 'utf-8';
+      return el;
+    }
+
+    function loadFN(callback, url) {
+      return function fn(e) {
+        var el = e.currentTarget || e.srcElement;
+        if (e.type === 'load' || readyStateLoadedRgx.test(el.readyState)) {
+          // @if DEBUG
+          if (options.captureTiming) {
+            scriptsTiming.timeStamp[e.timeStamp] = url;
+            scriptsTiming.scripts[url].loadedAt = e.timeStamp;
+          }
+          // @endif
+          //dependency is loaded successfully
+          if (typeof callback === 'function') {
+            callback('success');
+          }
+        }
+        if (el.detachEvent && !isOldOpera) {
+          el.detachEvent('onreadystatechange', fn);
+        } else {
+          el.removeEventListener('load', fn, false);
+        }
+      };
+    }
+
+    function errorFN(callback) {
+      return function fn(e) {
+        var el = e.currentTarget || e.srcElement;
+        if (e.type === 'load' || readyStateLoadedRgx.test(el.readyState)) {
+          if (typeof callback === 'function') {
+            callback('error');
+          }
+        }
+        if (typeof el.removeEventListener === 'function') {
+          el.removeEventListener('error', fn, false);
+        }
+      };
+    }
+
     function getScript(url, callback) {
-      var el = doc.createElement('script');
+      var el = createScript(),
+        scriptUrl = getUrl(url);
 
-      el.addEventListener('error', function (e) {
-        //missing dependency
-        console.error('The script ' + e.target.src + ' is not accessible.');
-        if (typeof callback === 'function') {
-          callback('error');
-        }
-      });
+      if (el.attachEvent && !isOldOpera) {
+        el.attachEvent('onreadystatechange', loadFN(callback, scriptUrl));
+      } else {
+        el.addEventListener('load', loadFN(callback, scriptUrl), false);
+        el.addEventListener('error', errorFN(callback), false);
+      }
 
-      el.addEventListener('load', function (e) {
-        // @if DEBUG
-        if (options.captureTiming) {
-          scriptsTiming.timeStamp[e.timeStamp] = url;
-          scriptsTiming.scripts[url].loadedAt = e.timeStamp;
-        }
-        // @endif
-        //dependency is loaded successfully
-        if (typeof callback === 'function') {
-          callback('success');
-        }
-      });
-      doc.head.appendChild(el);
+      if (baseElement) {
+        head.insertBefore(el, baseElement);
+      } else {
+        head.appendChild(el);
+      }
       // @if DEBUG
       if (options.captureTiming) {
         scriptsTiming.scripts[url] = {
@@ -163,7 +219,7 @@
         };
       }
       // @endif
-      el.src = getUrl(url);
+      el.src = scriptUrl;
     }
 
     function executeFN(fn, args) {
@@ -209,8 +265,7 @@
 
     function loadModule(modulePath, callback) {
       var isFirstLoadDemand = false,
-        moduleInfo = getFileInfo(modulePath),
-        moduleName = moduleInfo.fileName;
+        moduleName = getFileName(modulePath);
 
       if (installed[moduleName]) {
         callback(modules[moduleName]);
@@ -312,12 +367,8 @@
         return;
       }
 
-      var moduleUrl = document.currentScript.src,
-        moduleInfo = getFileInfo(document.currentScript.src);
-
       if (moduleName === undefined) {
-        moduleInfo = getFileInfo(moduleUrl);
-        moduleName = moduleInfo.fileName;
+        moduleName = getFileName(document.currentScript.src);
       }
 
       definedModules[moduleName] = true;
@@ -328,7 +379,7 @@
             i = 0,
             len = array.length;
           for (; i < len; i += 1) {
-            args.push(modules[getFileInfo(array[i]).fileName]);
+            args.push(modules[getFileName(array[i])]);
           }
           setUpModule(moduleName, moduleDefinition, args);
         });
@@ -349,7 +400,7 @@
             i = 0,
             len = array.length;
           for (; i < len; i += 1) {
-            args.push(modules[getFileInfo(array[i]).fileName]);
+            args.push(modules[getFileName(array[i])]);
           }
           executeFN(fn, args);
         });
@@ -384,13 +435,12 @@
         return;
       }
 
-      var keys = Object.keys(cnfOptions),
-        len = keys.length,
-        i = 0;
+      var key;
 
-      while (i < len) {
-        options[keys[i]] = cnfOptions[keys[i]];
-        i++;
+      for(key in cnfOptions){
+        if(cnfOptions.hasOwnProperty(key)){
+          options[key] = cnfOptions[key];
+        }
       }
     }
 

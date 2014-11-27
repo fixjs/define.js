@@ -1,13 +1,11 @@
 /**
  * DefineJS v0.2.2
- * Copyright (c) 2014 Mehran Hatami and other define.js contributors.
+ * Copyright (c) 2014 Mehran Hatami and define.js contributors.
  * Available via the MIT license.
  * license found at http://github.com/fixjs/define.js/raw/master/LICENSE
  */
-
 (function (global, undefined) {
-  // FIX ME! IE9 can give issues in strict mode!
-  'use strict'; 
+  'use strict';
 
   //polyfills
   if (!Array.isArray) {
@@ -19,17 +17,12 @@
   function defineModuleDefinition() {
     var
       doc = global.document,
+      isOldOpera = typeof global.opera !== 'undefined' && global.opera.toString() === '[object Opera]',
       currentScript = document.currentScript,
-      isArray = Array.isArray,
       emptyArray = [],
-      // Mehran!! You need a couple of pre-defined options to avoid
-      // the script from throwing in a couple of browsers
       options = {
-          
-          // paths:  *-- Define default path or set to 'null
+        paths: null
       },
-      files = {},
-      baseFileInfo,
       baseUrl = '',
       baseGlobal = '',
       waitingList = {},
@@ -38,54 +31,45 @@
       modules = {},
       installed = {},
       //So far we we only capture the failure, we need to define a scenario for failed items
-      failedList = {};
+      failedList = {},
+      files = {},
+      cleanUrlRgx = /[\?|#]([^]*)$/,
+      fileNameRgx = /\/([^/]*)$/,
+      cleanExtRgx = /.*?(?=\.|$)/,
+      filePathRgx = /^(.*[\\\/])/,
+      readyStateLoadedRgx = /^(complete|loaded)$/,
+
+      baseElement,
+      head;
 
     function isObject(obj) {
-      // http://jsperf.com/isobject4
-    return value !== null && typeof value === 'object';
+      return obj !== null && typeof obj === 'object';
     }
 
     function isPromiseAlike(object) {
       return isObject(object) && typeof object.then === 'function';
     }
 
-// Mehran! Slow performance!! Steal ECMA7 shim from hAzzleJS,
-// and use it instead of indexOf, and reduce 'substring' usage.'
-// Nasty looking code !! :)
-
-    function getFileInfo(url) {
-      var info = files[url],
-        ind;
-      if (!isObject(info)) {
-        info = {};
-
-        ind = url.indexOf('#');
-        if (-1 < ind) {
-          info.hash = url.substring(ind); // This code are similar to line #70. Cache and re-use !!
-          url = url.substring(0, ind);  // This code are similar to line #71. Cache and re-use !!
-        }
-
-        ind = url.indexOf('?');
-        if (-1 < ind) {
-          info.search = url.substring(ind);
-          url = url.substring(0, ind);
-        }
-
-        info.fileName = url.substring(url.lastIndexOf('/') + 1);
-        ind = info.fileName.lastIndexOf('.');
-        if (-1 < ind) {
-          info.ext = info.fileName.substring(ind);
-          info.fileName = info.fileName.substring(0, ind);
-        }
-        info.filePath = url.substring(0, url.lastIndexOf('/') + 1);
-        files[url] = info;
+    function getFileName(url) {
+      var fileName = files[url],
+        matchResult;
+      if (typeof fileName === 'string') {
+        return fileName;
       }
-      return info;
+      url = url.replace(cleanUrlRgx, '');
+      matchResult = url.match(fileNameRgx);
+      if (matchResult) {
+        fileName = matchResult[1];
+      } else {
+        fileName = url;
+      }
+      fileName = fileName.match(cleanExtRgx)[0];
+      files[url] = fileName;
+      return fileName;
     }
 
     function getUrl(modulePath) {
-      var moduleInfo = getFileInfo(modulePath),
-        moduleName = moduleInfo.fileName,
+      var moduleName = getFileName(modulePath),
         url,
         urlArgs,
         path,
@@ -119,11 +103,8 @@
           }
         }
       }
-    
-    // Mehran! Is substring best alternative? Tried e.g. mehran[0] or charAt() ???
-    
-      if (url.substring(url.length - 1) !== '/' &&
-        modulePath.substring(0, 1) !== '/') {
+
+      if (url.charAt(url.length - 1) !== '/' && modulePath.charAt(0) !== '/') {
         url += '/';
       }
 
@@ -134,67 +115,97 @@
       return url;
     }
 
-    // Phantomjs does not provide the "currentScript" property in global document object
+    //phantomjs does not provide the "currentScript" property in global document object
     if (currentScript !== undefined) {
-      baseFileInfo = getFileInfo(currentScript.src);
-      baseUrl = currentScript.getAttribute('base') || baseFileInfo.filePath;
+      baseUrl = currentScript.getAttribute('base') || currentScript.src.match(filePathRgx)[1];
       baseGlobal = currentScript.getAttribute('global');
     }
-    
-    // FIX ME! Need evalution. Loading JS files likes this need to
-    // be re-written. Main reason of memory leaks and no way here to 
-    // remove the added listeneres after script are loaded
-        
-    function getScript(url, callback) {
-        
-      var el = doc.createElement('script'),
-      func = function (e) {
-        //dependency is loaded successfully
-        if (typeof callback === 'function') {
-          callback('success');
+
+    //script injection when using BASE tag is now supported
+    head = doc.getElementsByTagName('head')[0];
+    baseElement = doc.getElementsByTagName('base')[0];
+    if (baseElement) {
+      head = baseElement.parentNode;
+    }
+
+    function createScript() {
+      var el;
+      //in case DefineJS were used along with something like svg in XML based use-cases 
+      if (options.xhtml) {
+        el = doc.createElementNS('http://www.w3.org/1999/xhtml', 'script');
+      } else {
+        el = doc.createElement('script');
+      }
+
+      //Do we really need to set the async attribute to "true"?
+      //So far its default value in all the browsers I have tested is "true"
+      //so I put it here to make sure in case of any unforseen situations
+      el.async = true;
+
+      //As Douglas says: Since Netscape 2, the default programming language in all browsers has been JavaScript.
+      //In XHTML, this attribute is required and unnecessary.
+      //In HTML, it is better to leave it out. The browser knows what to do.
+      //So that, We don't need to specify the default value of "type" attribute
+      if (options.scriptType && options.scriptType !== 'text/javascript') {
+        el.type = options.scriptType;
+      }
+      el.charset = 'utf-8';
+      return el;
+    }
+
+    function loadFN(callback, url) {
+      return function fn(e) {
+        var el = e.currentTarget || e.srcElement;
+        if (e.type === 'load' || readyStateLoadedRgx.test(el.readyState)) {
+          //dependency is loaded successfully
+          if (typeof callback === 'function') {
+            callback('success');
+          }
+        }
+        if (el.detachEvent && !isOldOpera) {
+          el.detachEvent('onreadystatechange', fn);
+        } else {
+          el.removeEventListener('load', fn, false);
         }
       };
-    
-    /* Mehran! You should add a remover for this one too, and make sure it get triggerd
-     * only once
-     * Also consider this things:
-     *
-     * - Events currentTarget (e.g. var node = evt.currentTarget || evt.srcElement; )
-     * - onreadystatechange
-     *
-     */
-    
-      el.addEventListener('error', function (e) {
-        //missing dependency
-        console.error('The script ' + e.target.src + ' is not accessible.');
-        if (typeof callback === 'function') {
-          callback('error');
+    }
+
+    function errorFN(callback) {
+      return function fn(e) {
+        var el = e.currentTarget || e.srcElement;
+        if (e.type === 'load' || readyStateLoadedRgx.test(el.readyState)) {
+          if (typeof callback === 'function') {
+            callback('error');
+          }
         }
-      });
-      
-      // Load the scripts
-      
-      el.addEventListener('load', func, /*no bubbles*/ false);
+        if (typeof el.removeEventListener === 'function') {
+          el.removeEventListener('error', fn, false);
+        }
+      };
+    }
 
-     // HTML5 spec, not supported in IE9 and older
-     // If you use hAzzleJS here or DOM Level 4 specs no worries 
-     // about this things
-     
-     doc.head.appendChild(el);
+    function getScript(url, callback) {
+      var el = createScript(),
+        scriptUrl = getUrl(url);
 
-     el.src = getUrl(url);
-      
-     // Remove the listeners once here.
-     
-     // MEHRAN !! You should favor detachEvent because of #IE9 issue, or do a check and do both
-     // Make sure it's not Opera then, else it will throw!
-    
-      el.removeEventListener('load', func, false);
+      if (el.attachEvent && !isOldOpera) {
+        el.attachEvent('onreadystatechange', loadFN(callback, scriptUrl));
+      } else {
+        el.addEventListener('load', loadFN(callback, scriptUrl), false);
+        el.addEventListener('error', errorFN(callback), false);
+      }
+
+      if (baseElement) {
+        head.insertBefore(el, baseElement);
+      } else {
+        head.appendChild(el);
+      }
+      el.src = scriptUrl;
     }
 
     function executeFN(fn, args) {
       var fnData;
-      if (!isArray(args)) {
+      if (!Array.isArray(args)) {
         args = emptyArray;
       }
 
@@ -207,7 +218,7 @@
 
     function installModule(moduleName, status) {
       var callbacks, fn,
-        i = 0, len;
+        i, len;
 
       if (status === 'success') {
         if (!installed[moduleName]) {
@@ -219,12 +230,12 @@
 
       callbacks = waitingList[moduleName];
 
-      if (isArray(callbacks)) {
+      if (Array.isArray(callbacks)) {
+        i = 0;
         len = callbacks.length;
 
         for (; i < len; i += 1) {
           fn = callbacks[i];
-      // try / catch slow, need a workaround
           try {
             fn(status);
           } catch (ignored) {}
@@ -235,13 +246,12 @@
 
     function loadModule(modulePath, callback) {
       var isFirstLoadDemand = false,
-        moduleInfo = getFileInfo(modulePath),
-        moduleName = moduleInfo.fileName;
+        moduleName = getFileName(modulePath);
 
       if (installed[moduleName]) {
         callback(modules[moduleName]);
       } else {
-        if (!isArray(waitingList[moduleName])) {
+        if (!Array.isArray(waitingList[moduleName])) {
           waitingList[moduleName] = [];
           isFirstLoadDemand = true;
         }
@@ -278,8 +288,7 @@
         loadModule(array[i], pCallback);
       }
     }
-   // TODO! Maybe add 'window.Promise' as default, with option for 3Party Promise lib
-   // When we are talking about performance
+
     function setUpModule(moduleName, moduleDefinition, args) {
       var moduleData = executeFN(moduleDefinition, args),
         setUp,
@@ -316,7 +325,7 @@
         array = emptyArray;
       }
       //define(array, moduleDefinition)
-      else if (isArray(moduleName)) {
+      else if (Array.isArray(moduleName)) {
         moduleDefinition = array;
         array = moduleName;
         moduleName = undefined;
@@ -339,23 +348,19 @@
         return;
       }
 
-      var moduleUrl = document.currentScript.src,
-        moduleInfo = getFileInfo(document.currentScript.src);
-
       if (moduleName === undefined) {
-        moduleInfo = getFileInfo(moduleUrl);
-        moduleName = moduleInfo.fileName;
+        moduleName = getFileName(document.currentScript.src);
       }
 
       definedModules[moduleName] = true;
 
-      if (isArray(array) && array.length) {
+      if (Array.isArray(array) && array.length) {
         loadModules(array, function () {
           var args = [],
             i = 0,
             len = array.length;
           for (; i < len; i += 1) {
-            args.push(modules[getFileInfo(array[i]).fileName]);
+            args.push(modules[getFileName(array[i])]);
           }
           setUpModule(moduleName, moduleDefinition, args);
         });
@@ -370,13 +375,13 @@
         return;
       }
 
-      if (isArray(array) && array.length) {
+      if (Array.isArray(array) && array.length) {
         loadModules(array, function () {
           var args = [],
             i = 0,
             len = array.length;
           for (; i < len; i += 1) {
-            args.push(modules[getFileInfo(array[i]).fileName]);
+            args.push(modules[getFileName(array[i])]);
           }
           executeFN(fn, args);
         });
@@ -392,8 +397,7 @@
         fxrequire(array, fulfill);
 
         //FIXME: think of a useful pattern for promised module rejection
-        // Alternative solution: Use native browser promises if supported. See my earlier comment
-        
+
         console.log('Great to see that you are using this function on DefineJS (https://www.npmjs.org/package/definejs)');
         console.log('This function provides a way of requiring your defined modules using a Promise based coding style.');
         console.log('Actually as you might have noticed we are actively extending this module loader, and that\'s why we need your feedback on this.');
@@ -411,14 +415,13 @@
       if (!isObject(cnfOptions)) {
         return;
       }
-     // Native ( in / for ) loop are faster then Object.keys solution (14%)
-      var keys = Object.keys(cnfOptions),
-        len = keys.length,
-        i = 0;
 
-      while (i < len) {
-        options[keys[i]] = cnfOptions[keys[i]];
-        i++;
+      var key;
+
+      for(key in cnfOptions){
+        if(cnfOptions.hasOwnProperty(key)){
+          options[key] = cnfOptions[key];
+        }
       }
     }
 

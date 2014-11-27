@@ -1,11 +1,93 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>DefineJS: DEV: Modules promise format</title>
+  <title>DefineJS: DEV: Modules promise format</title>
+  <style>
+  body {
+    font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+  }
+  </style>
+  <link href="prism/prism.css" rel="stylesheet" />
 </head>
+
 <body>
+  <h1>Note:</h1>
+  <p><strong>This very page loads one of the DefineJS examples.
+  Check out the console to see the logs and the loading process of modules.
+  </strong>
+    <pre><code class="language-markup">&lt;html&gt;
+&lt;body&gt;
+  &lt;script gloabl="window" src="define.js"&gt;&lt;/script&gt;
+  &lt;script gloabl="window" src="myApp.js"&gt;&lt;/script&gt;
+  &lt;script gloabl="window" src="main.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+  </p>
+  <br/>
+  <p>
+  	<strong>myApp.js</strong>: as you see it is just a simple global module which waits for 1500 milliseconds then defines a global variable named: <strong>myApp</strong>.
+  	<pre><code class="language-javascript">(function (global) {
+
+  setTimeout(function () {
+
+    global.myApp = {
+      title: 'A Simple Promised Module',
+      lunch: function(){
+      	console.log('We are about to lunch the application!');
+      	//actual code to lunch the app
+      	console.log('Application is lunched now!');
+      }
+    };
+
+  }, 1500);
+
+}(window));</code></pre>
+  </p>
+  <br/>
+  <p>
+  	<strong>main.js</strong>: An AMD require which requires an AMD module named: <strong>promisedModule</strong> to call the lunch method from its app object.
+  	<pre><code class="language-javascript">require(['promisedModule'],
+  function(promisedModule){
+    console.log(promisedModule.log);//=>This is just a sample promised object!
+    console.log(promisedModule.app);
+
+    promisedModule.app.lunch();
+  });</code></pre>
+  </p>
+  <br/>
+  <p>
+  	<strong>promisedModule.js</strong>: The actual AMD promised module which waits for 2000 milliseconds named: <strong>myApp</strong> to set up the main module definition.
+  	<pre><code class="language-javascript">define([ /*'dependency'*/ ], function ( /*dependency*/ ) {
+
+  return new Promise(function (fulfill, reject) {
+    //Here you expect to have a global variable named: myApp after 2 seconds
+    //otherwise your module definition gets rejected
+
+    setTimeout(function () {
+      if (window.myApp !== undefined) {
+
+        //fulfill when succeeded and pass the fulfillment value
+        fulfill({
+          app: window.myApp,
+          log: 'This is just a sample promised object to serve as a promised module!'
+        });
+
+      } else {
+
+        //reject in case of error or unsuccessful operations
+        reject(new Error('No global myApp object found!!'));
+      }
+
+    }, 2000);
+  });
+
+});</code></pre>
+  </p>
   <script global="window" src="define.js"></script>
   <script src="myApp.js"></script>
   <script src="main.js"></script>
+  <script src="prism/prism.js"></script>
 </body>
+
 </html>
