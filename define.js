@@ -49,7 +49,7 @@
         return typeof value === 'function';
     }
 
-    function isPromiseLike(object) {
+    function isPromiseLike(obj) {
          return obj && isFunction(obj.then);
    }
 
