@@ -136,7 +136,7 @@
     }
 
     //script injection when using BASE tag is now supported
-    head = doc.getElementsByTagName('head')[0];
+    head = doc.head || doc.getElementsByTagName('head')[0];
     baseElement = doc.getElementsByTagName('base')[0];
     if (baseElement) {
       head = baseElement.parentNode;
@@ -144,25 +144,15 @@
 
     function createScript() {
       var el;
-      //in case DefineJS were used along with something like svg in XML based use-cases 
+      //in case DefineJS were used along with something like svg in XML based use-cases,
+      //then "xhtml" should be set to "true" like config({ xhtml: true });
       if (options.xhtml) {
         el = doc.createElementNS('http://www.w3.org/1999/xhtml', 'script');
       } else {
         el = doc.createElement('script');
       }
-
-      //Do we really need to set the async attribute to "true"?
-      //So far its default value in all the browsers I have tested is "true"
-      //so I put it here to make sure in case of any unforseen situations
       el.async = true;
-
-      //As Douglas says: Since Netscape 2, the default programming language in all browsers has been JavaScript.
-      //In XHTML, this attribute is required and unnecessary.
-      //In HTML, it is better to leave it out. The browser knows what to do.
-      //So that, We don't need to specify the default value of "type" attribute
-      if (options.scriptType && options.scriptType !== 'text/javascript') {
-        el.type = options.scriptType;
-      }
+      el.type = options.scriptType || 'text/javascript';
       el.charset = 'utf-8';
       return el;
     }
