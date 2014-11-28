@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>DefineJS Module Loader</title>
+  <style>
+  body {
+    font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+  }
+  </style>
+  <link href="prism/prism.css" rel="stylesheet" />
+</head>
+
+<body>
+  <h1>Note:</h1>
+  <p><strong>This page loads one of the DefineJS Module examples which shows how to use r.js to concatenate and minify DefineJS modules. Check out the console to see the logs and the loading process of modules.</strong>
+  </p>
+  <br />
+  <p>
+    <strong>main.js</strong>: This is the concatenated and minified version of application, built using <strong>r.js</strong>. And if you take a look at console you will see it is working just like they were, before getting concatenated.
+    <pre><code class="language-javascript">(function(){define("utils",[],function(){var e={isObject:function(e){return e===Object(e)},isString:function(e){return typeof e=="string"}};return e}),define("app",["utils"],function(e){var t={version:"0.2.2",options:{},lunch:function(){console.log("App just got lunched!")},utils:e};return t}),require(["app"],function(e){e.utils.isObject(e.options)&&console.log("1. utils.isObject(...) function is working as expected."),e.utils.isString(e.version)&&console.log("2. utils.isString(...) function is working as expected."),e.lunch()}),define("main",function(){})})();</code></pre>
+  </p>
+  <p>
+    <a href="index-dev.html">Check out the current page's modules flow control before buiding process.</a>
+  </p>
+
+  <h2>How to build DefineJS modules using r.js:</h2>
+  <p>To build the application using <strong>r.js</strong> we first need to have access to API:
+    <pre><code class="language-javascript">npm install requirejs --save-dev</code></pre>
+    <br /> Then we need to define r.js build configuration file, which is much more convenient than passing manual arguments to r.js command:
+    <br />
+    <br />
+    <strong>build.js</strong>:
+    <pre><code class="language-javascript">({
+  baseUrl: 'src',
+  out: 'main.js',
+  include: ['main'],
+  wrap: true
+})</code></pre>
+    <br />
+    <br />
+    <strong>build.sh</strong>: And now to take the final step we need to call the <strong>r.js</strong> command. As you see to make sure if
+    <strong>requirejs</strong> is installed we have added one more line to it.
+    <pre><code class="language-javascript">#!/bin/bash
+
+npm install --dev
+./node_modules/requirejs/bin/r.js -o build.js</code></pre>
+  </p>
+  <p>All you need to do is first adding execute permission to build.sh file and then execute it via terminal:
+    <pre><code class="language-javascript">./build.sh</code></pre>
+    <br /> Or simply run its content manually.
+  </p>
+  <p>
+    <a href="index-dev.html">Check out the current page's modules flow control before buiding process.</a>
+  </p>
+  <script global="window" src="define.js"></script>
+  <script src="main.js"></script>
+  <script src="prism/prism.js"></script>
+</body>
+
+</html>

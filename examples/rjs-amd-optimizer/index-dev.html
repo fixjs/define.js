@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>DefineJS Module Loader</title>
+  <style>
+  body {
+    font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+  }
+  </style>
+  <link href="prism/prism.css" rel="stylesheet" />
+</head>
+
+<body>
+  <h1>Note:</h1>
+  <p><strong>This page loads one of the DefineJS Module examples which shows the regular modules flow control before buikding the app using r.js to concatenate and minify DefineJS modules. Check out the console to see the logs and the loading process of modules.</strong>
+  </p>
+  <br />
+  <p>
+    <strong>src/main.js</strong>:
+    <pre><code class="language-javascript">require(['app'], function (app) {
+
+  if (app.utils.isObject(app.options)) {
+    console.log('1. utils.isObject(...) function is working as expected.');
+  }
+
+  if (app.utils.isString(app.version)) {
+    console.log('2. utils.isString(...) function is working as expected.');
+  }
+
+  app.lunch();
+
+});</code></pre>
+  </p>
+  <br />
+  <p>
+    <strong>src/app.js</strong>:
+    <pre><code class="language-javascript">define(['utils'],
+  function (utils) {
+
+    var app = {
+      version: '0.2.2',
+      options: {},
+      lunch: function () {
+        console.log('App just got lunched!');
+      },
+      utils: utils
+    };
+
+    return app;
+  });</code></pre>
+  </p>
+  <br />
+  <p>
+    <strong>src/utils.js</strong>:
+    <pre><code class="language-javascript">define([], function () {
+
+  var utils = {
+    isObject: function (o) {
+      return o === Object(o);
+    },
+    isString: function (o) {
+      return typeof o === 'string';
+    }
+  };
+
+  return utils;
+});</code></pre>
+  </p>
+  <br />
+  <p>
+    <a href="index.html">Check out the same modules flow control after buiding process.</a>
+  </p>
+  <script global="window" src="define.js"></script>
+  <script>
+  config({
+    baseUrl: 'src'
+  });
+  </script>
+  <script src="src/main.js"></script>
+  <script src="prism/prism.js"></script>
+</body>
+
+</html>

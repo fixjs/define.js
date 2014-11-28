@@ -1,0 +1,10 @@
+{
+  "name": "rjs-amd-optimizer",
+  "version": "1.0.0",
+  "description": "A working example of using r.js on DefineJS modules",
+  "main": "main-min.js",
+  "license": "MIT",
+  "devDependencies": {
+    "requirejs": "^2.1.15"
+  }
+}
