@@ -7,16 +7,32 @@
 (function (global, undefined) {
   'use strict';
 
-  //polyfills
-  if (!Array.isArray) {
-    Array.isArray = function (arg) {
-      return Object.prototype.toString.call(arg) === '[object Array]';
-    };
+  var doc = global.document,
+    objToString = Object.prototype.toString,
+    types = {},
+    noop = function () {},
+    isArray = Array.isArray || isType('Array');
+
+  function isType(type) {
+    if (type) {
+      return (types[type] || (types[type] = function (arg) {
+        return objToString.call(arg) === '[object ' + type + ']';
+      }));
+    } else {
+      return noop;
+    }
+  }
+
+  function isObject(obj) {
+    return obj !== null && typeof obj === 'object';
+  }
+
+  function isPromiseAlike(obj) {
+    return obj && isType('Function')(obj.then);
   }
 
   function defineModuleDefinition() {
     var
-      doc = global.document,
       isOldOpera = typeof global.opera !== 'undefined' && global.opera.toString() === '[object Opera]',
       currentScript = document.currentScript,
       emptyArray = [],
@@ -47,14 +63,6 @@
 
       baseElement,
       head;
-
-    function isObject(obj) {
-      return obj !== null && typeof obj === 'object';
-    }
-
-    function isPromiseAlike(object) {
-      return isObject(object) && typeof object.then === 'function';
-    }
 
     function getFileName(url) {
       var fileName = files[url],
@@ -224,7 +232,7 @@
 
     function executeFN(fn, args) {
       var fnData;
-      if (!Array.isArray(args)) {
+      if (!isArray(args)) {
         args = emptyArray;
       }
 
@@ -249,7 +257,7 @@
 
       callbacks = waitingList[moduleName];
 
-      if (Array.isArray(callbacks)) {
+      if (isArray(callbacks)) {
         i = 0;
         len = callbacks.length;
 
@@ -270,7 +278,7 @@
       if (installed[moduleName]) {
         callback(modules[moduleName]);
       } else {
-        if (!Array.isArray(waitingList[moduleName])) {
+        if (!isArray(waitingList[moduleName])) {
           waitingList[moduleName] = [];
           isFirstLoadDemand = true;
         }
@@ -344,7 +352,7 @@
         array = emptyArray;
       }
       //define(array, moduleDefinition)
-      else if (Array.isArray(moduleName)) {
+      else if (isArray(moduleName)) {
         moduleDefinition = array;
         array = moduleName;
         moduleName = undefined;
@@ -373,7 +381,7 @@
 
       definedModules[moduleName] = true;
 
-      if (Array.isArray(array) && array.length) {
+      if (isArray(array) && array.length) {
         loadModules(array, function () {
           var args = [],
             i = 0,
@@ -394,7 +402,7 @@
         return;
       }
 
-      if (Array.isArray(array) && array.length) {
+      if (isArray(array) && array.length) {
         loadModules(array, function () {
           var args = [],
             i = 0,
@@ -437,8 +445,8 @@
 
       var key;
 
-      for(key in cnfOptions){
-        if(cnfOptions.hasOwnProperty(key)){
+      for (key in cnfOptions) {
+        if (cnfOptions.hasOwnProperty(key)) {
           options[key] = cnfOptions[key];
         }
       }
