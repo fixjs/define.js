@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>DefineJS Promise implementation</title>
+</head>
+
+<body>
+  <script>
+  var fix = {};
+  window.fix = fix;
+  </script>
+  <script global="fix" src="define.promise.js"></script>
+  <script>
+  fix.config({
+    baseUrl: 'lib'
+  });
+  </script>
+  <script src="lib/main.js"></script>
+</body>
+
+</html>
