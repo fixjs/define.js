@@ -19,6 +19,31 @@ The component can be used as a Common JS module, an AMD module, or a global.
 
 
 ## API
+This library provides you with a the possiblity of using ES6 generators and the `yield` keyword along with promises. You can use `yield` keyword to load your desired dependencies without getting through the callback hell.
+
+##define(function* () {...});
+##var utils = yield require('utils');
+
+Give that a try and let us know how it feels to implement an asynchronous module definition with a fully synchronous looking code:
+
+```
+define(function* () {
+
+  var utils = yield require('utils'),
+    $ = yield require('../vendor/jquery');
+
+  var app = {
+    body:$('body').get(0),
+    utils: utils,
+    lunch: function () {
+      console.log('App just got lunched!');
+    }
+  };
+
+  return app;
+});
+```
+
 ###AMD Module format
 To use DefineJS in your JavaScript code, you could simply add it as a script tag:
 ```
