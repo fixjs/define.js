@@ -355,26 +355,19 @@
     }
 
     gen.defineGenerator = async(function* (moduleName, array, moduleDefinition) {
-      definedModules[moduleName] = true;
-
       var args;
-
+      definedModules[moduleName] = true;
       if (isArray(array) && array.length) {
-        args =
-          yield loadModules(array);
+        args = yield loadModules(array);
       }
-
       setUpModule(moduleName, moduleDefinition, args);
     });
 
     gen.requireGenerator = async(function* (array, fn) {
       var args;
-
       if (isArray(array) && array.length) {
-        args =
-          yield loadModules(array);
+        args = yield loadModules(array);
       }
-
       executeFN(fn, args);
     });
 
@@ -406,16 +399,13 @@
           array = emptyArray;
         }
       }
-
       if (typeof moduleDefinition !== 'function') {
         console.error('Invalid input parameter to define a module');
         return;
       }
-
       if (moduleName === undefined) {
         moduleName = getFileName(document.currentScript.src);
       }
-
       gen.defineGenerator(moduleName, array, moduleDefinition);
     }
 
@@ -423,17 +413,14 @@
       if (typeof array === 'function' && isGenerator(array)) {
         return async(array)();
       }
-
       if (typeof array === 'string' && typeof fn === 'undefined') {
         return gen.loadModuleGenerator(array);
       }
-
       gen.requireGenerator(array, fn);
     }
 
     gen.loadModuleGenerator = async(function* (modulePath) {
-      var args =
-        yield loadModules([modulePath]);
+      var args = yield loadModules([modulePath]);
       return args[0];
     });
 
@@ -449,22 +436,11 @@
       }
 
       var key;
-
       for (key in cnfOptions) {
         if (cnfOptions.hasOwnProperty(key)) {
           options[key] = cnfOptions[key];
         }
       }
-    }
-
-    function defineGN(fn) {
-      return function () {
-        async(fn)(gen.loadModuleGenerator);
-      };
-    }
-
-    function mainGN(fn) {
-      async(fn)();
     }
 
     fxdefine.amd = {};
@@ -477,8 +453,6 @@
 
       //Nonstandards
       g.use = promiseUse;
-      g.main = mainGN;
-
       // @if DEBUG
       g.modules = modules;
       g.installed = installed;
