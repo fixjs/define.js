@@ -1,4 +1,4 @@
-fix.main(function* (require) {
+require(function* () {
 
   var app = yield require('app');
 

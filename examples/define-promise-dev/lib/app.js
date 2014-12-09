@@ -1,12 +1,15 @@
-fix.define(['utils'],
-  function (utils) {
+define(function* () {
 
-    var app = {
-      utils: utils,
-      lunch: function () {
-        console.log('App just got lunched!');
-      }
-    };
+  var utils = yield require('utils'),
+    $ = yield require('../vendor/jquery');
 
-    return app;
-  });
+  var app = {
+  	body:$('body').get(0),
+    utils: utils,
+    lunch: function () {
+      console.log('App just got lunched!');
+    }
+  };
+
+  return app;
+});

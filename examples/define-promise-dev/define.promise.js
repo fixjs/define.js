@@ -31,6 +31,21 @@
     return obj && isType('Function')(obj.then);
   }
 
+  function isGenerator(fn) {
+    if (typeof fn === 'function') {
+      //Function.prototype.isGenerator is supported in Firefox 5.0 or later
+      //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/isGenerator
+      if (typeof fn.isGenerator === 'function') {
+        return fn.isGenerator();
+      }
+      return /^function\s*\*/.test(fn.toString());
+    }
+    return false;
+  }
+
+  //A function by Forbes Lindesay which helps us code in synchronous style
+  //using yield keyword, whereas the actual scenario is an asynchronous process
+  //https://www.promisejs.org/generators/
   function async(makeGenerator) {
     return function () {
       var generator = makeGenerator.apply(this, arguments);
@@ -341,11 +356,12 @@
 
     gen.defineGenerator = async(function* (moduleName, array, moduleDefinition) {
       definedModules[moduleName] = true;
-      
+
       var args;
 
       if (isArray(array) && array.length) {
-        args = yield loadModules(array);
+        args =
+          yield loadModules(array);
       }
 
       setUpModule(moduleName, moduleDefinition, args);
@@ -355,7 +371,8 @@
       var args;
 
       if (isArray(array) && array.length) {
-        args = yield loadModules(array);
+        args =
+          yield loadModules(array);
       }
 
       executeFN(fn, args);
@@ -364,6 +381,9 @@
     function fxdefine(moduleName, array, moduleDefinition) {
       //define(moduleDefinition)
       if (typeof moduleName === 'function') {
+        if (isGenerator(moduleName)) {
+          return fxdefine(async(moduleName));
+        }
         moduleDefinition = moduleName;
         moduleName = undefined;
         array = emptyArray;
@@ -400,15 +420,20 @@
     }
 
     function fxrequire(array, fn) {
-      if (typeof fn !== 'function') {
-        console.error('Invalid input parameter to require a module');
-        return;
+      if (typeof array === 'function' && isGenerator(array)) {
+        return async(array)();
       }
+
+      if (typeof array === 'string' && typeof fn === 'undefined') {
+        return gen.loadModuleGenerator(array);
+      }
+
       gen.requireGenerator(array, fn);
     }
 
-    gen.inlineRequireGenerator = async(function* (modulePath) {
-      var args = yield loadModules([modulePath]);
+    gen.loadModuleGenerator = async(function* (modulePath) {
+      var args =
+        yield loadModules([modulePath]);
       return args[0];
     });
 
@@ -432,8 +457,14 @@
       }
     }
 
-    function main(fn) {
-      async(fn)(gen.inlineRequireGenerator);
+    function defineGN(fn) {
+      return function () {
+        async(fn)(gen.loadModuleGenerator);
+      };
+    }
+
+    function mainGN(fn) {
+      async(fn)();
     }
 
     fxdefine.amd = {};
@@ -446,7 +477,7 @@
 
       //Nonstandards
       g.use = promiseUse;
-      g.main = main;
+      g.main = mainGN;
 
     }
 

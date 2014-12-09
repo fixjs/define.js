@@ -3,20 +3,85 @@
 
 <head>
   <title>DefineJS Promise implementation</title>
+  <style>
+  body {
+    font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+  }
+  </style>
+  <link href="vendor/prism/prism.css" rel="stylesheet" />
+  <!--Temporary prmise polyfill for browsers that don't support it-->
+  <script src="https://www.promisejs.org/polyfills/promise-6.0.0.min.js"></script>
 </head>
 
 <body>
+  <h1>Note:</h1>
+  <p><strong>This very page loads a working example of DefineJS along with a new way of loading AMD modules.
+  Check out the console to see the logs and the loading process of AMD modules.</strong>
+  <p>
+  <p>
+  <h1>define(function* () {...});</h1>
+  <p>Using DefineJS you can use yield keyword to load a module asynchronously:</p>
+  </p>
+    <p>
+  	<pre><code class="language-javascript">//main.js
+require(function* () {
+
+  var app = yield require('app');
+
+  console.log('required app object:', app);
+  
+  app.lunch();
+
+});
+</code></pre>
+  </p>
+  <br />
+  <p>
+  	<pre><code class="language-javascript">//app.js
+define(function* () {
+
+  var utils = yield require('utils'),
+    $ = yield require('../vendor/jquery');
+
+  var app = {
+  	body:$('body').get(0),
+    utils: utils,
+    lunch: function () {
+      console.log('App just got lunched!');
+    }
+  };
+
+  return app;
+});
+</code></pre>
+  </p>
+  <br />
+  <p>
+  	<pre><code class="language-javascript">//utils.js
+define(function () {
+
+  var util = {
+    version: 'v0.0.1',
+    isObject: function (o) {
+      return o === Object(o);
+    }
+  };
+
+  return util;
+});
+</code></pre>
+  </p>
+  <p>As you can see using ES6 function generators along with promises, has helped us acheive such an interesting asynchronous way of coding.</p>
+
+<script global="window" src="define.promise.js"></script>
   <script>
-  var fix = {};
-  window.fix = fix;
-  </script>
-  <script global="fix" src="define.promise.js"></script>
-  <script>
-  fix.config({
+  config({
     baseUrl: 'lib'
   });
   </script>
-  <script src="lib/main.js"></script>
+  <script src='lib/main.js'></script>
+
+  <script src="vendor/prism/prism.js"></script>
 </body>
 
 </html>

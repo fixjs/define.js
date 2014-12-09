@@ -1,4 +1,4 @@
-fix.define([], function () {
+define(function () {
 
   var util = {
     version: 'v0.0.1',
