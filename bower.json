@@ -1,7 +1,7 @@
 {
   "name": "definejs",
   "description": "A JavaScript module loader, an implementation of AMD (Asynchronous Module Definition).",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "main": "define.js",
   "ignore": [
     "test",

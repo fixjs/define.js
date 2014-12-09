@@ -20,7 +20,7 @@
   <br />
   <p>
     <strong>main.js</strong>: This is the concatenated and minified version of application, built using <strong>r.js</strong>. And if you take a look at console you will see it is working just like they were, before getting concatenated.
-    <pre><code class="language-javascript">(function(){define("utils",[],function(){var e={isObject:function(e){return e===Object(e)},isString:function(e){return typeof e=="string"}};return e}),define("app",["utils"],function(e){var t={version:"0.2.2",options:{},lunch:function(){console.log("App just got lunched!")},utils:e};return t}),require(["app"],function(e){e.utils.isObject(e.options)&&console.log("1. utils.isObject(...) function is working as expected."),e.utils.isString(e.version)&&console.log("2. utils.isString(...) function is working as expected."),e.lunch()}),define("main",function(){})})();</code></pre>
+    <pre><code class="language-javascript">(function(){define("utils",[],function(){var e={isObject:function(e){return e===Object(e)},isString:function(e){return typeof e=="string"}};return e}),define("app",["utils"],function(e){var t={version:"0.2.3",options:{},lunch:function(){console.log("App just got lunched!")},utils:e};return t}),require(["app"],function(e){e.utils.isObject(e.options)&&console.log("1. utils.isObject(...) function is working as expected."),e.utils.isString(e.version)&&console.log("2. utils.isString(...) function is working as expected."),e.lunch()}),define("main",function(){})})();</code></pre>
   </p>
   <p>
     <a href="index-dev.html">Check out the current page's modules flow control before buiding process.</a>
