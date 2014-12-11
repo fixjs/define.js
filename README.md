@@ -176,7 +176,7 @@ myGlobal.require([/*'moduleName'*/], function(/*moduleName*/]){
 ```
 ###Global define and require functions
 To use AMD module definition functions(define and require) like what you have seen so far, as global functions, you could simply add the script tag like:
-```
+```html
 <script global="window" src="define.js"></script>
 ```
 Then it could load any standard amd modules in your page.
