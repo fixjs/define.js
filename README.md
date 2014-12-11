@@ -26,7 +26,7 @@ This library provides you with a the possiblity of using ES6 generators and the 
 
 Give that a try and let us know how it feels to implement an asynchronous module definition with a fully synchronous looking code:
 
-```
+```javascript
 define(function* () {
 
   var utils = yield require('utils'),
