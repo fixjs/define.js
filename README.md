@@ -17,68 +17,52 @@ bower install --save definejs
 
 The component can be used as a Common JS module, an AMD module, or a global.
 
-
 ## API
+Other than regular AMD module pattern, DefineJS also offers couple of nonstandard but usefull modular coding patterns. To make it more readable and getting to know the new features once they get released here we have top down list of DefineJS features list.
+
+- ES6 generators: which allows to write asynchronous lazy loaded modules in a synchronous looking way of coding.
+- [Promised Modules](https://github.com/fixjs/define.js#promised-modules): Using the same AMD module style you can have privileged promise based modules. 
+- [use() vs require()](https://github.com/fixjs/define.js#use-vs-require): another nonstandard function called `use()` with a similar approach to the standard `require()` function  which allows to have partial execution code blocks without having to use different main files.
+- [AMD Module format](https://github.com/fixjs/define.js#amd-module-format)
+
+##ES6 generators
 This library provides you with a the possiblity of using ES6 generators and the `yield` keyword along with promises. You can use `yield` keyword to load your desired dependencies without getting through the callback hell.
-
-##define(function* () {...});
-##var utils = yield require('utils');
-
-Give that a try and let us know how it feels to implement an asynchronous module definition with a fully synchronous looking code:
-
 ```javascript
+//app.js
 define(function* () {
-
-  var utils = yield require('utils'),
-    $ = yield require('../vendor/jquery');
-
-  var app = {
-    body:$('body').get(0),
-    utils: utils,
-    lunch: function () {
-      console.log('App just got lunched!');
-    }
+  var _,
+    app;
+  
+  if(loadashIsNeeded){
+    _ = yield require('../vendor/lodash');
+  } else {
+    _ = yield require('../vendor/underscore');
+  }
+  
+  app = {
+    //...
   };
-
+  
   return app;
 });
 ```
-
-###AMD Module format
-To use DefineJS in your JavaScript code, you could simply add it as a script tag:
+Then in order to require this module, you could `require` it as a regular AMD module:
+```javascript
+//main.js
+require(['app'],
+  function (app) {
+    app.lunch();
+  });
 ```
-<script src="define.js"></script>
-```
-Then you should call the fixDefine function to expose the amd modules functions to your desired global object:
-```
-fixDefine(myGlobal);
-```
-The easier way of achieving this, is to pass your desired global object to the `global` attribute of the script tag:
-```
-<script global="myGlobal" src="define.js"></script>
-```
-Now you can `define` and `require` your modules like:
-```
-myGlobal.define([/*'dependency'*/], function(/*dependency*/]){
-  function moduleFunction(){
-    //...
-  }
-  return moduleFunction;
+Or use the new `require` function like:
+```javascript
+//main.js
+require(function* () {
+  var app = yield require('app');
+  app.lunch();
 });
 ```
-```
-myGlobal.require([/*'moduleName'*/], function(/*moduleName*/]){
-  
-});
-```
-###Global define and require functions
-To use AMD module definition functions(define and require) like what you have seen so far, as global functions, you could simply add the script tag like:
-```
-<script global="window" src="define.js"></script>
-```
-Then it could load any standard amd modules in your page.
-
-Other than regular AMD module pattern, DefineJS also offers couple of nonstandard but usefull modular coding patterns.
+Give that a try and let us know how it feels to implement an asynchronous module definition with a fully synchronous looking code.
 
 ##Promised Modules
 Using the same AMD module style you can have privileged promise based modules. 
@@ -87,7 +71,7 @@ To see how it works, just check out the [simple-promised-module](https://github.
 
 In this example we have a promised module named: [promisedModule.js](https://github.com/fixjs/define.js/blob/master/examples/simple-promised-module/promisedModule.js)
 which is responsible to wait for a specific global variable, then serve it as part of module's promised value.
-```
+```javascript
 //promisedModule.js
 define([ /*'dependency'*/ ], function ( /*dependency*/ ) {
 
@@ -116,7 +100,7 @@ define([ /*'dependency'*/ ], function ( /*dependency*/ ) {
 });
 ```
 Now you could easily require it, or add it as a dependency. What will happen is, it waits for your promise to get resolved then you will have the promised module object.
-```
+```javascript
 //main.js
 require(['promisedModule'],
   function(promisedModule){
@@ -124,13 +108,11 @@ require(['promisedModule'],
     console.log(promisedModule.app);
   });
 ```
-
-###Note:
-we are still discussing about the proper way of handling the rejected state of a promised module. Any feedback or proposal is really appreciated.
+**Note**: we are still discussing about the proper way of handling the rejected state of a promised module. Any feedback or proposal is really appreciated.
 
 ##use() vs require()
 You can also have the same modules flow using a new offered syntax by DefineJS:
-```
+```javascript
 use(['dependency1', 'dependency2'])
   .then(function(dependency1, dependency2){
     //...
@@ -146,6 +128,40 @@ use(['dependency1', 'dependency2'])
     console.error(e);
   });
 ```
+
+###AMD Module format
+To use DefineJS in your JavaScript code, you could simply add it as a script tag:
+```
+<script src="define.js"></script>
+```
+Then you should call the fixDefine function to expose the amd modules functions to your desired global object:
+```javascript
+fixDefine(myGlobal);
+```
+The easier way of achieving this, is to pass your desired global object to the `global` attribute of the script tag:
+```
+<script global="myGlobal" src="define.js"></script>
+```
+Now you can `define` and `require` your modules like:
+```javascript
+myGlobal.define([/*'dependency'*/], function(/*dependency*/]){
+  function moduleFunction(){
+    //...
+  }
+  return moduleFunction;
+});
+```
+```javascript
+myGlobal.require([/*'moduleName'*/], function(/*moduleName*/]){
+  
+});
+```
+###Global define and require functions
+To use AMD module definition functions(define and require) like what you have seen so far, as global functions, you could simply add the script tag like:
+```
+<script global="window" src="define.js"></script>
+```
+Then it could load any standard amd modules in your page.
 
 ## Testing
 
