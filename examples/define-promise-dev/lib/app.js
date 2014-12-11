@@ -4,7 +4,7 @@ define(function* () {
     $ = yield require('../vendor/jquery');
 
   var app = {
-  	body:$('body').get(0),
+    body:$('body').get(0),
     utils: utils,
     lunch: function () {
       console.log('App just got lunched!');
