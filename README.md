@@ -18,9 +18,38 @@ bower install --save definejs
 The component can be used as a Common JS module, an AMD module, or a global.
 
 ## API
+To use DefineJS in your JavaScript code, you could simply add it as a script tag:
+```markup
+<script src="define.js"></script>
+```
+Then you should call the fixDefine function to expose the amd modules functions to your desired global object:
+```javascript
+fixDefine(myGlobal);
+```
+The easier way of achieving this, is to pass your desired global object to the `global` attribute of the script tag:
+```html
+<script global="myGlobal" src="define.js"></script>
+```
+Or in case you need define and require functions as globals:
+```html
+<script global="window" src="define.js"></script>
+```
+Based on the known JavaScript bad practice when defining global objects, this way with explicitly assigning the AMD functions to a specific global object or to the global scope you could be aware of the state of your global scope and also the possible consequences.
+
+**Note**: To be able to use the latest DefineJS feature, which allows to use ES6 generators, instead of `define.js` you should add `define.promise.js` to your page:
+```html
+<script global="window" src="define.promise.js"></script>
+```
+The other parts are exactly the same.
+
+- **Promises polyfill**: DefineJS doesn't provide you with any polyfills **YET** and in order to use its promise based features you are free to either add your own implementation of **Promises polyfill** or use a Modern browser with native **Promise** support.
+
+- **ES6 generators support**: The same is true for **ES6 generators** and as far as **ES6 generators** needs a new ES6 syntax to be supported in your page you could either use a **ES6 generators transpiler** or use a Modern browser with ES6 generators support.
+
+#Features
 Other than regular AMD module pattern, DefineJS also offers couple of nonstandard but usefull modular coding patterns. To make it more readable and getting to know the new features once they get released here we have top down list of DefineJS features list.
 
-- ES6 generators: which allows to write asynchronous lazy loaded modules in a synchronous looking way of coding.
+- [ES6 generators](https://github.com/fixjs/define.js/blob/master/README.md#es6-generators): which allows to write asynchronous lazy loaded modules in a synchronous looking way of coding.
 - [Promised Modules](https://github.com/fixjs/define.js#promised-modules): Using the same AMD module style you can have privileged promise based modules. 
 - [use() vs require()](https://github.com/fixjs/define.js#use-vs-require): another nonstandard function called `use()` with a similar approach to the standard `require()` function  which allows to have partial execution code blocks without having to use different main files.
 - [AMD Module format](https://github.com/fixjs/define.js#amd-module-format)
@@ -130,19 +159,7 @@ use(['dependency1', 'dependency2'])
 ```
 
 ###AMD Module format
-To use DefineJS in your JavaScript code, you could simply add it as a script tag:
-```
-<script src="define.js"></script>
-```
-Then you should call the fixDefine function to expose the amd modules functions to your desired global object:
-```javascript
-fixDefine(myGlobal);
-```
-The easier way of achieving this, is to pass your desired global object to the `global` attribute of the script tag:
-```
-<script global="myGlobal" src="define.js"></script>
-```
-Now you can `define` and `require` your modules like:
+You can `define` and `require` your modules using the regular AMD format:
 ```javascript
 myGlobal.define([/*'dependency'*/], function(/*dependency*/]){
   function moduleFunction(){
