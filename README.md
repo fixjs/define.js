@@ -19,7 +19,7 @@ The component can be used as a Common JS module, an AMD module, or a global.
 
 ## API
 To use DefineJS in your JavaScript code, you could simply add it as a script tag:
-```markup
+```html
 <script src="define.js"></script>
 ```
 Then you should call the fixDefine function to expose the amd modules functions to your desired global object:
@@ -36,11 +36,12 @@ Or in case you need define and require functions as globals:
 ```
 Based on the known JavaScript bad practice when defining global objects, this way with explicitly assigning the AMD functions to a specific global object or to the global scope you could be aware of the state of your global scope and also the possible consequences.
 
-**Note**: To be able to use the latest DefineJS feature, which allows to use ES6 generators, instead of `define.js` you should add `define.promise.js` to your page:
-```html
-<script global="window" src="define.promise.js"></script>
-```
-The other parts are exactly the same.
+**Note**:
+- **define.promise.js**: To be able to use the latest DefineJS feature, which allows to use ES6 generators, instead of `define.js` you should add `define.promise.js` to your page:
+    ```html
+    <script global="window" src="define.promise.js"></script>
+    ```
+    The other parts are exactly the same.
 
 - **Promises polyfill**: DefineJS doesn't provide you with any polyfills **YET** and in order to use its promise based features you are free to either add your own implementation of **Promises polyfill** or use a Modern browser with native **Promise** support.
 
