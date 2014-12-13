@@ -19,9 +19,7 @@
     "amdjs-tests"
   ],
   "devDependencies": {
-    "chai": "*"
-  },
-  "dependencies": {
+    "chai": "*",
     "hazzle-promises": "*"
   }
 }
