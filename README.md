@@ -87,7 +87,8 @@ define(function* (exports, module) {
   };
 
   module.exports = app;
-});```
+});
+```
 
 As mentioned the new syntax is similar to the CommonJS coding style, with two specific differences. First the `yield` keyword and the next is the `define` wrapper with a `ES6 function generator`.
 
