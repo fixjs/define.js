@@ -50,7 +50,7 @@ Based on the known JavaScript bad practice when defining global objects, this wa
 #Features
 Other than regular AMD module pattern, DefineJS also offers couple of nonstandard but usefull modular coding patterns. To make it more readable and getting to know the new features once they get released here we have top down list of DefineJS features list.
 
-- [CommonJS/AMD Hybrid Format](#es6-generators): This hybrid format allows to write modules with a CommonJS similar syntax.
+- [CommonJS/AMD Hybrid Format](#commonjsamd-hybrid-format): This hybrid format allows to write modules with a CommonJS similar syntax.
 - [ES6 generators](#es6-generators): which allows to write asynchronous lazy loaded modules in a synchronous looking way of coding.
   - [**Open Discussion**](https://github.com/fixjs/define.js/issues/9): This feature is still in its early days so that it needs more feedback from JavaScript community. There is an open issue ([#9](https://github.com/fixjs/define.js/issues/9)) to discuss the feedbacks, feel free to drop a line and bring up your ideas regarding this feature.
 - [Promised Modules](#promised-modules): Using the same AMD module style you can have privileged promise based modules.
