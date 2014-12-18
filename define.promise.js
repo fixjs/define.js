@@ -97,7 +97,12 @@
       head,
 
       gen = {},
-      promiseStorage = {};
+      globalPromise = new Promise(function (fulfill) {
+        fulfill(global);
+      }),
+      promiseStorage = {
+        global: globalPromise
+      };
 
     function getFileName(url) {
       var fileName = files[url],
@@ -371,11 +376,31 @@
       executeFN(fn, args);
     });
 
+    //the new CommonJS style
+    function CJS(asyncFN) {
+      return async(function* cjs() {
+        var exportsObj = {},
+          moduleObj = {
+            exports: exportsObj
+          };
+
+        var data = yield asyncFN(exportsObj, moduleObj);
+        if (data) {
+          return data;
+        }
+
+        if (moduleObj.exports !== exportsObj || Object.keys(exportsObj).length > 0) {
+          return moduleObj.exports;
+        }
+      });
+    }
+
     function fxdefine(moduleName, array, moduleDefinition) {
       //define(moduleDefinition)
       if (typeof moduleName === 'function') {
         if (isGenerator(moduleName)) {
-          return fxdefine(async(moduleName));
+          var asyncFunc = async(moduleName);
+          return fxdefine(CJS(asyncFunc));
         }
         moduleDefinition = moduleName;
         moduleName = undefined;
@@ -481,4 +506,6 @@
       global.fixDefine = moduleFN;
     }
   }
-}(this));
+}(function () {
+  return this;
+}()));

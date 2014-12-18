@@ -1,4 +1,4 @@
-define(function* () {
+define(function* (exports, module) {
 
   var utils = yield require('utils'),
     $ = yield require('../vendor/jquery');
@@ -7,9 +7,9 @@ define(function* () {
     body: $('body').get(0),
     utils: utils,
     lunch: function () {
-      console.log('App just got lunched!');
+      console.log('App just got lunched!:' + this.body);
     }
   };
 
-  return app;
+  module.exports = yield app;
 });
