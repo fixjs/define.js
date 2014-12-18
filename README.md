@@ -50,12 +50,35 @@ Based on the known JavaScript bad practice when defining global objects, this wa
 #Features
 Other than regular AMD module pattern, DefineJS also offers couple of nonstandard but usefull modular coding patterns. To make it more readable and getting to know the new features once they get released here we have top down list of DefineJS features list.
 
+- [CommonJS/AMD Hybrid Format](#es6-generators): This hybrid format allows to write modules with a CommonJS similar syntax.
 - [ES6 generators](#es6-generators): which allows to write asynchronous lazy loaded modules in a synchronous looking way of coding.
   - [**Open Discussion**](https://github.com/fixjs/define.js/issues/9): This feature is still in its early days so that it needs more feedback from JavaScript community. There is an open issue ([#9](https://github.com/fixjs/define.js/issues/9)) to discuss the feedbacks, feel free to drop a line and bring up your ideas regarding this feature.
 - [Promised Modules](#promised-modules): Using the same AMD module style you can have privileged promise based modules.
   - [**Open Discussion**](https://github.com/fixjs/define.js/issues/4): **Rejection state** of promised modules is still one of the open discussions, there is an open issue ([#4](https://github.com/fixjs/define.js/issues/4)) to discuss it, feel free to drop your comments.
 - [use() vs require()](#use-vs-require): another nonstandard function called `use()` with a similar approach to the standard `require()` function  which allows to have partial execution code blocks without having to use different main files.
 - [AMD Module format](#amd-module-format)
+
+##CommonJS/AMD Hybrid Format
+This hybrid format allows to write modules with a CommonJS similar syntax. This feature is now possible thanks to the [ES6 generators](#es6-generators).
+```javascript
+//app.js
+define(function* () {
+  var _,
+    app;
+  
+  if(loadashIsNeeded){
+    _ = yield require('../vendor/lodash');
+  } else {
+    _ = yield require('../vendor/underscore');
+  }
+  
+  app = {
+    //...
+  };
+  
+  module.exports = app;
+});
+```
 
 ##ES6 generators
 This library provides you with a the possiblity of using ES6 generators and the `yield` keyword along with promises. You can use `yield` keyword to load your desired dependencies without getting through the callback hell.

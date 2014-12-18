@@ -10,6 +10,6 @@ define(function* (exports, module) {
       console.log('App just got lunched!:' + this.body);
     }
   };
-
-  module.exports = yield app;
+  
+  module.exports = app;
 });
