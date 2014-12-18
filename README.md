@@ -59,7 +59,23 @@ Other than regular AMD module pattern, DefineJS also offers couple of nonstandar
 - [AMD Module format](#amd-module-format)
 
 ##CommonJS/AMD Hybrid Format
-This hybrid format allows to write modules with a CommonJS similar syntax. This feature is now possible thanks to the [ES6 generators](#es6-generators).
+This hybrid syntax allows to write modules with a new syntax similar to CommonJS. This feature is now possible thanks to the ES6 generators.
+
+Let's imagine a CommonJS module like:
+```javascript
+//app.js
+var utils = require('utils'),
+  $ = require('../vendor/jquery');
+
+var app = {
+  //...
+};
+
+module.exports = app;
+```
+
+The DefineJS alternative is:
+
 ```javascript
 //app.js
 define(function* (exports, module) {
@@ -67,16 +83,13 @@ define(function* (exports, module) {
     $ = yield require('../vendor/jquery');
 
   var app = {
-    body: $('body').get(0),
-    utils: utils,
-    lunch: function () {
-      console.log('App just got lunched!:' + this.body);
-    }
+    //...
   };
-  
+
   module.exports = app;
-});
-```
+});```
+
+As mentioned the new syntax is similar to the CommonJS coding style, with two specific differences. First the `yield` keyword and the next is the `define` wrapper with a `ES6 function generator`.
 
 ##ES6 generators
 This library provides you with a the possiblity of using ES6 generators and the `yield` keyword along with promises. You can use `yield` keyword to load your desired dependencies without getting through the callback hell.
