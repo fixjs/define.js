@@ -62,18 +62,16 @@ Other than regular AMD module pattern, DefineJS also offers couple of nonstandar
 This hybrid format allows to write modules with a CommonJS similar syntax. This feature is now possible thanks to the [ES6 generators](#es6-generators).
 ```javascript
 //app.js
-define(function* () {
-  var _,
-    app;
-  
-  if(loadashIsNeeded){
-    _ = yield require('../vendor/lodash');
-  } else {
-    _ = yield require('../vendor/underscore');
-  }
-  
-  app = {
-    //...
+define(function* (exports, module) {
+  var utils = yield require('utils'),
+    $ = yield require('../vendor/jquery');
+
+  var app = {
+    body: $('body').get(0),
+    utils: utils,
+    lunch: function () {
+      console.log('App just got lunched!:' + this.body);
+    }
   };
   
   module.exports = app;
