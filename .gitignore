@@ -4,3 +4,4 @@ npm-debug.log
 examples/dev
 tmp.js
 root.html
+define.defer.js

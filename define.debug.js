@@ -263,7 +263,9 @@
 
     function loadModule(modulePath, callback) {
       var isFirstLoadDemand = false,
-        moduleName = getFileName(modulePath);
+        moduleName = getFileName(modulePath),
+        fileName,
+        modulesList;
 
       if (installed[moduleName]) {
         callback(modules[moduleName]);
@@ -276,6 +278,18 @@
         waitingList[moduleName].push(callback);
 
         if (isFirstLoadDemand) {
+          //This code blog solves #10 issue but it still needs some review
+          if (isObject(options.dependencyMap)) {
+            for (fileName in options.dependencyMap) {
+              if (options.dependencyMap.hasOwnProperty(fileName)) {
+                modulesList = options.dependencyMap[fileName];
+                if (modulesList.indexOf(modulePath) > -1) {
+                  modulePath = fileName;
+                  break;
+                }
+              }
+            }
+          }
           getScript(modulePath, function (status) {
             if (definedModules[moduleName] === true) {
               //Do not need to do anything so far

@@ -1,0 +1,1 @@
+define("def-a-1",[],function(){return{moduleName:"def-a-1"}}),define("def-a-2",[],function(){return{moduleName:"def-a-2"}}),define("def-a-3",[],function(){return{moduleName:"def-a-3"}});

@@ -11,7 +11,19 @@
     objToString = Object.prototype.toString,
     types = {},
     noop = function () {},
-    isArray = Array.isArray || isType('Array');
+    isArray = Array.isArray || isType('Array'),
+    genCache = new Map();
+
+  if (typeof Promise.prototype.done !== 'function') {
+    Promise.prototype.done = function () {
+      var that = arguments.length ? this.then.apply(this, arguments) : this;
+      that.then(null, function (err) {
+        setTimeout(function () {
+          throw err;
+        }, 0);
+      });
+    };
+  }
 
   function isType(type) {
     if (type) {
@@ -46,7 +58,7 @@
   //A function by Forbes Lindesay which helps us code in synchronous style
   //using yield keyword, whereas the actual scenario is an asynchronous process
   //https://www.promisejs.org/generators/
-  function async(makeGenerator) {
+  function forbesAsync(makeGenerator) {
     return function () {
       var generator = makeGenerator.apply(this, arguments);
 
@@ -67,6 +79,20 @@
         return Promise.reject(ex);
       }
     };
+  }
+
+  function async(makeGenerator) {
+    var asyncGenerator;
+    if (genCache.has(makeGenerator)) {
+      return genCache.get(makeGenerator);
+    }
+    asyncGenerator = forbesAsync(makeGenerator);
+    genCache.set(makeGenerator, asyncGenerator);
+    return asyncGenerator;
+  }
+
+  function asyncPromise(starredFN) {
+    return new Promise(async(starredFN));
   }
 
   function defineModuleDefinition() {
@@ -96,12 +122,12 @@
       baseElement,
       head,
 
-      gen = {},
       globalPromise = new Promise(function (fulfill) {
         fulfill(global);
       }),
       promiseStorage = {
-        global: globalPromise
+        global: globalPromise,
+        g: globalPromise
       };
 
     function getFileName(url) {
@@ -226,23 +252,25 @@
       };
     }
 
-    function getScript(url, callback) {
-      var el = createScript(),
-        scriptUrl = getUrl(url);
+    function loadScript(url) {
+      return new Promise(function (fulfill, reject) {
+        var el = createScript(),
+          scriptUrl = getUrl(url);
 
-      if (el.attachEvent && !isOldOpera) {
-        el.attachEvent('onreadystatechange', loadFN(callback));
-      } else {
-        el.addEventListener('load', loadFN(callback), false);
-        el.addEventListener('error', errorFN(callback), false);
-      }
+        if (el.attachEvent && !isOldOpera) {
+          el.attachEvent('onreadystatechange', loadFN(fulfill));
+        } else {
+          el.addEventListener('load', loadFN(fulfill), false);
+          el.addEventListener('error', errorFN(reject), false);
+        }
 
-      if (baseElement) {
-        head.insertBefore(el, baseElement);
-      } else {
-        head.appendChild(el);
-      }
-      el.src = scriptUrl;
+        if (baseElement) {
+          head.insertBefore(el, baseElement);
+        } else {
+          head.appendChild(el);
+        }
+        el.src = scriptUrl;
+      });
     }
 
     function executeFN(fn, args) {
@@ -292,16 +320,19 @@
     }
 
     function loadModule(modulePath) {
-      if (!isPromiseAlike(promiseStorage[modulePath])) {
+      if (promiseStorage[modulePath] === undefined) {
         promiseStorage[modulePath] = loadModulePromise(modulePath);
       }
       return promiseStorage[modulePath];
     }
 
     function loadModulePromise(modulePath) {
-      return new Promise(function (fulfill, reject) {
+      return asyncPromise(function * (fulfill, reject) {
         var isFirstLoadDemand = false,
-          moduleName = getFileName(modulePath);
+          moduleName = getFileName(modulePath),
+          status,
+          fileName,
+          modulesList;
 
         if (installed[moduleName]) {
           if (modules[moduleName] !== undefined) {
@@ -322,15 +353,26 @@
           waitingList[moduleName].push([fulfill, reject]);
 
           if (isFirstLoadDemand) {
-            getScript(modulePath, function (status) {
-              if (definedModules[moduleName] === true) {
-                //Do not need to do anything so far
-              } else {
-                //This code block allows using this library for regular javascript files
-                //with no "define" or "require"
-                installModule(moduleName, status);
+            //This code blog solves #10 issue but it still needs some review
+            if (isObject(options.dependencyMap)) {
+              for (fileName in options.dependencyMap) {
+                if (options.dependencyMap.hasOwnProperty(fileName)) {
+                  modulesList = options.dependencyMap[fileName];
+                  if (modulesList.indexOf(modulePath) > -1) {
+                    modulePath = fileName;
+                    break;
+                  }
+                }
               }
-            });
+            }
+            status = yield loadScript(modulePath);
+            if (definedModules[moduleName] === true) {
+              //Do not need to do anything so far
+            } else {
+              //This code block allows using this library for regular javascript files
+              //with no "define" or "require"
+              installModule(moduleName, status);
+            }
           }
         }
       });
@@ -359,26 +401,26 @@
       }
     }
 
-    gen.defineGenerator = async(function* (moduleName, array, moduleDefinition) {
+    function * defineGenerator(moduleName, array, moduleDefinition) {
       var args;
       definedModules[moduleName] = true;
       if (isArray(array) && array.length) {
         args = yield loadModules(array);
       }
       setUpModule(moduleName, moduleDefinition, args);
-    });
+    }
 
-    gen.requireGenerator = async(function* (array, fn) {
+    function * requireGenerator(array, fn) {
       var args;
       if (isArray(array) && array.length) {
         args = yield loadModules(array);
       }
       executeFN(fn, args);
-    });
+    }
 
     //the new CommonJS style
     function CJS(asyncFN) {
-      return async(function* cjs() {
+      return async(function * cjs() {
         var exportsObj = {},
           moduleObj = {
             exports: exportsObj
@@ -431,7 +473,7 @@
       if (moduleName === undefined) {
         moduleName = getFileName(document.currentScript.src);
       }
-      gen.defineGenerator(moduleName, array, moduleDefinition);
+      async(defineGenerator)(moduleName, array, moduleDefinition);
     }
 
     function fxrequire(array, fn) {
@@ -439,15 +481,15 @@
         return async(array)();
       }
       if (typeof array === 'string' && typeof fn === 'undefined') {
-        return gen.loadModuleGenerator(array);
+        return async(loadModuleGenerator)(array);
       }
-      gen.requireGenerator(array, fn);
+      async(requireGenerator)(array, fn);
     }
 
-    gen.loadModuleGenerator = async(function* (modulePath) {
+    function * loadModuleGenerator(modulePath) {
       var args = yield loadModules([modulePath]);
       return args[0];
-    });
+    }
 
     function promiseUse(array) {
       return new Promise(function (fulfill) {
@@ -506,6 +548,6 @@
       global.fixDefine = moduleFN;
     }
   }
-}(function () {
+}((function () {
   return this;
-}()));
+}())));

@@ -4,6 +4,8 @@ define([
   ],
   function (mainPromise, Q) {
 
+    window.Q = Q;
+
     var deferred = Q.defer(),
       req = new XMLHttpRequest();
 

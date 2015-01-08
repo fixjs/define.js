@@ -1,0 +1,10 @@
+{
+  "name": "define-module-mapping",
+  "version": "1.0.0",
+  "description": "An example for module mapping using DefineJS",
+  "main": "main.js",
+  "license": "MIT",
+  "devDependencies": {
+    "requirejs": "^2.1.15"
+  }
+}

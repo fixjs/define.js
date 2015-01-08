@@ -29,11 +29,6 @@ module.exports = function (grunt) {
       example_regular: {
         src: 'define.debug.js',
         dest: 'examples/regular-amd-style/define.js'
-          // options: {
-          //   context: {
-          //     DEBUG: true
-          //   }
-          // }
       },
       example_promise: {
         src: 'define.debug.js',
@@ -54,20 +49,11 @@ module.exports = function (grunt) {
       example_dev: {
         src: 'define.debug.js',
         dest: 'examples/dev/define.js'
-      } //,
-      // test: {
-      //   src: 'test/define.debug.js',
-      //   dest: 'test/define.js'
-      // },
-      // debugtest: {
-      //   src: 'test/define.debug.js',
-      //   dest: 'test/define.js',
-      //   options: {
-      //     context: {
-      //       DEBUG: true
-      //     }
-      //   }
-      // }
+      },
+      example_mapping: {
+        src: 'define.debug.js',
+        dest: 'examples/define-module-mapping/define.js'
+      }
     },
 
     jshint: {
@@ -100,7 +86,8 @@ module.exports = function (grunt) {
     'preprocess:example_promise',
     'preprocess:example_promise_dev',
     'preprocess:example_rjs',
-    'preprocess:example_simple_promised'
+    'preprocess:example_simple_promised',
+    'preprocess:example_mapping'
     //'preprocess:example_dev',
   ]);
 

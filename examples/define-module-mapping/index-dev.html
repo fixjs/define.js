@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Dependency Mapping Using DefineJS</title>
+  <style>
+  body {
+    font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif;
+  }
+  </style>
+</head>
+<body>
+  <h2>Please open up the console!</h2>
+  <h2>This is how you could in development!</h2>
+  <script global="window" src="define.js"></script>
+  <script>
+    config({
+      baseUrl: 'lib'
+    });
+  </script>
+  <script>
+    require(['utils', 'def-a-2', 'def-b-3', 'i18n', 'auth', 'def-a-1', 'def-b-1'],
+      function (utils, defA2, defB3, i18n, auth, defA1, defB1) {
+        var loadedModules = [
+          utils.moduleName,
+          defA2.moduleName,
+          defB3.moduleName,
+          i18n.moduleName,
+          auth.moduleName,
+          defA1.moduleName,
+          defB1.moduleName
+        ];
+        console.log(loadedModules);
+
+        console.log('If what you see in the logged output above is:');
+        console.log('["utils", "def-a-2", "def-b-3", "i18n", "auth", "def-a-1", "def-b-1"]');
+        console.log('It means everything is working as expected!');
+      });
+  </script>
+</body>
+</html>
