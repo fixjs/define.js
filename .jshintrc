@@ -18,11 +18,13 @@
   "trailing": true,
   "smarttabs": true,
   "white": true,
+  "predef": [
+    "fix",
+    "Promise"
+  ],
   "globals": {
-    "fix": true,
     "define": false,
     "require": false,
-    /* MOCHA */
     "describe": false,
     "it": false,
     "before": false,

@@ -1,0 +1,40 @@
+{
+  "ass" : true,       // Not checked in JSHint
+  "bitwise" : false,  // 'false' means 'not allowed'
+  "browser" : false,  // 'false' since we're dictating them in parity with .jshintrc
+  "closure" : true,   // Not checked in JSHint
+  "continue" : true,  // Not checked in JSHint
+  "couch" : false,    // if 'emit' needs to be predefined, we'll do it in 'predefs'
+  "debug" : false,    // same as .jshintrc
+  "devel" : false,    // globals defined in 'predef'
+  "eqeq" : false,     // 'false' means only === allowed
+  "es5" : false,      // same as .jshintrc
+  "evil" : false,     // same as .jshintrc
+  "forin" : true,     // 'true' means unfiltered for/in loops
+  "indent" : 2,       // same as .jshintrc
+  "maxerr" : 50,      // same as .jshintrc (I think)
+  "maxlen" : 200,     // Not set in .jshintrc
+  "newcap" : false,   // 'false' means constructors (and only constructors) should be capitalized
+  "node" : false,     // globals will be set in 'predefs'
+  "nomen" : true,     // 'true' = not checked; .jshintrc doesn't check
+  "passfail" : false, // turned on in .jshintrc
+  "plusplus" : true,  // 'true' means ++ and -- are allowed
+  "predef" : [        // same list as .jshintrc
+    "fix",
+    "Promise",
+    "module",
+    "require",
+    "exports",
+    "window"
+  ],
+  "regexp" : true,    // 'true' doesn't check; .jshintrc doesn't check
+  "rhino" : false,    // globals will be set in 'predefs'
+  "sloppy" : true,    // not checked in .jshintrc
+  "stupid" : true,    // not checked in .jshintrc
+  "sub" : true,       // same as .jshintrc
+  "todo" : true,      // not checked in .jshintrc
+  "unparam" : true,   // 'true' doesn't check; .jshintrc doesn't check
+  "vars" : true,      // .jshintrc doesn't check (suprisingly)
+  "white" : true,     // .jshintrc doesn't check
+  "windows" : false    // globals will be set in 'predefs'
+}

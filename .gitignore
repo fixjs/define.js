@@ -2,6 +2,8 @@ node_modules
 bower_components
 npm-debug.log
 examples/dev
+old-files
 tmp.js
 root.html
-define.defer.js
+ignored
+src
