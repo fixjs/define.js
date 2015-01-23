@@ -22,9 +22,9 @@ To use DefineJS in your JavaScript code, you could simply add it as a script tag
 ```html
 <script src="define.js"></script>
 ```
-Then you should call the fixDefine function to expose the amd modules functions to your desired global object:
+Then you should call the definejs function to expose the amd modules functions to your desired global object:
 ```javascript
-fixDefine(myGlobal);
+definejs(myGlobal);
 ```
 The easier way of achieving this, is to pass your desired global object to the `global` attribute of the script tag:
 ```html

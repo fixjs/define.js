@@ -7,3 +7,5 @@ tmp.js
 root.html
 ignored
 src
+define.angular.js
+dist
