@@ -74,6 +74,11 @@ module.exports = function (grunt) {
         src: 'define.js',
         dest: 'define.min.js'
       }
+    },
+
+    fix: {
+      main: {},
+      promise: {}
     }
   });
 
@@ -91,6 +96,8 @@ module.exports = function (grunt) {
     //'preprocess:example_dev',
   ]);
 
+  grunt.registerMultiTask('fix', require('./build/define.tasks')(grunt));
+
   grunt.registerTask('build', [
     'jshint:debug',
     'preprocess:js',
@@ -98,9 +105,15 @@ module.exports = function (grunt) {
     //'preprocess:node',
     'jshint:js',
     'uglify'
+    //'fix:main',
+    //'fix:promise'
   ]);
 
   grunt.registerTask('default', [
     'jshint:all'
   ]);
+
+  grunt.registerTask('dev', ['build:*:*', 'jshint']);
+
+  grunt.registerTask('default', ['jsonlint', 'dev', 'uglify']);
 };

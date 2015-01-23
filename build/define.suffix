@@ -1,0 +1,59 @@
+// @if DEBUG
+  /*
+   * Note:
+   * Just remember that the exposed "definejs" function provides you a way of exposing the library
+   */
+  // @endif
+  if (typeof exports === 'object') {
+    module.exports = defineModuleDefinition();
+  } else if (typeof define === 'function' && define.amd) {
+    // @if DEBUG
+    console.warn('It is funny!');
+    console.warn('You already have an amd module loader why do you need me!');
+    console.warn('But anyway here we go! you could require it now!');
+    /*
+     * require("define", function(definejs){
+     *   definejs(myGlobal);
+     *
+     *   //Now you can use it to define and require your modules
+     *   //something.js
+     *   myGlobal.define(function(){
+     *     var something = {};
+     *     return something;
+     *   });
+     *   myGlobal.require('something', function(something){
+     *     doSomthing(something);
+     *   });
+     * });
+     */
+    // @endif
+    define([], defineModuleDefinition);
+  } else {
+    var definejs = defineModuleDefinition();
+    if (baseInfo.baseGlobal && utils.isObject(global[baseInfo.baseGlobal])) {
+      definejs(global[baseInfo.baseGlobal]);
+    } else {
+      // @if DEBUG
+      console.warn('Not a good practice! you\'d better add "global" attribute to your script tag!');
+      console.warn(
+        'But anyway here we go! you could expose the DefineJS by passing your global object to the definejs function'
+      );
+      // @endif
+      global.definejs = definejs;
+    }
+  }
+}(
+  function g( /*key, value*/ ) {
+    // var global = this;
+    // if (key) {
+    //   if (value) {
+    //     //expose???
+    //     global[key] = value;
+    //     return g;
+    //   } else {
+    //     return global[key];
+    //   }
+    // }
+    return this;
+  }
+));
