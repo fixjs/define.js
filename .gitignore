@@ -9,3 +9,5 @@ ignored
 defer.js
 define.angular.js
 dist
+src
+define.amd.js
