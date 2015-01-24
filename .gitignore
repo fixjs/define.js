@@ -6,6 +6,6 @@ old-files
 tmp.js
 root.html
 ignored
-src
+defer.js
 define.angular.js
 dist

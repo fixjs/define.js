@@ -12,7 +12,8 @@ module.exports = function (grunt) {
   return function () {
     var version = '0.2.4',
       done = this.async(),
-      nameSuffix = (this.target === 'main') ? '' : '.' + this.target,
+      target = this.target,
+      nameSuffix = (target === 'callback') ? '' : '.' + target,
       moduleName = 'define' + nameSuffix,
       name = 'dist/' + moduleName + '.js',
       config;
@@ -66,7 +67,7 @@ module.exports = function (grunt) {
     }
 
     config = {
-      baseUrl: 'src',
+      baseUrl: 'src/' + target,
       optimize: 'none',
       findNestedDependencies: true,
       skipModuleInsertion: true,
@@ -75,11 +76,13 @@ module.exports = function (grunt) {
         startFile: 'build/define.prefix',
         endFile: 'build/define.suffix'
       },
-      paths: {},
+      paths: {
+        'define.amd': '../../define.amd'
+      },
       rawText: {
         definejs: 'define([]);'
       },
-      name: moduleName,
+      name: 'define.amd',
 
       onBuildWrite: compileAll,
       out: writeTheCompiledFile,

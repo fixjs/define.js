@@ -77,7 +77,7 @@ module.exports = function (grunt) {
     },
 
     fix: {
-      main: {},
+      callback: {},
       promise: {}
     }
   });
