@@ -1,13 +1,13 @@
 var expect = chai.expect;
 
-describe('fixDefine()', function () {
-  it('the main fixDefine function', function () {
-    expect(fixDefine).to.be.a('function');
+describe('definejs()', function () {
+  it('the main definejs function', function () {
+    expect(definejs).to.be.a('function');
   });
 
   var testGlobal = {};
   
-  fixDefine(testGlobal);
+  definejs(testGlobal);
 
   describe('global.define and global.require', function () {
     it('global.define', function () {
