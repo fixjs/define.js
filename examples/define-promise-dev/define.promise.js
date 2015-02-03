@@ -1,28 +1,54 @@
 /**
- * DefineJS v0.2.31
+ * DefineJS v0.2.4 2015-02-03T06:12Z
  * Copyright (c) 2014 Mehran Hatami and define.js contributors.
  * Available via the MIT license.
  * license found at http://github.com/fixjs/define.js/raw/master/LICENSE
  */
-(function (global, undefined) {
-  'use strict';
+(function (g, undefined) {
+  
+  var global = g();
+  var info = {
+    options: {
+      paths: null
+    },
+    modules: {},
+    installed: {},
+    waitingList: {},
+    failedList: {},
+    definedModules: {}
+  };
 
-  var doc = global.document,
-    objToString = Object.prototype.toString,
+  var emptyArray = [];
+
+
+  /* exported:true */
+  var objToString = Object.prototype.toString,
     types = {},
     noop = function () {},
-    isArray = Array.isArray || isType('Array'),
-    genCache = new Map();
+    objectTypes = {
+      'boolean': 0,
+      'function': 1,
+      'object': 1,
+      'number': 0,
+      'string': 0,
+      'undefined': 0
+    },
+    isArray = Array.isArray || isType('Array');
 
-  if (typeof Promise.prototype.done !== 'function') {
-    Promise.prototype.done = function () {
-      var that = arguments.length ? this.then.apply(this, arguments) : this;
-      that.then(null, function (err) {
-        setTimeout(function () {
-          throw err;
-        }, 0);
-      });
-    };
+  function isObject(obj) {
+    return !!(obj && objectTypes[typeof obj]);
+  }
+
+  function extend(base, obj) {
+    var key;
+    if (isObject(base) && isObject(obj)) {
+      for (key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          base[key] = obj[key];
+        }
+      }
+    }
+    return base;
   }
 
   function isType(type) {
@@ -35,24 +61,69 @@
     }
   }
 
-  function isObject(obj) {
-    return obj !== null && typeof obj === 'object';
-  }
-
-  function isPromiseAlike(obj) {
-    return obj && isType('Function')(obj.then);
-  }
-
-  function isGenerator(fn) {
-    if (typeof fn === 'function') {
-      //Function.prototype.isGenerator is supported in Firefox 5.0 or later
-      //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/isGenerator
-      if (typeof fn.isGenerator === 'function') {
-        return fn.isGenerator();
-      }
-      return /^function\s*\*/.test(fn.toString());
+  function utils(name, obj) {
+    if (typeof name === 'string') {
+      utils[name] = obj;
+    } else if (isObject(name)) {
+      extend(utils, name);
     }
-    return false;
+    return utils;
+  }
+
+  utils({
+    extend: extend,
+    isArray: isArray,
+    isType: isType,
+    isObject: isObject,
+    isPromiseAlike: function (obj) {
+      return obj && isType('Function')(obj.then);
+    }
+    /* exported:false */
+  });
+
+  utils('execute', function (fn, args) {
+    var fnData;
+    if (!utils.isArray(args)) {
+      args = emptyArray;
+    }
+    try {
+      fnData = fn.apply(undefined, args);
+    } catch (ignore) {}
+
+    return fnData;
+  });
+
+  utils('setup', function (moduleName, moduleDefinition, install, args) {
+    var moduleData = utils.execute(moduleDefinition, args);
+
+    function setupModule(value) {
+      if (value) {
+        info.modules[moduleName] = value;
+      } else {
+        info.modules[moduleName] = moduleData;
+      }
+      install(moduleName, 'success');
+    }
+
+    if (utils.isPromiseAlike(moduleData)) {
+      moduleData.then(setupModule);
+    } else {
+      setTimeout(setupModule, 0);
+    }
+  });
+
+  var genCache = new Map();
+
+  //The official polyfill for promise.done()
+  if (typeof Promise.prototype.done !== 'function') {
+    Promise.prototype.done = function () {
+      var self = arguments.length ? this.then.apply(this, arguments) : this;
+      self.then(null, function (err) {
+        setTimeout(function () {
+          throw err;
+        }, 0);
+      });
+    };
   }
 
   //A function by Forbes Lindesay which helps us code in synchronous style
@@ -91,218 +162,201 @@
     return asyncGenerator;
   }
 
-  function asyncPromise(starredFN) {
+  async.Promise = function asyncPromise(starredFN) {
     return new Promise(async(starredFN));
-  }
+  };
+  var doc = global.document;
 
-  function defineModuleDefinition() {
-    var
-      isOldOpera = typeof global.opera !== 'undefined' && global.opera.toString() === '[object Opera]',
-      currentScript = document.currentScript,
-      emptyArray = [],
-      options = {
-        paths: null
-      },
-      baseUrl = '',
-      baseGlobal = '',
-      waitingList = {},
-      urlCache = {},
-      definedModules = {},
-      modules = {},
-      installed = {},
-      //So far we we only capture the failure, we need to define a scenario for failed items
-      failedList = {},
-      files = {},
-      cleanUrlRgx = /[\?|#]([^]*)$/,
-      fileNameRgx = /\/([^/]*)$/,
-      cleanExtRgx = /.*?(?=\.|$)/,
-      filePathRgx = /^(.*[\\\/])/,
-      readyStateLoadedRgx = /^(complete|loaded)$/,
 
-      baseElement,
-      head,
-
-      globalPromise = new Promise(function (fulfill) {
-        fulfill(global);
-      }),
-      promiseStorage = {
-        global: globalPromise,
-        g: globalPromise
-      };
-
-    function getFileName(url) {
-      var fileName = files[url],
-        matchResult;
-      if (typeof fileName === 'string') {
-        return fileName;
-      }
-      url = url.replace(cleanUrlRgx, '');
-      matchResult = url.match(fileNameRgx);
-      if (matchResult) {
-        fileName = matchResult[1];
-      } else {
-        fileName = url;
-      }
-      fileName = fileName.match(cleanExtRgx)[0];
-      files[url] = fileName;
+  var files = {},
+    cleanUrlRgx = /[\?|#]([^]*)$/,
+    fileNameRgx = /\/([^/]*)$/,
+    cleanExtRgx = /.*?(?=\.|$)/;
+  utils('getFileName', function (url) {
+    var fileName = files[url],
+      matchResult;
+    if (typeof fileName === 'string') {
       return fileName;
     }
-
-    function getUrl(modulePath) {
-      var moduleName = getFileName(modulePath),
-        url,
-        urlArgs,
-        path,
-        pathUrl;
-
-      if (typeof urlCache[moduleName] === 'string') {
-        return urlCache[moduleName];
-      }
-
-      urlArgs = (typeof options.urlArgs === 'string') ?
-        ('?' + options.urlArgs) :
-        (typeof options.urlArgs === 'function') ? ('?' + options.urlArgs()) : '';
-
-      if (options.baseUrl) {
-        url = options.baseUrl;
-      } else {
-        url = baseUrl;
-      }
-
-      if (isObject(options.paths)) {
-        for (path in options.paths) {
-          if (options.paths.hasOwnProperty(path)) {
-            pathUrl = options.paths[path];
-            if (typeof pathUrl === 'string' &&
-              modulePath.indexOf(path + '/') === 0) {
-              modulePath = modulePath.replace(path, pathUrl);
-              break;
-            }
-          }
-        }
-      }
-
-      if (url.charAt(url.length - 1) !== '/' && modulePath.charAt(0) !== '/') {
-        url += '/';
-      }
-
-      url += modulePath + '.js' + urlArgs;
-
-      urlCache[moduleName] = url;
-
-      return url;
+    url = url.replace(cleanUrlRgx, '');
+    matchResult = url.match(fileNameRgx);
+    if (matchResult) {
+      fileName = matchResult[1];
+    } else {
+      fileName = url;
     }
+    fileName = fileName.match(cleanExtRgx)[0];
+    files[url] = fileName;
+    return fileName;
+  });
 
-    //phantomjs does not provide the "currentScript" property in global document object
-    if (currentScript !== undefined) {
-      baseUrl = currentScript.getAttribute('base') || currentScript.src.match(filePathRgx)[1];
-      baseGlobal = currentScript.getAttribute('global');
-    }
-
+  var currentScript = document.currentScript,
+    filePathRgx = /^(.*[\\\/])/,
     //script injection when using BASE tag is now supported
-    head = doc.head || doc.getElementsByTagName('head')[0];
-    baseElement = doc.getElementsByTagName('base')[0];
-    if (baseElement) {
-      head = baseElement.parentNode;
+    baseInfo = {
+      head: doc.head || doc.getElementsByTagName('head')[0],
+      baseElement: doc.getElementsByTagName('base')[0]
+    };
+
+  if (baseInfo.baseElement) {
+    baseInfo.head = baseInfo.baseElement.parentNode;
+  }
+
+  //phantomjs does not provide the "currentScript" property in global document object
+  if (currentScript) {
+    baseInfo.baseUrl = currentScript.getAttribute('base') || currentScript.src.match(filePathRgx)[1];
+    baseInfo.baseGlobal = currentScript.getAttribute('global');
+  }
+
+  var
+    isOldOpera = typeof global.opera !== 'undefined' && global.opera.toString() === '[object Opera]',
+    urlCache = {},
+    readyStateLoadedRgx = /^(complete|loaded)$/;
+
+  function getUrl(modulePath) {
+    var moduleName = utils.getFileName(modulePath),
+      url,
+      urlArgs,
+      path,
+      pathUrl;
+
+    if (typeof urlCache[moduleName] === 'string') {
+      return urlCache[moduleName];
     }
 
-    function createScript() {
-      var el;
-      //in case DefineJS were used along with something like svg in XML based use-cases,
-      //then "xhtml" should be set to "true" like config({ xhtml: true });
-      if (options.xhtml) {
-        el = doc.createElementNS('http://www.w3.org/1999/xhtml', 'script');
+    urlArgs = (typeof info.options.urlArgs === 'string') ?
+      ('?' + info.options.urlArgs) :
+      (typeof info.options.urlArgs === 'function') ? ('?' + info.options.urlArgs()) : '';
+
+    if (info.options.baseUrl) {
+      url = info.options.baseUrl;
+    } else {
+      url = baseInfo.baseUrl;
+    }
+
+    if (utils.isObject(info.options.paths)) {
+      for (path in info.options.paths) {
+        if (info.options.paths.hasOwnProperty(path)) {
+          pathUrl = info.options.paths[path];
+
+          if (typeof pathUrl === 'string' &&
+            modulePath.indexOf(path + '/') === 0) {
+            modulePath = modulePath.replace(path, pathUrl);
+            break;
+          }
+
+        }
+      }
+    }
+
+    if (url.charAt(url.length - 1) !== '/' && modulePath.charAt(0) !== '/') {
+      url += '/';
+    }
+
+    url += modulePath + '.js' + urlArgs;
+
+    urlCache[moduleName] = url;
+
+    return url;
+  }
+
+  function loadFN(callback) {
+    return function fn(e) {
+      var el = e.currentTarget || e.srcElement;
+      if (e.type === 'load' || readyStateLoadedRgx.test(el.readyState)) {
+        //dependency is loaded successfully
+        if (typeof callback === 'function') {
+          callback('success');
+        }
+      }
+      if (el.detachEvent && !isOldOpera) {
+        el.detachEvent('onreadystatechange', fn);
       } else {
-        el = doc.createElement('script');
+        el.removeEventListener('load', fn, false);
       }
-      el.async = true;
-      el.type = options.scriptType || 'text/javascript';
-      el.charset = 'utf-8';
-      return el;
-    }
+    };
+  }
 
-    function loadFN(callback) {
-      return function fn(e) {
-        var el = e.currentTarget || e.srcElement;
-        if (e.type === 'load' || readyStateLoadedRgx.test(el.readyState)) {
-          //dependency is loaded successfully
-          if (typeof callback === 'function') {
-            callback('success');
-          }
+  function errorFN(callback) {
+    return function fn(e) {
+      var el = e.currentTarget || e.srcElement;
+      if (e.type === 'load' || readyStateLoadedRgx.test(el.readyState)) {
+        if (typeof callback === 'function') {
+          callback('error');
         }
-        if (el.detachEvent && !isOldOpera) {
-          el.detachEvent('onreadystatechange', fn);
-        } else {
-          el.removeEventListener('load', fn, false);
-        }
-      };
-    }
-
-    function errorFN(callback) {
-      return function fn(e) {
-        var el = e.currentTarget || e.srcElement;
-        if (e.type === 'load' || readyStateLoadedRgx.test(el.readyState)) {
-          if (typeof callback === 'function') {
-            callback('error');
-          }
-        }
-        if (typeof el.removeEventListener === 'function') {
-          el.removeEventListener('error', fn, false);
-        }
-      };
-    }
-
-    function loadScript(url) {
-      return new Promise(function (fulfill, reject) {
-        var el = createScript(),
-          scriptUrl = getUrl(url);
-
-        if (el.attachEvent && !isOldOpera) {
-          el.attachEvent('onreadystatechange', loadFN(fulfill));
-        } else {
-          el.addEventListener('load', loadFN(fulfill), false);
-          el.addEventListener('error', errorFN(reject), false);
-        }
-
-        if (baseElement) {
-          head.insertBefore(el, baseElement);
-        } else {
-          head.appendChild(el);
-        }
-        el.src = scriptUrl;
-      });
-    }
-
-    function executeFN(fn, args) {
-      var fnData;
-      if (!isArray(args)) {
-        args = emptyArray;
       }
+      if (typeof el.removeEventListener === 'function') {
+        el.removeEventListener('error', fn, false);
+      }
+    };
+  }
 
-      try {
-        fnData = fn.apply(undefined, args);
-      } catch (ignore) {}
+  utils('createScript', function (url, callback, errorCallback) {
+    var el;
+    //in case DefineJS were used along with something like svg in XML based use-cases,
+    //then "xhtml" should be set to "true" like config({ xhtml: true });
+    if (info.options.xhtml) {
+      el = doc.createElementNS('http://www.w3.org/1999/xhtml', 'script');
+    } else {
+      el = doc.createElement('script');
+    }
+    el.async = true;
+    el.type = info.options.scriptType || 'text/javascript';
+    el.charset = 'utf-8';
 
-      return fnData;
+    url = getUrl(url);
+
+    if (el.attachEvent && !isOldOpera) {
+      el.attachEvent('onreadystatechange', loadFN(callback));
+    } else {
+      el.addEventListener('load', loadFN(callback), false);
+      el.addEventListener('error', errorFN(errorCallback), false);
     }
 
-    function installModule(moduleName, status) {
+    if (baseInfo.baseElement) {
+      baseInfo.head.insertBefore(el, baseInfo.baseElement);
+    } else {
+      baseInfo.head.appendChild(el);
+    }
+
+    el.src = url;
+
+    return el;
+  });
+
+  utils('getScript', function (url) {
+    return new Promise(function (fulfill, reject) {
+      return utils.createScript(url, fulfill, reject);
+    });
+  });
+
+  var globalPromise = new Promise(function (fulfill) {
+      fulfill(global);
+    }),
+    promiseStorage = {
+      global: globalPromise,
+      g: globalPromise
+    },
+    moduleLoader;
+
+  moduleLoader = {
+    install: function install(moduleName, status) {
       var callbacks,
         fulfill, reject,
         i,
         len;
 
       if (status === 'success') {
-        if (!installed[moduleName]) {
-          installed[moduleName] = true;
+        if (!info.installed[moduleName]) {
+          info.installed[moduleName] = true;
         }
       } else {
-        failedList[moduleName] = true;
+        info.failedList[moduleName] = true;
       }
 
-      callbacks = waitingList[moduleName];
+      callbacks = info.waitingList[moduleName];
 
-      if (isArray(callbacks)) {
+      if (utils.isArray(callbacks)) {
         i = 0;
         len = callbacks.length;
 
@@ -310,54 +364,52 @@
           fulfill = callbacks[i][0];
           reject = callbacks[i][1];
           try {
-            fulfill(modules[moduleName]);
+            fulfill(info.modules[moduleName]);
           } catch (e) {
             reject(e);
           }
         }
-        waitingList[moduleName] = [];
+        info.waitingList[moduleName] = [];
       }
-    }
-
-    function loadModule(modulePath) {
+    },
+    load: function load(modulePath) {
       if (promiseStorage[modulePath] === undefined) {
-        promiseStorage[modulePath] = loadModulePromise(modulePath);
+        promiseStorage[modulePath] = moduleLoader.loadPromise(modulePath);
       }
       return promiseStorage[modulePath];
-    }
-
-    function loadModulePromise(modulePath) {
-      return asyncPromise(function * (fulfill, reject) {
+    },
+    loadPromise: function loadPromise(modulePath) {
+      return async.Promise(function * (fulfill, reject) {
         var isFirstLoadDemand = false,
-          moduleName = getFileName(modulePath),
+          moduleName = utils.getFileName(modulePath),
           status,
           fileName,
           modulesList;
 
-        if (installed[moduleName]) {
-          if (modules[moduleName] !== undefined) {
-            fulfill(modules[moduleName]);
+        if (info.installed[moduleName]) {
+          if (info.modules[moduleName] !== undefined) {
+            fulfill(info.modules[moduleName]);
           } else {
 
             //REVIEW NEEDED
-            installed[moduleName] = undefined;
+            info.installed[moduleName] = undefined;
 
             reject(new Error(moduleName + ': has no returned module definition.'));
           }
         } else {
-          if (!isArray(waitingList[moduleName])) {
-            waitingList[moduleName] = [];
+          if (!utils.isArray(info.waitingList[moduleName])) {
+            info.waitingList[moduleName] = [];
             isFirstLoadDemand = true;
           }
 
-          waitingList[moduleName].push([fulfill, reject]);
+          info.waitingList[moduleName].push([fulfill, reject]);
 
           if (isFirstLoadDemand) {
             //This code blog solves #10 issue but it still needs some review
-            if (isObject(options.dependencyMap)) {
-              for (fileName in options.dependencyMap) {
-                if (options.dependencyMap.hasOwnProperty(fileName)) {
-                  modulesList = options.dependencyMap[fileName];
+            if (utils.isObject(info.options.dependencyMap)) {
+              for (fileName in info.options.dependencyMap) {
+                if (info.options.dependencyMap.hasOwnProperty(fileName)) {
+                  modulesList = info.options.dependencyMap[fileName];
                   if (modulesList.indexOf(modulePath) > -1) {
                     modulePath = fileName;
                     break;
@@ -365,57 +417,53 @@
                 }
               }
             }
-            status = yield loadScript(modulePath);
-            if (definedModules[moduleName] === true) {
+            status = yield utils.getScript(modulePath);
+            if (info.definedModules[moduleName] === true) {
               //Do not need to do anything so far
             } else {
               //This code block allows using this library for regular javascript files
               //with no "define" or "require"
-              installModule(moduleName, status);
+              moduleLoader.install(moduleName, status);
             }
           }
         }
       });
+    },
+    loadAll: function loadModules(array) {
+      return Promise.all(array.map(moduleLoader.load));
     }
+  };
 
-    function loadModules(array) {
-      return Promise.all(array.map(loadModule));
-    }
-
-    function setUpModule(moduleName, moduleDefinition, args) {
-      var moduleData = executeFN(moduleDefinition, args);
-
-      function setUp(value) {
-        if (value) {
-          modules[moduleName] = value;
-        } else {
-          modules[moduleName] = moduleData;
-        }
-        installModule(moduleName, 'success');
+  utils('isGenerator', function (fn) {
+    if (typeof fn === 'function') {
+      //Function.prototype.isGenerator is supported in Firefox 5.0 or later
+      //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/isGenerator
+      if (typeof fn.isGenerator === 'function') {
+        return fn.isGenerator();
       }
-
-      if (isPromiseAlike(moduleData)) {
-        moduleData.then(setUp);
-      } else {
-        setTimeout(setUp, 0);
-      }
+      return /^function\s*\*/.test(fn.toString());
     }
+    return false;
+  });
 
+  
+
+  function defineModuleDefinition() {
     function * defineGenerator(moduleName, array, moduleDefinition) {
       var args;
-      definedModules[moduleName] = true;
-      if (isArray(array) && array.length) {
-        args = yield loadModules(array);
+      info.definedModules[moduleName] = true;
+      if (utils.isArray(array) && array.length) {
+        args = yield moduleLoader.loadAll(array);
       }
-      setUpModule(moduleName, moduleDefinition, args);
+      utils.setup(moduleName, moduleDefinition, moduleLoader.install, args);
     }
 
     function * requireGenerator(array, fn) {
       var args;
-      if (isArray(array) && array.length) {
-        args = yield loadModules(array);
+      if (utils.isArray(array) && array.length) {
+        args = yield moduleLoader.loadAll(array);
       }
-      executeFN(fn, args);
+      utils.execute(fn, args);
     }
 
     //the new CommonJS style
@@ -440,7 +488,7 @@
     function fxdefine(moduleName, array, moduleDefinition) {
       //define(moduleDefinition)
       if (typeof moduleName === 'function') {
-        if (isGenerator(moduleName)) {
+        if (utils.isGenerator(moduleName)) {
           var asyncFunc = async(moduleName);
           return fxdefine(CJS(asyncFunc));
         }
@@ -449,7 +497,7 @@
         array = emptyArray;
       }
       //define(array, moduleDefinition)
-      else if (isArray(moduleName)) {
+      else if (utils.isArray(moduleName)) {
         moduleDefinition = array;
         array = moduleName;
         moduleName = undefined;
@@ -471,13 +519,13 @@
         return;
       }
       if (moduleName === undefined) {
-        moduleName = getFileName(document.currentScript.src);
+        moduleName = utils.getFileName(document.currentScript.src);
       }
       async(defineGenerator)(moduleName, array, moduleDefinition);
     }
 
     function fxrequire(array, fn) {
-      if (typeof array === 'function' && isGenerator(array)) {
+      if (typeof array === 'function' && utils.isGenerator(array)) {
         return async(array)();
       }
       if (typeof array === 'string' && typeof fn === 'undefined') {
@@ -487,7 +535,7 @@
     }
 
     function * loadModuleGenerator(modulePath) {
-      var args = yield loadModules([modulePath]);
+      var args = yield moduleLoader.loadAll([modulePath]);
       return args[0];
     }
 
@@ -498,47 +546,55 @@
     }
 
     function fxconfig(cnfOptions) {
-      if (!isObject(cnfOptions)) {
+      if (!utils.isObject(cnfOptions)) {
         return;
       }
 
       var key;
+
       for (key in cnfOptions) {
         if (cnfOptions.hasOwnProperty(key)) {
-          options[key] = cnfOptions[key];
+          info.options[key] = cnfOptions[key];
         }
       }
     }
 
     fxdefine.amd = {};
 
-    function fixDefine(g) {
-      g.require = fxrequire;
-      g.define = fxdefine;
-      g.config = fxconfig;
-      g.options = options;
+    function definejs(obj) {
+      if (!utils.isObject(obj)) {
+        obj = global;
+      }
+      obj.require = fxrequire;
+      obj.define = fxdefine;
+      obj.config = fxconfig;
+      obj.options = info.options;
 
       //Nonstandards
-      g.use = promiseUse;
+      obj.use = promiseUse;
+
+      // @if DEBUG
+      obj.info = info;
+      // @endif
     }
 
-    if (baseGlobal && isObject(global[baseGlobal])) {
-      fixDefine(global[baseGlobal]);
-      fixDefine._exposed = true;
-    }
-
-    return fixDefine;
+    return definejs;
   }
-  if (typeof exports === 'object') {
+
+  if (isObject(exports)) {
     module.exports = defineModuleDefinition();
   } else if (typeof define === 'function' && define.amd) {
     define([], defineModuleDefinition);
   } else {
-    var moduleFN = defineModuleDefinition();
-    if (!moduleFN._exposed) {
-      global.fixDefine = moduleFN;
+    var definejs = defineModuleDefinition();
+    if (baseInfo.baseGlobal && utils.isObject(global[baseInfo.baseGlobal])) {
+      definejs(global[baseInfo.baseGlobal]);
+    } else {
+      global.definejs = definejs;
     }
   }
-}((function () {
-  return this;
-}())));
+}(
+  function g() {
+    return this;
+  }
+));
