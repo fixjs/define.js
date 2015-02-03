@@ -1,4 +1,4 @@
-  if (isObject(exports)) {
+  if (typeof exports === 'object') {
     module.exports = defineModuleDefinition();
   } else if (typeof define === 'function' && define.amd) {
     define([], defineModuleDefinition);

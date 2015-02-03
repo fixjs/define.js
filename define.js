@@ -1,5 +1,5 @@
 /**
- * DefineJS v0.2.4 2015-02-03T06:12Z
+ * DefineJS v0.2.4 2015-02-03T06:42Z
  * Copyright (c) 2014 Mehran Hatami and define.js contributors.
  * Available via the MIT license.
  * license found at http://github.com/fixjs/define.js/raw/master/LICENSE
@@ -490,7 +490,7 @@
     return definejs;
   }
 
-  if (isObject(exports)) {
+  if (typeof exports === 'object') {
     module.exports = defineModuleDefinition();
   } else if (typeof define === 'function' && define.amd) {
     define([], defineModuleDefinition);
