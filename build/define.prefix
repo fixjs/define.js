@@ -6,5 +6,4 @@
  */
 (function (g, undefined) {
   'use strict';
-
   var global = g();

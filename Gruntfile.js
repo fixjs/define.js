@@ -1,119 +1,145 @@
 module.exports = function (grunt) {
+  'use strict';
+
+  var examples = [
+    'regular-amd-style',
+    'definejs-promised-modules',
+    'define-promise-dev',
+    'rjs-amd-optimizer',
+    'simple-promised-module',
+    // 'dev',
+    'define-module-mapping'
+  ];
+
+  function prepareExample(name) {
+    var definelib = (name === 'define-promise-dev') ? 'define.promise.js' : 'define.js'
+    return {
+      src: definelib,
+      dest: 'examples/' + name + '/' + definelib
+    };
+  }
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-
-    //We only have two active files under development, define.debug.js and test/define.debug.js
-    //The rest are only auto generated files with our grunt tasks
-    preprocess: {
-      options: {
-        context: {
-          DEBUG: false,
-          NODE: false
-        }
-      },
-      node: {
-        src: 'define.debug.js',
-        dest: 'define.node.js',
-        options: {
-          context: {
-            DEBUG: false,
-            NODE: true
-          }
-        }
-      },
-      js: {
-        src: 'define.debug.js',
-        dest: 'define.js'
-      },
-      example_regular: {
-        src: 'define.debug.js',
-        dest: 'examples/regular-amd-style/define.js'
-      },
-      example_promise: {
-        src: 'define.debug.js',
-        dest: 'examples/definejs-promised-modules/define.js'
-      },
-      example_promise_dev: {
-        src: 'define.promise.js',
-        dest: 'examples/define-promise-dev/define.promise.js'
-      },
-      example_rjs: {
-        src: 'define.debug.js',
-        dest: 'examples/rjs-amd-optimizer/define.js'
-      },
-      example_simple_promised: {
-        src: 'define.debug.js',
-        dest: 'examples/simple-promised-module/define.js'
-      },
-      example_dev: {
-        src: 'define.debug.js',
-        dest: 'examples/dev/define.js'
-      },
-      example_mapping: {
-        src: 'define.debug.js',
-        dest: 'examples/define-module-mapping/define.js'
-      }
-    },
+    copy: (function () {
+      var task = {
+        options: {}
+      };
+      examples.forEach(function (name) {
+        task[name.replace(/-/g, '_')] = prepareExample(name);
+      });
+      return task;
+    }()),
 
     jshint: {
       options: {
-        reporter: require('jshint-stylish')
+        reporter: require('jshint-stylish'),
+        ignores: ['src/old/{,*/}*.js'],
+        esnext: true
       },
-      debug: ['define.debug.js'],
-      js: ['define.js'],
-      test: ['test/**/*.js'],
-      all: ['define.debug.js', 'define.js', 'Gruntfile.js', 'test/**/*.js']
+      test: ['test/{,*/}*.js'],
+      src: ['src/{,*/}*.js'],
+      all: ['src/{,*/}*.js', 'Gruntfile.js', 'test/{,*/}*.js']
     },
 
     uglify: {
       options: {
         banner: '/*! DefineJS v<%= pkg.version %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
       },
-      build: {
+      callback: {
         src: 'define.js',
         dest: 'define.min.js'
+      },
+      promise: {
+        options: {
+          mangle: false,
+          compress: false
+        },
+        src: 'tmp/define.promise.js',
+        dest: 'tmp/define.promise.min.js'
       }
     },
 
     fix: {
       callback: {},
       promise: {}
+    },
+
+    replace: {
+      removeStars: {
+        options: {
+          patterns: [{
+            match: /function \* /g,
+            replacement: 'function $star$_'
+          }, {
+            match: / yield /g,
+            replacement: ' $yield$_'
+          }]
+        },
+        files: [{
+          expand: true,
+          flatten: true,
+          src: ['define.promise.js'],
+          dest: 'tmp'
+        }]
+      },
+      backToStars: {
+        options: {
+          patterns: [{
+            match: /\$star\$_/g,
+            replacement: '* '
+          }, {
+            match: /\$yield\$_/g,
+            replacement: 'yield '
+          }]
+        },
+        files: [{
+          expand: true,
+          flatten: true,
+          src: ['tmp/define.promise.min.js'],
+          dest: ''
+        }]
+      }
+    },
+
+    clean: {
+      tmp: ['tmp/{,*/}*.js', 'tmp']
     }
   });
 
-  grunt.loadNpmTasks('grunt-preprocess');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-uglify');
-
-  grunt.registerTask('build:examples', [
-    'preprocess:example_regular',
-    'preprocess:example_promise',
-    'preprocess:example_promise_dev',
-    'preprocess:example_rjs',
-    'preprocess:example_simple_promised',
-    'preprocess:example_mapping'
-    //'preprocess:example_dev',
-  ]);
+  grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-replace');
 
   grunt.registerMultiTask('fix', require('./build/define.tasks')(grunt));
 
+  grunt.registerTask('build:callback', [
+    'fix:callback',
+    'uglify:callback'
+  ]);
+
+  grunt.registerTask('build:promise', [
+    'fix:promise',
+    'replace:removeStars',
+    'uglify:promise',
+    'replace:backToStars',
+    'clean:tmp'
+  ]);
+
+  grunt.registerTask('build:examples', examples.map(function (name) {
+    return 'copy:' + name.replace(/-/g, '_');
+  }));
+
   grunt.registerTask('build', [
-    'jshint:debug',
-    'preprocess:js',
-    'build:examples',
-    //'preprocess:node',
-    'jshint:js',
-    'uglify'
-    //'fix:main',
-    //'fix:promise'
+    'jshint:src',
+    'build:callback',
+    'build:promise',
+    'build:examples'
   ]);
 
   grunt.registerTask('default', [
     'jshint:all'
   ]);
-
-  grunt.registerTask('dev', ['build:*:*', 'jshint']);
-
-  grunt.registerTask('default', ['jsonlint', 'dev', 'uglify']);
 };
