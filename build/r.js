@@ -16,7 +16,13 @@
 /*global readFile: true, process: false, Packages: false, print: false,
 console: false, java: false, module: false, requirejsVars, navigator,
 document, importScripts, self, location, Components, FileUtils */
-
+/*
+ * DefineJS needs its own r.js build because of the new es6/harmony syntax
+ * like es6 function generators which is being used in define.promise.js
+ * this build has replaced the esprima's build from its master repo
+ * with the hormony build of esprima in r.js. What it actually offers is being able
+ * to use es6/harmony syntax in the javascript modules.
+ */
 var requirejs, require, define, xpcUtil;
 (function (console, args, readFileFunc) {
     var fileName, env, fs, vm, path, exec, rhinoContext, dir, nodeRequire,

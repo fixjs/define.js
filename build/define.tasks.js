@@ -15,7 +15,7 @@ module.exports = function (grunt) {
       target = this.target,
       nameSuffix = (target === 'callback') ? '' : '.' + target,
       moduleName = 'define' + nameSuffix,
-      name = 'dist/' + moduleName + '.js',
+      name = moduleName + '.js',
       config;
 
     function writeTheCompiledFile(compiled) {
@@ -83,7 +83,7 @@ module.exports = function (grunt) {
         definejs: 'define([]);'
       },
       name: 'define.amd',
-
+      strict:true,
       onBuildWrite: compileAll,
       out: writeTheCompiledFile,
 
