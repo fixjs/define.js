@@ -1,8 +1,8 @@
 define([
-  '../var/info',
-  '../var/emptyArray',
-  '../utils.setup',
-  './moduleLoader',
+  './var/info',
+  './var/emptyArray',
+  './utils.setup',
+  './moduleLoader.promise',
   './async',
   './utils.isGenerator'
 ], function (info, emptyArray, utils, moduleLoader, async) {
@@ -118,6 +118,7 @@ define([
     }
 
     fxdefine.amd = {};
+    fxrequire.config = fxconfig;
 
     function definejs(obj) {
       if (!utils.isObject(obj)) {
@@ -126,14 +127,10 @@ define([
       obj.require = fxrequire;
       obj.define = fxdefine;
       obj.config = fxconfig;
+      
       obj.options = info.options;
-
-      //Nonstandards
       obj.use = promiseUse;
-
-      // @if DEBUG
       obj.info = info;
-      // @endif
     }
 
     return definejs;

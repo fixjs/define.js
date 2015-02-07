@@ -1,7 +1,7 @@
 define([
-  '../var/info',
-  '../var/emptyArray',
-  '../utils.execute',
+  './var/info',
+  './var/emptyArray',
+  './utils.execute',
   './utils.getScript'
 ], function (info, emptyArray, utils) {
   var moduleLoader = {

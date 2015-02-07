@@ -1,5 +1,5 @@
 define([
-  '../utils'
+  './utils'
 ], function (utils) {
   utils('isGenerator', function (fn) {
     if (typeof fn === 'function') {

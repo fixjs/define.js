@@ -1,9 +1,9 @@
 define([
   './var/doc',
   './var/info',
-  './utils.getFileName',
-  './baseInfo'
-], function (doc, info, utils, baseInfo) {
+  './baseInfo',
+  './utils.getFileName'
+], function (doc, info, baseInfo, utils) {
   var
     isOldOpera = typeof global.opera !== 'undefined' && global.opera.toString() === '[object Opera]',
     urlCache = {},

@@ -1,7 +1,7 @@
 define([
   './var/doc'
 ], function (doc) {
-  var currentScript = document.currentScript,
+  var currentScript = doc.currentScript,
     filePathRgx = /^(.*[\\\/])/,
     //script injection when using BASE tag is now supported
     baseInfo = {

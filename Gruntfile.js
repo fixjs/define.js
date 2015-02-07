@@ -37,7 +37,12 @@ module.exports = function (grunt) {
         ignores: ['src/old/{,*/}*.js'],
         esnext: true
       },
-      test: ['test/{,*/}*.js'],
+      test: {
+        options: {
+          jshintrc: 'test/.jshintrc'
+        },
+        src: ['test/{,*/}*.js']
+      },
       src: ['src/{,*/}*.js'],
       all: ['src/{,*/}*.js', 'Gruntfile.js', 'test/{,*/}*.js']
     },
@@ -102,6 +107,10 @@ module.exports = function (grunt) {
       }
     },
 
+    qunit: {
+      files: ['test/**/*.html']
+    },
+
     clean: {
       tmp: ['tmp/{,*/}*.js', 'tmp']
     }
@@ -111,6 +120,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-qunit');
   grunt.loadNpmTasks('grunt-replace');
 
   grunt.registerMultiTask('fix', require('./build/define.tasks')(grunt));

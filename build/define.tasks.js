@@ -67,7 +67,7 @@ module.exports = function (grunt) {
     }
 
     config = {
-      baseUrl: 'src/' + target,
+      baseUrl: 'src/',
       optimize: 'none',
       findNestedDependencies: true,
       skipModuleInsertion: true,
@@ -77,7 +77,8 @@ module.exports = function (grunt) {
         endFile: 'build/define.suffix'
       },
       paths: {
-        'define.amd': '../../define.amd'
+        'define.amd': '../define.amd',
+        'amd': 'amd' + nameSuffix
       },
       rawText: {
         definejs: 'define([]);'
