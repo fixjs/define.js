@@ -16,16 +16,17 @@ define(function () {
     assert.strictEqual(baseInfo.baseGlobal, 'GLOB', 'baseInfo.baseGlobal  stores the correct value');
   }
 
-  return {
+  fix.testRunner('baseInfo', {
+    message: 'is a expose function for AMD functions and more DefineJS attributes',
     module: {
       beforeEach: function () {
         var that = this;
         this.mainCurrentScript = document.currentScript;
         this.currentScript = $('<script>', {
-            'src': 'spec/baseInfo.js',
-            'global': 'GLOB',
-            'base': '../spec/'
-          }).get(0);
+          'src': 'spec/baseInfo.js',
+          'global': 'GLOB',
+          'base': '../spec/'
+        }).get(0);
 
         Object.defineProperty(document, 'currentScript', {
           get: function () {
@@ -37,13 +38,13 @@ define(function () {
         this.currentScript = this.mainCurrentScript;
       }
     },
-    run: function run(baseInfo, doc) {
-      var assert = this;
+    require: ['./baseInfo', './var/doc']
+  }).then(function (assert, baseInfo, doc) {
 
-      assert.strictEqual(typeof baseInfo, 'object', 'baseInfo is an object');
-      assert.strictEqual(doc, document, 'doc is the global document object');
+    assert.strictEqual(typeof baseInfo, 'object', 'baseInfo is an object');
+    
+    assert.strictEqual(doc, document, 'doc is the global document object');
 
-      testBaseInfo(assert, baseInfo, doc);
-    }
-  };
+    testBaseInfo(assert, baseInfo, doc);
+  });
 });

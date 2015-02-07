@@ -127,25 +127,23 @@ define(function () {
     testIsPromiseAlike(assert, utils);
   }
 
-  return {
-    run: function run(utils) {
-      var assert = this;
+  fix.testRunner('utils', {
+    message: 'utils helper functions',
+  }).then(function (assert, utils) {
+    assert.strictEqual(typeof utils, 'function', 'utils is a function');
 
-      assert.strictEqual(typeof utils, 'function', 'utils is a function');
+    utils('moduleName', 'utils');
+    assert.strictEqual(utils.moduleName, 'utils', 'utils as a function, exposes new attributes to itself');
 
-      utils('moduleName', 'utils');
-      assert.strictEqual(utils.moduleName, 'utils', 'utils as a function, exposes new attributes to itself');
+    var testUtilFunction;
+    utils('testUtilFunction', (testUtilFunction = function () {
+      return this.moduleName;
+    }));
 
-      var testUtilFunction;
-      utils('testUtilFunction', (testUtilFunction = function () {
-        return this.moduleName;
-      }));
+    assert.strictEqual(typeof utils.testUtilFunction, 'function', 'utils exposes functions');
+    assert.strictEqual(utils.testUtilFunction, testUtilFunction, 'utils exposes functions');
+    assert.strictEqual(utils.testUtilFunction(), 'utils', '"this" context in utils exposed functions, points to utils itself');
 
-      assert.strictEqual(typeof utils.testUtilFunction, 'function', 'utils exposes functions');
-      assert.strictEqual(utils.testUtilFunction, testUtilFunction, 'utils exposes functions');
-      assert.strictEqual(utils.testUtilFunction(), 'utils', '"this" context in utils exposed functions, points to utils itself');
-
-      testUtils(assert, utils);
-    }
-  };
+    testUtils(assert, utils);
+  });
 });

@@ -4,12 +4,18 @@
 <head>
   <meta charset="utf-8">
   <title>Test Suite</title>
-   <script src="polyfills/promise-6.0.0.min.js"></script>
+  <script src="polyfills/promise-6.0.0.min.js"></script>
+  <script src="polyfills/promise-done-5.0.0.js"></script>
   <!-- Load local QUnit. -->
   <link rel="stylesheet" href="../bower_components/qunit/qunit/qunit.css" media="screen">
   <script src="../bower_components/qunit/qunit/qunit.js"></script>
   <script src="../bower_components/jquery/dist/jquery.js"></script>
   <script>
+  var global = window,
+    fix = {};
+
+  global.fix = fix;
+  
   QUNIT_BDD_OPTIONS = {
     GLOBALS: {
       lazy: false, // don't use lazy
@@ -20,9 +26,10 @@
   <script>
   QUnit.config.autostart = false;
   </script>
+  <script src="fix.testRunner.js"></script>
   <script src="../bower_components/requirejs/require.js"></script>
   <script>
-  var global = window;  
+  
   // if (!window.requireTestMode) {
   //   require(['main'], function(){
   //     console.log(')))))))))))))))))))))))))');
@@ -37,7 +44,7 @@
       "definejs": "../define.amd"
     },
     deps: [
-      "../test/define.js"
+      "../test/testSuite.js"
     ]
   });
   </script>

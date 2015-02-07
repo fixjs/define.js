@@ -1,9 +1,8 @@
 define([
   './var/info',
-  './var/emptyArray',
   './utils.execute',
   './utils.getScript'
-], function (info, emptyArray, utils) {
+], function (info, utils) {
   var moduleLoader = {
     install: function install(moduleName, status) {
       var callbacks, fn,
