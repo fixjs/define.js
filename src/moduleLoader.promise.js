@@ -1,8 +1,8 @@
 define([
-  '../var/info',
-  '../var/emptyArray',
+  './var/info',
+  './var/emptyArray',
   './async',
-  './utils.getScript'
+  './utils.getScript.promise'
 ], function (info, emptyArray, async, utils) {
   var globalPromise = new Promise(function (fulfill) {
       fulfill(global);

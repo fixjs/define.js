@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Test Suite</title>
+   <script src="polyfills/promise-6.0.0.min.js"></script>
+  <!-- Load local QUnit. -->
+  <link rel="stylesheet" href="../bower_components/qunit/qunit/qunit.css" media="screen">
+  <script src="../bower_components/qunit/qunit/qunit.js"></script>
+  <script src="../bower_components/jquery/dist/jquery.js"></script>
+  <script>
+  QUNIT_BDD_OPTIONS = {
+    GLOBALS: {
+      lazy: false, // don't use lazy
+      expect: true // use the regular QUnit assertions (or another set altogether)
+    }
+  };
+  </script>
+  <script>
+  QUnit.config.autostart = false;
+  </script>
+  <script src="../bower_components/requirejs/require.js"></script>
+  <script>
+  var global = window;  
+  // if (!window.requireTestMode) {
+  //   require(['main'], function(){
+  //     console.log(')))))))))))))))))))))))))');
+  //   });
+  // }
+  // window.requireTestMode = true;
+  require.config({
+    baseUrl: '../src',
+    paths: {
+      "components": "../bower_components",
+      "jquery": "../bower_components/jquery/dist/jquery",
+      "definejs": "../define.amd"
+    },
+    deps: [
+      "../test/define.js"
+    ]
+  });
+  </script>
+</head>
+
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture">
+    <!-- fixtures go here -->
+  </div>
+</body>
+
+</html>

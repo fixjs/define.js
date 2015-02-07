@@ -1,4 +1,6 @@
-define(['./utils'], function (utils) {
+define([
+  './utils'
+], function (utils) {
   var files = {},
     cleanUrlRgx = /[\?|#]([^]*)$/,
     fileNameRgx = /\/([^/]*)$/,

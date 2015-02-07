@@ -1,5 +1,5 @@
 define([
-  '../utils.createScript'
+  './utils.createScript'
 ], function (utils) {
   utils('getScript', function (url) {
     return new Promise(function (fulfill, reject) {
