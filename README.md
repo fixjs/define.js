@@ -5,6 +5,8 @@
 
 [![Code Climate](https://codeclimate.com/github/fixjs/define.js/badges/gpa.svg)](https://codeclimate.com/github/fixjs/define.js)
 
+[![Coverage Status](https://coveralls.io/repos/fixjs/define.js/badge.svg?branch=master)](https://coveralls.io/r/fixjs/define.js?branch=master)
+
 DefineJS is a lightweight implementation of [AMD](https://github.com/amdjs/amdjs-api) module format.
 
 > The Asynchronous Module Definition (AMD) API specifies a mechanism for defining modules such that the module and its dependencies can be asynchronously loaded.
