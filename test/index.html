@@ -10,37 +10,13 @@
   <link rel="stylesheet" href="../bower_components/qunit/qunit/qunit.css" media="screen">
   <script src="../bower_components/qunit/qunit/qunit.js"></script>
   <script src="../bower_components/jquery/dist/jquery.js"></script>
-  <script>
-  var global = window,
-    fix = {};
-
-  global.fix = fix;
-  
-  QUNIT_BDD_OPTIONS = {
-    GLOBALS: {
-      lazy: false, // don't use lazy
-      expect: true // use the regular QUnit assertions (or another set altogether)
-    }
-  };
-  </script>
-  <script>
-  QUnit.config.autostart = false;
-  </script>
   <script src="fix.testRunner.js"></script>
   <script src="../bower_components/requirejs/require.js"></script>
   <script>
-  
-  // if (!window.requireTestMode) {
-  //   require(['main'], function(){
-  //     console.log(')))))))))))))))))))))))))');
-  //   });
-  // }
-  // window.requireTestMode = true;
+  QUnit.config.autostart = true;
   require.config({
     baseUrl: '../src',
     paths: {
-      "components": "../bower_components",
-      "jquery": "../bower_components/jquery/dist/jquery",
       "definejs": "../define.amd"
     },
     deps: [

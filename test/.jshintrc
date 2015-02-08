@@ -1,5 +1,7 @@
 {
   "curly": true,
+  "es5": false,
+  "esnext": true,
   "eqeqeq": true,
   "immed": true,
   "latedef": true,
@@ -29,6 +31,7 @@
     "notDeepEqual",
     "strictEqual",
     "notStrictEqual",
-    "throws"
+    "throws",
+    "console"
   ]
 }

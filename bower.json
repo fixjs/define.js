@@ -21,6 +21,7 @@
   "devDependencies": {
     "requirejs": "~2.1.5",
     "jquery": ">= 1.8.0",
-    "qunit": "~1.17.0"
+    "qunit": "~1.17.0",
+    "blanket": "~1.1.5"
   }
 }
