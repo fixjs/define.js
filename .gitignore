@@ -8,3 +8,4 @@ root.html
 ignored
 defer.js
 define.angular.js
+.coveralls.yml
