@@ -1,30 +1,45 @@
-// Karma configuration file
-//
-// For all available config options and default values, see:
-// https://github.com/karma-runner/karma/blob/stable/lib/config.js#L54
-
 module.exports = function (config) {
   'use strict';
 
   config.set({
-    // base path, that will be used to resolve files and exclude
     basePath: '',
 
-    frameworks: [
-      'mocha'
-    ],
-
-    // list of files / patterns to load in the browser
+    frameworks: ['qunit', 'requirejs'],
     files: [
-      'bower_components/chai/chai.js',
-      'define.js',
-      'test/define.js'
+      'test/polyfills/promise-6.0.0.min.js',
+      'test/polyfills/promise-done-5.0.0.js',
+      'bower_components/jquery/dist/jquery.js',
+      'test/fix.testRunner.js',
+      'test/karma.main.js', {
+        pattern: 'src/{,*/}*.js',
+        included: false
+      }, {
+        pattern: 'test/testSuite.js',
+        included: false
+      }, {
+        pattern: 'define.amd.js',
+        included: false
+      }, {
+        pattern: 'test/spec/{,*/}*.js',
+        included: false
+      }
+    ],
+    exclude: [
+      'src/*.promise.js'
     ],
 
     // use dots reporter, as travis terminal does not support escaping sequences
     // possible values: 'dots', 'progress', 'junit', 'teamcity'
     // CLI --reporters progress
-    reporters: ['dots'],
+    reporters: ['progress', 'coverage'],
+
+    preprocessors: {
+      'src/{,*/}*.js': 'coverage'
+    },
+    coverageReporter: {
+      type: 'lcov',
+      dir: 'coverage/'
+    },
 
     // enable / disable watching file and executing tests whenever any file changes
     // CLI --auto-watch --no-auto-watch
@@ -33,9 +48,10 @@ module.exports = function (config) {
     // start these browsers
     // CLI --browsers Chrome,Firefox,Safari
     browsers: [
-      'Chrome',
       'Firefox',
-      'PhantomJS'
+      'Chrome',
+      'PhantomJS',
+      'Safari'
     ],
 
     // if browser does not capture in given timeout [ms], kill it
@@ -44,16 +60,18 @@ module.exports = function (config) {
 
     // auto run tests on start (when browsers are captured) and exit
     // CLI --single-run --no-single-run
-    singleRun: false,
+    singleRun: true,
 
     plugins: [
-      'karma-mocha',
+      'karma-qunit',
       'karma-requirejs',
+      'karma-coverage',
+      'karma-phantomjs-launcher',
       'karma-chrome-launcher',
       'karma-firefox-launcher',
       'karma-ie-launcher',
       'karma-safari-launcher',
-      'karma-phantomjs-launcher'
+      'karma-opera-launcher'
     ]
   });
 };

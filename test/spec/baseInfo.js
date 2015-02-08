@@ -4,6 +4,8 @@ define(function () {
   function testBaseInfo(assert, baseInfo, doc) {
     var head = doc.head || doc.getElementsByTagName('head')[0],
       base = doc.getElementsByTagName('base')[0];
+    
+    baseInfo();
 
     if (baseInfo.baseElement) {
       assert.strictEqual(baseInfo.baseElement, base, 'baseInfo.baseElement stores the correct value');
@@ -41,7 +43,7 @@ define(function () {
     require: ['./baseInfo', './var/doc']
   }).then(function (assert, baseInfo, doc) {
 
-    assert.strictEqual(typeof baseInfo, 'object', 'baseInfo is an object');
+    assert.strictEqual(typeof baseInfo, 'function', 'baseInfo is an object');
     
     assert.strictEqual(doc, document, 'doc is the global document object');
 

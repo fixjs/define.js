@@ -1,0 +1,5 @@
+*.json
+*.html
+*.css
+*.js
+PhantomJS*

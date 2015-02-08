@@ -14,10 +14,7 @@ define(function () {
     message: 'is a shared object for all the modules to store the data needed for the moduleLoader!',
     require: './var/info'
   }).then(function (assert, info) {
-    
     assert.strictEqual(typeof info, 'object', 'var/info is an Object');
-    
     testInfoAttributes(assert, info);
-
   });
 });

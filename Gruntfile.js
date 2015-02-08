@@ -34,7 +34,7 @@ module.exports = function (grunt) {
     jshint: {
       options: {
         reporter: require('jshint-stylish'),
-        ignores: ['src/old/{,*/}*.js'],
+        // ignores: ['src/old/{,*/}*.js'],
         esnext: true
       },
       test: {
@@ -113,6 +113,16 @@ module.exports = function (grunt) {
 
     clean: {
       tmp: ['tmp/{,*/}*.js', 'tmp']
+    },
+
+    coveralls: {
+      options: {
+        debug: true,
+        coverageDir: 'coverage',
+        dryRun: false,
+        force: true,
+        recursive: true
+      }
     }
   });
 
@@ -122,6 +132,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-qunit');
   grunt.loadNpmTasks('grunt-replace');
+  grunt.loadNpmTasks('grunt-karma-coveralls');
 
   grunt.registerMultiTask('fix', require('./build/define.tasks')(grunt));
 
