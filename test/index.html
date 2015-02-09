@@ -13,14 +13,14 @@
   <script src="fix.testRunner.js"></script>
   <script src="../bower_components/requirejs/require.js"></script>
   <script>
-  QUnit.config.autostart = true;
+  QUnit.config.autostart = false;
   require.config({
     baseUrl: '../src',
     paths: {
       "definejs": "../define.amd"
     },
     deps: [
-      "../test/testSuite.js"
+      "../test/main.js"
     ]
   });
   </script>

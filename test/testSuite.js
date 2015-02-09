@@ -2,10 +2,12 @@
   'use strict';
 
   var specs = [
+    './spec/var/emptyArray',
     './spec/var/doc',
     './spec/var/info',
     './spec/utils',
     './spec/baseInfo',
+    './spec/utils.execute',
     './spec/utils.setup',
     './spec/moduleLoader',
     './spec/define'
