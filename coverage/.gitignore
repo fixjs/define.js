@@ -3,3 +3,6 @@
 *.css
 *.js
 PhantomJS*
+Chrome*
+Firefox*
+Safari*
