@@ -7,5 +7,3 @@ before_script:
   - npm install -g bower
   - bower install
   - npm test
-after_script:
-  - grunt coveralls
