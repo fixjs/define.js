@@ -9,6 +9,7 @@
     './spec/baseInfo',
     './spec/utils.execute',
     './spec/utils.setup',
+    './spec/utils.getFileName',
     './spec/moduleLoader',
     './spec/define'
   ];
