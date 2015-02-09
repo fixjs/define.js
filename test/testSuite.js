@@ -2,6 +2,7 @@
   'use strict';
 
   var specs = [
+    './spec/var/doc',
     './spec/var/info',
     './spec/utils',
     './spec/baseInfo',
