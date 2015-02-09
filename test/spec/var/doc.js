@@ -6,8 +6,6 @@ define(function () {
     require: './var/doc'
   }).then(function (assert, doc) {
 
-    console.log('Object.prototype.toString.call(document):'+Object.prototype.toString.call(document));
-    
     assert.strictEqual(typeof doc, 'object', 'var/doc is an Object');
 
     assert.strictEqual(doc, global.document, 'var/doc is the global document object');
