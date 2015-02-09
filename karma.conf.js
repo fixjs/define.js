@@ -48,9 +48,9 @@ module.exports = function (config) {
     // start these browsers
     // CLI --browsers Chrome,Firefox,Safari
     browsers: [
+      'PhantomJS',
       'Firefox',
       'Chrome',
-      'PhantomJS',
       'Safari'
     ],
 
@@ -67,11 +67,9 @@ module.exports = function (config) {
       'karma-requirejs',
       'karma-coverage',
       'karma-phantomjs-launcher',
-      'karma-chrome-launcher',
       'karma-firefox-launcher',
-      'karma-ie-launcher',
-      'karma-safari-launcher',
-      'karma-opera-launcher'
+      'karma-chrome-launcher',
+      'karma-safari-launcher'
     ]
   });
 };
