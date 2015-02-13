@@ -8,7 +8,7 @@ define(function () {
 
   }
 
-  fix.testRunner('utils.setup', {
+  fix.test('utils.setup', {
     message: 'utils.setup works as a helper utils functions',
   }).then(function (assert, utils) {
 

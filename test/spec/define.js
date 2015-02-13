@@ -12,7 +12,7 @@ define(function () {
     assert.strictEqual(typeof GLOB.info, 'object', 'GLOB.info is an Object');
   }
 
-  fix.testRunner('definejs', {
+  fix.test('definejs', {
     message: 'is a expose function for AMD functions and more DefineJS attributes'
   }).then(function (assert, definejs) {
     var TEST = {};

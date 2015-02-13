@@ -2,7 +2,7 @@ define([
   './var/emptyArray',
   './utils'
 ], function (emptyArray, utils) {
-  utils('execute', function (fn, args) {
+  utils.execute = function (fn, args) {
     var fnData;
     if (!utils.isArray(args)) {
       args = emptyArray;
@@ -12,6 +12,6 @@ define([
     } catch (ignore) {}
 
     return fnData;
-  });
+  };
   return utils;
 });

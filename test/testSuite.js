@@ -10,14 +10,20 @@
     './spec/utils.execute',
     './spec/utils.setup',
     './spec/utils.getFileName',
+    './spec/utils.getUrl',
+    './spec/utils.createScript',
     './spec/moduleLoader',
     './spec/define'
   ];
 
-  console.log('\nTestSuite started to run unit tests for:');
+  if(!QUnit.config.karmaIsInCharge){
+    QUnit.start();
+  }
+
+  // console.log('\nTestSuite started to run unit tests for:');
 
   define(specs, function () {
-    console.log('TestSuite just kicked of the all the tests!!\nWait for the result!\nHopefully they will all pass!');
+    // console.log('TestSuite just kicked of the all the tests!!\nWait for the result!\nHopefully they will all pass!');
   });
 
 }());

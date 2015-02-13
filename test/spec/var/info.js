@@ -10,7 +10,7 @@ define(function () {
     assert.strictEqual(typeof info.definedModules, 'object', 'var/info.definedModules is an Object');
   }
 
-  fix.testRunner('var info', {
+  fix.test('var info', {
     message: 'is a shared object for all the modules to store the data needed for the moduleLoader!',
     require: './var/info'
   }).then(function (assert, info) {

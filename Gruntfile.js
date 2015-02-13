@@ -12,7 +12,7 @@ module.exports = function (grunt) {
   ];
 
   function prepareExample(name) {
-    var definelib = (name === 'define-promise-dev') ? 'define.promise.js' : 'define.js'
+    var definelib = (name === 'define-promise-dev') ? 'define.promise.js' : 'define.js';
     return {
       src: definelib,
       dest: 'examples/' + name + '/' + definelib

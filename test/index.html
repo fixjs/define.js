@@ -8,19 +8,28 @@
   <script src="polyfills/promise-done-5.0.0.js"></script>
   <!-- Load local QUnit. -->
   <link rel="stylesheet" href="../bower_components/qunit/qunit/qunit.css" media="screen">
-  <script src="../bower_components/qunit/qunit/qunit.js"></script>
   <script src="../bower_components/jquery/dist/jquery.js"></script>
+  <script src="../bower_components/qunit/qunit/qunit.js"></script>
+  
   <script src="fix.testRunner.js"></script>
+
+  <script type="text/javascript" src="../node_modules/sinon/pkg/sinon-1.12.2.js"></script>
+  <script type="text/javascript" src="../node_modules/sinon/pkg/sinon-ie-1.12.2.js"></script>
+  
+  <script type="text/javascript" src="../node_modules/sinon/pkg/sinon-timers-1.12.2.js"></script>
+
+  <script src="lib/sinon-qunit.js"></script>
+
   <script src="../bower_components/requirejs/require.js"></script>
   <script>
   QUnit.config.autostart = false;
   require.config({
     baseUrl: '../src',
     paths: {
-      "definejs": "../define.amd"
+      'definejs': '../define.amd'
     },
     deps: [
-      "../test/main.js"
+      '../test/testSuite'
     ]
   });
   </script>

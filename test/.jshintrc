@@ -33,6 +33,8 @@
     "notStrictEqual",
     "throws",
     "console",
+    "sinon",
+    "global",
     "fix"
   ]
 }

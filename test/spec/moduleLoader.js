@@ -25,7 +25,7 @@ define(function () {
     testLoadAll(assert, moduleLoader);
   }
 
-  fix.testRunner('moduleLoader', {
+  fix.test('moduleLoader', {
     message: 'moduleLoader provides a means for loading modules asyncrounously',
     require: ['./moduleLoader', './var/info']
   }).then(function (assert, moduleLoader, info) {

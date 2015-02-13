@@ -4,12 +4,18 @@ module.exports = function (config) {
   config.set({
     basePath: '',
 
-    frameworks: ['qunit', 'requirejs'],
+    frameworks: [
+    'qunit',
+    'requirejs'
+    ],
     files: [
       'test/polyfills/promise-6.0.0.min.js',
       'test/polyfills/promise-done-5.0.0.js',
       'bower_components/jquery/dist/jquery.js',
       'test/fix.testRunner.js',
+      'node_modules/sinon/pkg/sinon-1.12.2.js',
+      'node_modules/sinon/pkg/sinon-ie-1.12.2.js',
+      'test/lib/sinon-qunit.js',
       'test/karma.main.js', {
         pattern: 'src/{,*/}*.js',
         included: false
@@ -64,6 +70,7 @@ module.exports = function (config) {
 
     plugins: [
       'karma-qunit',
+      'karma-sinon',
       'karma-requirejs',
       'karma-coverage',
       'karma-phantomjs-launcher',
