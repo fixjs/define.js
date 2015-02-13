@@ -127,7 +127,7 @@ define(function () {
     testIsPromiseAlike(assert, utils);
   }
 
-  fix.testRunner('utils', {
+  fix.test('utils', {
     message: 'utils helper functions',
   }).then(function (assert, utils) {
     assert.strictEqual(typeof utils, 'function', 'utils is a function');
