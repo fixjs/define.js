@@ -1,4 +1,4 @@
-define(function () {
+define(function* (exports, module) {
 
   var util = {
     version: 'v0.0.1',

@@ -1,5 +1,5 @@
 /**
- * DefineJS v0.2.4 2015-02-06T08:46Z
+ * DefineJS v0.2.4 2015-02-13T18:11Z
  * Copyright (c) 2014 Mehran Hatami and define.js contributors.
  * Available via the MIT license.
  * license found at http://github.com/fixjs/define.js/raw/master/LICENSE
@@ -95,7 +95,7 @@
     /* exported:false */
   });
 
-  utils('execute', function (fn, args) {
+  utils.execute = function (fn, args) {
     var fnData;
     if (!utils.isArray(args)) {
       args = emptyArray;
@@ -105,7 +105,7 @@
     } catch (ignore) {}
 
     return fnData;
-  });
+  };
 
   utils('setup', function (moduleName, moduleDefinition, install, args) {
     var moduleData = utils.execute(moduleDefinition, args);
@@ -182,61 +182,53 @@
   var doc = global.document;
 
 
-  var currentScript = doc.currentScript,
-    filePathRgx = /^(.*[\\\/])/,
+  function baseInfo() {
+    var currentScript = doc.currentScript,
+      filePathRgx = /^(.*[\\\/])/;
     //script injection when using BASE tag is now supported
-    baseInfo = {
-      head: doc.head || doc.getElementsByTagName('head')[0],
-      baseElement: doc.getElementsByTagName('base')[0]
-    };
+    baseInfo.head = doc.head || doc.getElementsByTagName('head')[0];
+    baseInfo.baseElement = doc.getElementsByTagName('base')[0];
 
-  if (baseInfo.baseElement) {
-    baseInfo.head = baseInfo.baseElement.parentNode;
-  }
+    if (baseInfo.baseElement) {
+      baseInfo.head = baseInfo.baseElement.parentNode;
+    }
 
-  //phantomjs does not provide the "currentScript" property in global document object
-  if (currentScript) {
-    baseInfo.baseUrl = currentScript.getAttribute('base') || currentScript.src.match(filePathRgx)[1];
-    baseInfo.baseGlobal = currentScript.getAttribute('global');
+    //phantomjs does not provide the "currentScript" property in global document object
+    if (currentScript) {
+      baseInfo.baseUrl = currentScript.getAttribute('base') || currentScript.src.match(filePathRgx)[1];
+      baseInfo.baseGlobal = currentScript.getAttribute('global');
+    }
   }
+  
+  baseInfo();
 
   var files = {},
     cleanUrlRgx = /[\?|#]([^]*)$/,
     fileNameRgx = /\/([^/]*)$/,
     cleanExtRgx = /.*?(?=\.|$)/;
-  utils('getFileName', function (url) {
-    var fileName = files[url],
+  utils.matchUrl = function (url) {
+    var fileName,
       matchResult;
-    if (typeof fileName === 'string') {
-      return fileName;
-    }
     url = url.replace(cleanUrlRgx, '');
-    matchResult = url.match(fileNameRgx);
-    if (matchResult) {
-      fileName = matchResult[1];
-    } else {
-      fileName = url;
-    }
+    fileName = (matchResult = url.match(fileNameRgx)) ? matchResult[1] : url;
     fileName = fileName.match(cleanExtRgx)[0];
-    files[url] = fileName;
     return fileName;
-  });
+  };
+  utils.getFileName = function (url) {
+    return files[url] || (files[url] = utils.matchUrl(url));
+  };
 
-  var
-    isOldOpera = typeof global.opera !== 'undefined' && global.opera.toString() === '[object Opera]',
-    urlCache = {},
-    readyStateLoadedRgx = /^(complete|loaded)$/;
-
-  function getUrl(modulePath) {
-    var moduleName = utils.getFileName(modulePath),
-      url,
+  
+  var urlCache = {};
+  utils.getUrl = function (modulePath) {
+    var moduleName = utils.getFileName(modulePath);
+    return urlCache[moduleName] || (urlCache[moduleName] = utils.makeUrl(modulePath));
+  };
+  utils.makeUrl = function (modulePath) {
+    var url,
       urlArgs,
       path,
       pathUrl;
-
-    if (typeof urlCache[moduleName] === 'string') {
-      return urlCache[moduleName];
-    }
 
     urlArgs = (typeof info.options.urlArgs === 'string') ?
       ('?' + info.options.urlArgs) :
@@ -262,17 +254,16 @@
         }
       }
     }
-
     if (url.charAt(url.length - 1) !== '/' && modulePath.charAt(0) !== '/') {
       url += '/';
     }
-
     url += modulePath + '.js' + urlArgs;
-
-    urlCache[moduleName] = url;
-
     return url;
-  }
+  };
+
+  var
+    isOldOpera = typeof global.opera !== 'undefined' && global.opera.toString() === '[object Opera]',
+    readyStateLoadedRgx = /^(complete|loaded)$/;
 
   function loadFN(callback) {
     return function fn(e) {
@@ -305,7 +296,7 @@
     };
   }
 
-  utils('createScript', function (url, callback, errorCallback) {
+  utils.createScript = function (url, callback, errorCallback) {
     var el;
     //in case DefineJS were used along with something like svg in XML based use-cases,
     //then "xhtml" should be set to "true" like config({ xhtml: true });
@@ -318,7 +309,7 @@
     el.type = info.options.scriptType || 'text/javascript';
     el.charset = 'utf-8';
 
-    url = getUrl(url);
+    url = utils.getUrl(url);
 
     if (el.attachEvent && !isOldOpera) {
       el.attachEvent('onreadystatechange', loadFN(callback));
@@ -336,7 +327,7 @@
     el.src = url;
 
     return el;
-  });
+  };
 
   utils('getScript', function (url) {
     return new Promise(function (fulfill, reject) {
