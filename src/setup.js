@@ -2,7 +2,7 @@ define([
   './var/info',
   './utils.execute'
 ], function (info, utils) {
-  utils('setup', function (moduleName, moduleDefinition, install, args) {
+  function setup (moduleName, moduleDefinition, loader, args) {
     var moduleData = utils.execute(moduleDefinition, args);
 
     function setupModule(value) {
@@ -11,7 +11,7 @@ define([
       } else {
         info.modules[moduleName] = moduleData;
       }
-      install(moduleName, 'success');
+      loader.install(moduleName, 'success');
     }
 
     if (utils.isPromiseAlike(moduleData)) {
@@ -19,6 +19,6 @@ define([
     } else {
       setTimeout(setupModule, 0);
     }
-  });
-  return utils;
+  }
+  return setup;
 });

@@ -1,9 +1,10 @@
 define([
   './var/info',
   './var/emptyArray',
+  './setup',
   './async',
   './utils.getScript.promise'
-], function (info, emptyArray, async, utils) {
+], function (info, emptyArray, setup, async, utils) {
   var globalPromise = new Promise(function (fulfill) {
       fulfill(global);
     }),
@@ -105,6 +106,9 @@ define([
     },
     loadAll: function loadModules(array) {
       return Promise.all(array.map(moduleLoader.load));
+    },
+    setup: function (moduleName, moduleDefinition, args) {
+      setup(moduleName, moduleDefinition, this, args);
     }
   };
   return moduleLoader;

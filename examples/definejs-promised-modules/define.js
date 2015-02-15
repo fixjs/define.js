@@ -1,5 +1,5 @@
 /**
- * DefineJS v0.2.4 2015-02-15T10:18Z
+ * DefineJS v0.2.4 2015-02-15T20:30Z
  * Copyright (c) 2014 Mehran Hatami and define.js contributors.
  * Available via the MIT license.
  * license found at http://github.com/fixjs/define.js/raw/master/LICENSE
@@ -107,7 +107,7 @@
     return fnData;
   };
 
-  utils('setup', function (moduleName, moduleDefinition, install, args) {
+  function setup (moduleName, moduleDefinition, loader, args) {
     var moduleData = utils.execute(moduleDefinition, args);
 
     function setupModule(value) {
@@ -116,7 +116,7 @@
       } else {
         info.modules[moduleName] = moduleData;
       }
-      install(moduleName, 'success');
+      loader.install(moduleName, 'success');
     }
 
     if (utils.isPromiseAlike(moduleData)) {
@@ -124,7 +124,7 @@
     } else {
       setTimeout(setupModule, 0);
     }
-  });
+  }
   var doc = global.document;
 
 
@@ -365,6 +365,9 @@
       for (; i < len; i += 1) {
         moduleLoader.load(array[i], pCallback);
       }
+    },
+    setup: function (moduleName, moduleDefinition, args) {
+      setup(moduleName, moduleDefinition, this, args);
     }
   };
 
@@ -414,10 +417,10 @@
           for (; i < len; i += 1) {
             args.push(info.modules[utils.getFileName(array[i])]);
           }
-          utils.setup(moduleName, moduleDefinition, moduleLoader.install, args);
+          moduleLoader.setup(moduleName, moduleDefinition, args);
         });
       } else {
-        utils.setup(moduleName, moduleDefinition, moduleLoader.install);
+        moduleLoader.setup(moduleName, moduleDefinition);
       }
     }
 

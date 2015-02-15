@@ -1,8 +1,9 @@
 define([
   './var/info',
+  './setup',
   './utils.execute',
   './utils.getScript'
-], function (info, utils) {
+], function (info, setup, utils) {
   var moduleLoader = {
     install: function install(moduleName, status) {
       var callbacks, fn,
@@ -87,6 +88,9 @@ define([
       for (; i < len; i += 1) {
         moduleLoader.load(array[i], pCallback);
       }
+    },
+    setup: function (moduleName, moduleDefinition, args) {
+      setup(moduleName, moduleDefinition, this, args);
     }
   };
   return moduleLoader;

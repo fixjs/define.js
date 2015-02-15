@@ -1,11 +1,10 @@
 define([
   './var/info',
   './var/emptyArray',
-  './utils.setup',
   './moduleLoader.promise',
   './async',
   './utils.isGenerator'
-], function (info, emptyArray, utils, moduleLoader, async) {
+], function (info, emptyArray, moduleLoader, async, utils) {
   function defineModuleDefinition() {
     function * defineGenerator(moduleName, array, moduleDefinition) {
       var args;
@@ -13,7 +12,7 @@ define([
       if (utils.isArray(array) && array.length) {
         args = yield moduleLoader.loadAll(array);
       }
-      utils.setup(moduleName, moduleDefinition, moduleLoader.install, args);
+      moduleLoader.setup(moduleName, moduleDefinition, args);
     }
 
     function * requireGenerator(array, fn) {
@@ -127,7 +126,7 @@ define([
       obj.require = fxrequire;
       obj.define = fxdefine;
       obj.config = fxconfig;
-      
+
       obj.options = info.options;
       obj.use = promiseUse;
       obj.info = info;
