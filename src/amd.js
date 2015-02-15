@@ -1,9 +1,9 @@
 define([
   './var/info',
   './var/emptyArray',
-  './utils.setup',
-  './moduleLoader'
-], function (info, emptyArray, utils, moduleLoader) {
+  './moduleLoader',
+  './utils'
+], function (info, emptyArray, moduleLoader, utils) {
   function defineModuleDefinition() {
     function fxdefine(moduleName, array, moduleDefinition) {
       //define(moduleDefinition)
@@ -50,10 +50,10 @@ define([
           for (; i < len; i += 1) {
             args.push(info.modules[utils.getFileName(array[i])]);
           }
-          utils.setup(moduleName, moduleDefinition, moduleLoader.install, args);
+          moduleLoader.setup(moduleName, moduleDefinition, args);
         });
       } else {
-        utils.setup(moduleName, moduleDefinition, moduleLoader.install);
+        moduleLoader.setup(moduleName, moduleDefinition);
       }
     }
 
