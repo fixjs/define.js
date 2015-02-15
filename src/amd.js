@@ -103,7 +103,6 @@ define([
       }
 
       var key;
-
       for (key in cnfOptions) {
         if (cnfOptions.hasOwnProperty(key)) {
           info.options[key] = cnfOptions[key];
@@ -111,8 +110,9 @@ define([
       }
     }
 
-    fxdefine.amd = {};
     fxrequire.config = fxconfig;
+    fxdefine.amd = {};
+    fxdefine.info = info;
 
     function definejs(obj) {
       if (!utils.isObject(obj)) {
@@ -121,10 +121,7 @@ define([
       obj.require = fxrequire;
       obj.define = fxdefine;
       obj.config = fxconfig;
-      
-      obj.options = info.options;
       obj.use = promiseUse;
-      obj.info = info;
     }
 
     return definejs;

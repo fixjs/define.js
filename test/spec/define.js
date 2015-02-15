@@ -6,10 +6,12 @@ define(function () {
 
     assert.strictEqual(typeof GLOB.define, 'function', 'GLOB.define is a function');
     assert.strictEqual(typeof GLOB.require, 'function', 'GLOB.require is a function');
+    assert.strictEqual(typeof GLOB.require.config, 'function', 'GLOB.require.config is a function');
     assert.strictEqual(typeof GLOB.config, 'function', 'GLOB.config is a function');
+    assert.equal(GLOB.config, GLOB.require.config, 'GLOB.config and GLOB.require.config are the same');
     assert.strictEqual(typeof GLOB.use, 'function', 'GLOB.use is a function (Nonstandard)');
-    assert.strictEqual(typeof GLOB.options, 'object', 'GLOB.options is an Object');
-    assert.strictEqual(typeof GLOB.info, 'object', 'GLOB.info is an Object');
+    assert.strictEqual(typeof GLOB.define.info, 'object', 'GLOB.define.info is an Object');
+    assert.strictEqual(typeof GLOB.define.info.options, 'object', 'GLOB.define.info has an Object attribute named options');
   }
 
   fix.test('definejs', {
