@@ -1,13 +1,17 @@
 define(function () {
   'use strict';
 
-  function testMakeUrl(assert, utils) {
+  function testMakeUrl(assert, utils, baseInfo) {
+    var origBaseUrl = baseInfo.baseUrl;
+    baseInfo.baseUrl = '../spec';
+    
     assert.equal(utils.makeUrl('fileName'), '../spec/fileName.js', 'utils.makeUrl works for simple file names');
     //More tests
-    
+
+    baseInfo.baseUrl = origBaseUrl;
   }
 
-  function testGetUrl(assert, utils) {
+  function testGetUrl(assert, utils, baseInfo) {
     var url = 'Any desired modulePath or static file path!',
       newUrl = 'the desired url',
       url1,
@@ -28,12 +32,13 @@ define(function () {
   }
 
   fix.test('utils.getUrl', {
-    message: 'utils.getUrl works as a helper utils functions'
-  }).then(function (assert, utils) {
+    message: 'utils.getUrl works as a helper utils functions',
+    require: ['./utils.getUrl', './baseInfo']
+  }).then(function (assert, utils, baseInfo) {
     assert.strictEqual(typeof utils.makeUrl, 'function', 'utils.makeUrl is a function');
-    testMakeUrl(assert, utils);
+    testMakeUrl(assert, utils, baseInfo);
     
     assert.strictEqual(typeof utils.getUrl, 'function', 'utils.getUrl is a function');
-    testGetUrl(assert, utils);
+    testGetUrl(assert, utils, baseInfo);
   });
 });

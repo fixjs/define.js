@@ -1,30 +1,55 @@
 define(function () {
   'use strict';
 
-  function testCreateScript(assert, utils) {
+  function testCreateScript(assert, utils, info, baseInfo) {
 
-    // test("should inspect jQuery.getJSON's
-    //   usage of jQuery.ajax", function () {
-    //   this.spy(jQuery, "ajax");
-    //   jQuery.getJSON("/some/resource");
+    assert.strictEqual(typeof utils.getUrl, 'function', 'utils.getUrl is a dependency');
 
-    //   ok(jQuery.ajax.calledOnce);
-    //   equals(jQuery.ajax.getCall(0).args[0].url, "/some/resource");
-    //   equals(jQuery.ajax.getCall(0).args[0].dataType, "json");
-    // });
+    var callback = sinon.stub(),
+      errorCallback = sinon.stub(),
+      el,
+      origType = info.options.scriptType,
+      origBaseElement = baseInfo.baseElement,
+      url = 'lib/testModule';
 
-    // var scriptEl = utils.createScript(url, callback, errorCallback);
+    info.options.scriptType = undefined;
+    baseInfo.baseElement = undefined;
 
-    // assert.equal(, 'fileName', 'utils.createScript works for this pattern:' + 'http://mysite.org/fileName');
+    el = utils.createScript(url, callback, errorCallback);
+    assert.equal(typeof el, 'object', 'utils.createScript works ...');
+    
+    assert.equal(typeof el.nodeName, 'string', 'utils.createScript works ...');
+    assert.equal(el.nodeName.toLowerCase(), 'script', 'utils.createScript works ...');
+
+    assert.equal(typeof el.tagName, 'string', 'utils.createScript works ...');
+    assert.equal(el.tagName.toLowerCase(), 'script', 'utils.createScript works ...');
+
+    assert.strictEqual(el.async, true, 'utils.createScript works ...');
+    assert.strictEqual(el.type, 'text/javascript', 'utils.createScript works ...');
+    assert.strictEqual(el.charset, 'utf-8', 'utils.createScript works ...');
+
+    info.options.scriptType = 'my-own-datatype/javascript';
+
+    el = utils.createScript(url, callback, errorCallback);
+    assert.strictEqual(el.type, 'my-own-datatype/javascript', 'utils.createScript reads dataType from options ...');
+
+    //tests for baseElement
+
+    info.options.scriptType = origType;
+    baseInfo.baseElement = origBaseElement;
+
+    //more DOM tests
   }
 
   fix.test('utils.createScript', {
-    message: 'utils.createScript works as a helper utils functions'
-  }).then(function (assert, utils) {
+    message: 'utils.createScript works as a helper utils functions',
+    require: ['./utils.createScript', './var/info', './baseInfo']
+  }).then(function (assert, utils, info, baseInfo) {
 
     assert.strictEqual(typeof utils.createScript, 'function', 'utils.createScript is a function');
+    testCreateScript(assert, utils, info, baseInfo);
 
-    testCreateScript(assert, utils);
+    global.utils = utils;
 
   });
 });

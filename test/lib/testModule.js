@@ -1,0 +1,1 @@
+console.log('testModule.js got loaded!');

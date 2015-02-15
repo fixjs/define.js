@@ -16,6 +16,8 @@ define([
     if (currentScript) {
       baseInfo.baseUrl = currentScript.getAttribute('base') || currentScript.src.match(filePathRgx)[1];
       baseInfo.baseGlobal = currentScript.getAttribute('global');
+    } else {
+      baseInfo.baseUrl = '';
     }
   }
   
