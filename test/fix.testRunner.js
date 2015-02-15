@@ -14,8 +14,8 @@
     }
   };
 
-  function FN(fn, thisArg){
-    return function(){
+  function FN(fn, thisArg) {
+    return function () {
       fn.apply(thisArg, arguments);
     };
   }
@@ -47,7 +47,7 @@
       var done = assert.async();
 
       assert.spy = FN(this.spy, this);
-      assert.stub = this.stub;//FN(this.stub, this);
+      assert.stub = this.stub; //FN(this.stub, this);
       assert.mock = FN(this.mock, this);
       assert.sandbox = this.sandbox;
 
@@ -57,33 +57,44 @@
       var requireType = typeof options.require,
         path;
 
-      if (requireType === 'undefined') {
-        path = [moduleName];
-      } else if (requireType === 'string') {
-        path = [options.require];
-      } else if ($.isArray(options.require)) {
-        path = options.require;
-      } else {
-        console.error('Invalid options.require attribute');
-        return false;
-      }
-
-      require(path, function () {
-        var args;
-
-        if ($.isFunction(options.callback)) {
-          options.callback.apply(assert, arguments);
-        }
-
-        args = [assert];
+      function callback() {
+        var args = [assert],
+          dfdResult;
 
         Array.prototype.push.apply(args, arguments);
 
-        deferred.done(function () {
-          done();
-        });
-        deferred.resolve.apply(deferred, args);
-      });
+        if ($.isFunction(options.resolver)) {
+          dfdResult = options.resolver.apply(undefined, args);
+          dfdResult.done(function (value) {
+            args.push(value);
+            deferred.then(function () {
+              done();
+            });
+            deferred.resolve.apply(deferred, args);
+          });
+        } else {
+          deferred.then(function () {
+            done();
+          });
+          deferred.resolve.apply(deferred, args);
+        }
+      }
+
+      if (requireType === 'boolean' && !options.require) {
+        callback();
+      } else {
+        if (requireType === 'undefined') {
+          path = [moduleName];
+        } else if (requireType === 'string') {
+          path = [options.require];
+        } else if ($.isArray(options.require)) {
+          path = options.require;
+        } else {
+          console.error('Invalid options.require attribute');
+          return false;
+        }
+        require(path, callback);
+      }
     });
     // console.log(moduleName + '.js');
 

@@ -1,5 +1,5 @@
 /**
- * DefineJS v0.2.4 2015-02-13T18:11Z
+ * DefineJS v0.2.4 2015-02-15T10:18Z
  * Copyright (c) 2014 Mehran Hatami and define.js contributors.
  * Available via the MIT license.
  * license found at http://github.com/fixjs/define.js/raw/master/LICENSE
@@ -197,6 +197,8 @@
     if (currentScript) {
       baseInfo.baseUrl = currentScript.getAttribute('base') || currentScript.src.match(filePathRgx)[1];
       baseInfo.baseGlobal = currentScript.getAttribute('global');
+    } else {
+      baseInfo.baseUrl = '';
     }
   }
   
@@ -254,7 +256,7 @@
         }
       }
     }
-    if (url.charAt(url.length - 1) !== '/' && modulePath.charAt(0) !== '/') {
+    if (url && url.charAt(url.length - 1) !== '/' && modulePath.charAt(0) !== '/') {
       url += '/';
     }
     url += modulePath + '.js' + urlArgs;

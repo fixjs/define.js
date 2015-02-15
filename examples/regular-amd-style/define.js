@@ -1,5 +1,5 @@
 /**
- * DefineJS v0.2.4 2015-02-13T18:11Z
+ * DefineJS v0.2.4 2015-02-15T10:18Z
  * Copyright (c) 2014 Mehran Hatami and define.js contributors.
  * Available via the MIT license.
  * license found at http://github.com/fixjs/define.js/raw/master/LICENSE
@@ -143,6 +143,8 @@
     if (currentScript) {
       baseInfo.baseUrl = currentScript.getAttribute('base') || currentScript.src.match(filePathRgx)[1];
       baseInfo.baseGlobal = currentScript.getAttribute('global');
+    } else {
+      baseInfo.baseUrl = '';
     }
   }
   
@@ -200,7 +202,7 @@
         }
       }
     }
-    if (url.charAt(url.length - 1) !== '/' && modulePath.charAt(0) !== '/') {
+    if (url && url.charAt(url.length - 1) !== '/' && modulePath.charAt(0) !== '/') {
       url += '/';
     }
     url += modulePath + '.js' + urlArgs;
@@ -275,9 +277,9 @@
     return el;
   };
 
-  utils('getScript', function (url, callback) {
+  utils.getScript = function (url, callback) {
     return utils.createScript(url, callback, callback);
-  });
+  };
 
   var moduleLoader = {
     install: function install(moduleName, status) {
@@ -465,7 +467,6 @@
       }
 
       var key;
-
       for (key in cnfOptions) {
         if (cnfOptions.hasOwnProperty(key)) {
           info.options[key] = cnfOptions[key];
@@ -473,8 +474,9 @@
       }
     }
 
-    fxdefine.amd = {};
     fxrequire.config = fxconfig;
+    fxdefine.amd = {};
+    fxdefine.info = info;
 
     function definejs(obj) {
       if (!utils.isObject(obj)) {
@@ -483,10 +485,7 @@
       obj.require = fxrequire;
       obj.define = fxdefine;
       obj.config = fxconfig;
-      
-      obj.options = info.options;
       obj.use = promiseUse;
-      obj.info = info;
     }
 
     return definejs;
