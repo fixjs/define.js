@@ -39,7 +39,7 @@ define([
         }
       }
     }
-    if (url.charAt(url.length - 1) !== '/' && modulePath.charAt(0) !== '/') {
+    if (url && url.charAt(url.length - 1) !== '/' && modulePath.charAt(0) !== '/') {
       url += '/';
     }
     url += modulePath + '.js' + urlArgs;

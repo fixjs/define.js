@@ -13,6 +13,7 @@
     './spec/utils.getUrl',
     './spec/utils.createScript',
     './spec/moduleLoader',
+    './spec/amd',
     './spec/define'
   ];
 
