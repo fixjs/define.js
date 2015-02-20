@@ -1,5 +1,5 @@
 /**
- * DefineJS v0.2.4 2015-02-15T20:30Z
+ * DefineJS v0.2.4 2015-02-20T15:27Z
  * Copyright (c) 2014 Mehran Hatami and define.js contributors.
  * Available via the MIT license.
  * license found at http://github.com/fixjs/define.js/raw/master/LICENSE
@@ -344,9 +344,9 @@
       global: globalPromise,
       g: globalPromise
     },
-    moduleLoader;
+    loader;
 
-  moduleLoader = {
+  loader = {
     install: function install(moduleName, status) {
       var callbacks,
         fulfill, reject,
@@ -381,7 +381,7 @@
     },
     load: function load(modulePath) {
       if (promiseStorage[modulePath] === undefined) {
-        promiseStorage[modulePath] = moduleLoader.loadPromise(modulePath);
+        promiseStorage[modulePath] = loader.loadPromise(modulePath);
       }
       return promiseStorage[modulePath];
     },
@@ -430,14 +430,14 @@
             } else {
               //This code block allows using this library for regular javascript files
               //with no "define" or "require"
-              moduleLoader.install(moduleName, status);
+              loader.install(moduleName, status);
             }
           }
         }
       });
     },
     loadAll: function loadModules(array) {
-      return Promise.all(array.map(moduleLoader.load));
+      return Promise.all(array.map(loader.load));
     },
     setup: function (moduleName, moduleDefinition, args) {
       setup(moduleName, moduleDefinition, this, args);
@@ -461,15 +461,15 @@
       var args;
       info.definedModules[moduleName] = true;
       if (utils.isArray(array) && array.length) {
-        args = yield moduleLoader.loadAll(array);
+        args = yield loader.loadAll(array);
       }
-      moduleLoader.setup(moduleName, moduleDefinition, args);
+      loader.setup(moduleName, moduleDefinition, args);
     }
 
     function * requireGenerator(array, fn) {
       var args;
       if (utils.isArray(array) && array.length) {
-        args = yield moduleLoader.loadAll(array);
+        args = yield loader.loadAll(array);
       }
       utils.execute(fn, args);
     }
@@ -543,7 +543,7 @@
     }
 
     function * loadModuleGenerator(modulePath) {
-      var args = yield moduleLoader.loadAll([modulePath]);
+      var args = yield loader.loadAll([modulePath]);
       return args[0];
     }
 
@@ -577,7 +577,7 @@
       obj.require = fxrequire;
       obj.define = fxdefine;
       obj.config = fxconfig;
-      
+
       obj.options = info.options;
       obj.use = promiseUse;
       obj.info = info;

@@ -1,24 +1,24 @@
 define([
   './var/info',
   './var/emptyArray',
-  './moduleLoader.promise',
+  './loader.promise',
   './async',
   './utils.isGenerator'
-], function (info, emptyArray, moduleLoader, async, utils) {
+], function (info, emptyArray, loader, async, utils) {
   function defineModuleDefinition() {
     function * defineGenerator(moduleName, array, moduleDefinition) {
       var args;
       info.definedModules[moduleName] = true;
       if (utils.isArray(array) && array.length) {
-        args = yield moduleLoader.loadAll(array);
+        args = yield loader.loadAll(array);
       }
-      moduleLoader.setup(moduleName, moduleDefinition, args);
+      loader.setup(moduleName, moduleDefinition, args);
     }
 
     function * requireGenerator(array, fn) {
       var args;
       if (utils.isArray(array) && array.length) {
-        args = yield moduleLoader.loadAll(array);
+        args = yield loader.loadAll(array);
       }
       utils.execute(fn, args);
     }
@@ -92,7 +92,7 @@ define([
     }
 
     function * loadModuleGenerator(modulePath) {
-      var args = yield moduleLoader.loadAll([modulePath]);
+      var args = yield loader.loadAll([modulePath]);
       return args[0];
     }
 

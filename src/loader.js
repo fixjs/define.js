@@ -4,7 +4,7 @@ define([
   './utils.execute',
   './utils.getScript'
 ], function (info, setup, utils) {
-  var moduleLoader = {
+  var loader = {
     install: function install(moduleName, status) {
       var callbacks, fn,
         i, len;
@@ -29,7 +29,7 @@ define([
             fn(status);
           } catch (ignored) {}
         }
-        info.waitingList[moduleName] = [];
+        callbacks.length = 0;
       }
     },
     load: function load(modulePath, callback) {
@@ -67,7 +67,7 @@ define([
             } else {
               //This code block allows using this library for regular javascript files
               //with no "define" or "require"
-              moduleLoader.install(moduleName, status);
+              loader.install(moduleName, status);
             }
           });
         }
@@ -86,12 +86,12 @@ define([
       }
 
       for (; i < len; i += 1) {
-        moduleLoader.load(array[i], pCallback);
+        loader.load(array[i], pCallback);
       }
     },
     setup: function (moduleName, moduleDefinition, args) {
       setup(moduleName, moduleDefinition, this, args);
     }
   };
-  return moduleLoader;
+  return loader;
 });

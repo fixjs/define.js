@@ -12,9 +12,9 @@ define([
       global: globalPromise,
       g: globalPromise
     },
-    moduleLoader;
+    loader;
 
-  moduleLoader = {
+  loader = {
     install: function install(moduleName, status) {
       var callbacks,
         fulfill, reject,
@@ -49,7 +49,7 @@ define([
     },
     load: function load(modulePath) {
       if (promiseStorage[modulePath] === undefined) {
-        promiseStorage[modulePath] = moduleLoader.loadPromise(modulePath);
+        promiseStorage[modulePath] = loader.loadPromise(modulePath);
       }
       return promiseStorage[modulePath];
     },
@@ -98,18 +98,18 @@ define([
             } else {
               //This code block allows using this library for regular javascript files
               //with no "define" or "require"
-              moduleLoader.install(moduleName, status);
+              loader.install(moduleName, status);
             }
           }
         }
       });
     },
     loadAll: function loadModules(array) {
-      return Promise.all(array.map(moduleLoader.load));
+      return Promise.all(array.map(loader.load));
     },
     setup: function (moduleName, moduleDefinition, args) {
       setup(moduleName, moduleDefinition, this, args);
     }
   };
-  return moduleLoader;
+  return loader;
 });
