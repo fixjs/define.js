@@ -7,7 +7,7 @@ module.exports = function (grunt) {
     'define-promise-dev',
     'rjs-amd-optimizer',
     'simple-promised-module',
-    // 'dev',
+    'dev',
     'define-module-mapping'
   ];
 

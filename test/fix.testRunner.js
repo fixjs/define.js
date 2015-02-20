@@ -39,6 +39,7 @@
    */
   fix.test = function test(moduleName, options) {
     var deferred = $.Deferred(),
+      testObserver,
       module = options.module;
 
     QUnit.module(moduleName, module);
@@ -105,7 +106,34 @@
       };
     }(moduleName));
 
-    return deferred;
+    function wrap(moduleName, callback) {
+      return function () {
+        var result;
+        try {
+          result = callback.apply(undefined, arguments);
+        } catch (err) {
+          console.log('\n' + '[[' + moduleName + ']][[RuntimeException]][DEV]:', err);
+          result = err;
+        }
+        return result;
+      };
+    }
+
+    testObserver = {
+      deferred: deferred,
+      then: function (callback) {
+        return deferred.then(wrap(moduleName, callback));
+      },
+      catch: function (callback) {
+        return deferred.fail(wrap(moduleName, callback));
+      }
+    };
+
+    testObserver.fail = testObserver.catch;
+
+    return testObserver;
+
+    // return deferred;
   };
 
   //this hack is used for loading sinon in global mode when karma is in charge

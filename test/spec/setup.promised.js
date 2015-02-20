@@ -8,7 +8,7 @@ define(function () {
             name: 'moduleName:promised:object',
             loader: loader
           });
-        }, 2000);
+        }, 200);
       }),
       moduleDefinition,
       deps = ['dependencies', 'as', 'args', 'come', 'here'];

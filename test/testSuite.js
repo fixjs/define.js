@@ -14,7 +14,7 @@
     './spec/utils.getFileName',
     './spec/utils.getUrl',
     './spec/utils.createScript',
-    './spec/moduleLoader',
+    './spec/loader',
     './spec/amd',
     './spec/define'
   ];

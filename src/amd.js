@@ -1,9 +1,9 @@
 define([
   './var/info',
   './var/emptyArray',
-  './moduleLoader',
+  './loader',
   './utils'
-], function (info, emptyArray, moduleLoader, utils) {
+], function (info, emptyArray, loader, utils) {
   function defineModuleDefinition() {
     function fxdefine(moduleName, array, moduleDefinition) {
       //define(moduleDefinition)
@@ -43,17 +43,17 @@ define([
       info.definedModules[moduleName] = true;
 
       if (utils.isArray(array) && array.length) {
-        moduleLoader.loadAll(array, function () {
+        loader.loadAll(array, function () {
           var args = [],
             i = 0,
             len = array.length;
           for (; i < len; i += 1) {
             args.push(info.modules[utils.getFileName(array[i])]);
           }
-          moduleLoader.setup(moduleName, moduleDefinition, args);
+          loader.setup(moduleName, moduleDefinition, args);
         });
       } else {
-        moduleLoader.setup(moduleName, moduleDefinition);
+        loader.setup(moduleName, moduleDefinition);
       }
     }
 
@@ -64,7 +64,7 @@ define([
       }
 
       if (utils.isArray(array) && array.length) {
-        moduleLoader.loadAll(array, function () {
+        loader.loadAll(array, function () {
           var args = [],
             i = 0,
             len = array.length;

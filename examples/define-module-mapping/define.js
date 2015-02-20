@@ -1,5 +1,5 @@
 /**
- * DefineJS v0.2.4 2015-02-15T20:30Z
+ * DefineJS v0.2.4 2015-02-20T15:27Z
  * Copyright (c) 2014 Mehran Hatami and define.js contributors.
  * Available via the MIT license.
  * license found at http://github.com/fixjs/define.js/raw/master/LICENSE
@@ -281,7 +281,7 @@
     return utils.createScript(url, callback, callback);
   };
 
-  var moduleLoader = {
+  var loader = {
     install: function install(moduleName, status) {
       var callbacks, fn,
         i, len;
@@ -306,7 +306,7 @@
             fn(status);
           } catch (ignored) {}
         }
-        info.waitingList[moduleName] = [];
+        callbacks.length = 0;
       }
     },
     load: function load(modulePath, callback) {
@@ -344,7 +344,7 @@
             } else {
               //This code block allows using this library for regular javascript files
               //with no "define" or "require"
-              moduleLoader.install(moduleName, status);
+              loader.install(moduleName, status);
             }
           });
         }
@@ -363,7 +363,7 @@
       }
 
       for (; i < len; i += 1) {
-        moduleLoader.load(array[i], pCallback);
+        loader.load(array[i], pCallback);
       }
     },
     setup: function (moduleName, moduleDefinition, args) {
@@ -410,17 +410,17 @@
       info.definedModules[moduleName] = true;
 
       if (utils.isArray(array) && array.length) {
-        moduleLoader.loadAll(array, function () {
+        loader.loadAll(array, function () {
           var args = [],
             i = 0,
             len = array.length;
           for (; i < len; i += 1) {
             args.push(info.modules[utils.getFileName(array[i])]);
           }
-          moduleLoader.setup(moduleName, moduleDefinition, args);
+          loader.setup(moduleName, moduleDefinition, args);
         });
       } else {
-        moduleLoader.setup(moduleName, moduleDefinition);
+        loader.setup(moduleName, moduleDefinition);
       }
     }
 
@@ -431,7 +431,7 @@
       }
 
       if (utils.isArray(array) && array.length) {
-        moduleLoader.loadAll(array, function () {
+        loader.loadAll(array, function () {
           var args = [],
             i = 0,
             len = array.length;

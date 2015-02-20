@@ -43,14 +43,14 @@ define(function () {
     assert.strictEqual(Object.keys(info.waitingList).length, 0, 'There is no item in the waiting-list');
   }
 
-  function testAMD(assert, amd, moduleLoader) {
+  function testAMD(assert, amd, loader) {
     var definejs,
       AMD = {};
 
     //TODO: remove this line
     global.AMD = AMD;
 
-    assert.strictEqual(typeof moduleLoader, 'object', 'moduleLoader is a dependency');
+    assert.strictEqual(typeof loader, 'object', 'loader is a dependency');
 
     definejs = amd();
 
@@ -77,14 +77,14 @@ define(function () {
 
   fix.test('amd', {
     message: 'amd is the main definejs module',
-    require: ['./amd', './moduleLoader']
-  }).then(function (assert, amd, moduleLoader) {
+    require: ['./amd', './loader']
+  }).then(function (assert, amd, loader) {
     var AMD,
       shared;
 
     assert.strictEqual(typeof amd, 'function', 'amd is the module-definition which is a function');
 
-    AMD = testAMD(assert, amd, moduleLoader);
+    AMD = testAMD(assert, amd, loader);
 
     shared = testAMDDefine(assert, AMD);
 
