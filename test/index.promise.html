@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Test Suite</title>
+  <script src="polyfills/promise-6.0.0.min.js"></script>
+  <script src="polyfills/promise-done-5.0.0.js"></script>
+  <!-- Load local QUnit. -->
+  <link rel="stylesheet" href="../bower_components/qunit/qunit/qunit.css" media="screen">
+  <script src="../bower_components/jquery/dist/jquery.js"></script>
+  <script src="../bower_components/qunit/qunit/qunit.js"></script>
+  
+  <script src="fix.testRunner.js"></script>
+
+  <script type="text/javascript" src="../node_modules/sinon/pkg/sinon-1.12.2.js"></script>
+  <script type="text/javascript" src="../node_modules/sinon/pkg/sinon-ie-1.12.2.js"></script>
+  
+  <script type="text/javascript" src="../node_modules/sinon/pkg/sinon-timers-1.12.2.js"></script>
+
+  <script src="lib/sinon-qunit.js"></script>
+
+  <script src="../bower_components/requirejs/require.js"></script>
+  <script>
+  QUnit.config.autostart = false;
+  require.config({
+    baseUrl: '../src',
+    paths: {
+      'definejs': '../define.amd'
+    },
+    deps: [
+      '../test/testSuite.promise'
+    ]
+  });
+  </script>
+</head>
+
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture">
+    <!-- fixtures go here -->
+  </div>
+</body>
+
+</html>
