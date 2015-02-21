@@ -61,6 +61,48 @@ define(function () {
     assert.ok(callback.calledWith('failure'), 'loader.install calles the callback with the specified status:failure');
   }
 
+  function testGetScriptCallback(assert, loader, info, utils){
+    assert.stub(loader, 'install');
+
+    var getScriptCallback = utils.getScript.getCall(0).args[1];
+
+    assert.strictEqual(typeof getScriptCallback, 'function', 'utils.getScript gets called with a callback!');
+
+    getScriptCallback('moduleName', 'success');
+
+    assert.ok(loader.install.calledOnce, 'utils.getScript has a callback which installs undefined modules itself');
+
+    info.definedModules['moduleName'] = true;
+
+    getScriptCallback('moduleName', 'success');
+
+    assert.ok(loader.install.calledOnce, 'utils.getScript has a callback which doesnt install the defined modules!');
+
+    info.definedModules['moduleName'] = undefined;
+    loader.install.restore();
+  }
+
+  function testDependencyMap(assert, loader, info, utils) {
+    var callback = sinon.stub();
+
+    info.options.dependencyMap = {
+      'all': ['module1', 'module2']
+    };
+
+    assert.stub(utils, 'getScript');
+
+    loader.load('module1', callback);
+    loader.load('module2', callback);
+    loader.load('module3', callback);
+
+    assert.ok(utils.getScript.calledThrice, 'utils.getScript gets called once for each module');
+    assert.strictEqual(utils.getScript.getCall(0).args[0], 'all', 'moduleName gets changes based on the map object:module1');
+    assert.strictEqual(utils.getScript.getCall(1).args[0], 'all', 'moduleName gets changes based on the map object:module2');
+    assert.strictEqual(utils.getScript.getCall(2).args[0], 'module3', 'moduleName doesnt change since it is not in the map object:module3');
+
+    utils.getScript.restore();
+  }
+
   function testLoad(assert, loader, info, utils) {
     info.waitingList = {};
     info.installed = {};
@@ -78,6 +120,9 @@ define(function () {
     assert.ok($.isArray(info.waitingList['moduleName']), 'loader.install calles all the callbacks in the waiting-list each exactly once!');
     assert.strictEqual(info.waitingList['moduleName'][0], callback, 'loader.load stores callback functions in waitingList');
     assert.ok(utils.getScript.calledOnce, 'utils.getScript gets called just once!');
+
+    //callback test, if callback function passed to utils.getScript works as expected
+    testGetScriptCallback(assert, loader, info, utils);
 
     loader.load('moduleName', anotherCallback);
 
@@ -104,6 +149,8 @@ define(function () {
     assert.ok(utils.getScript.calledOnce, 'utils.getScript gets called just once for several load calls!');
 
     utils.getScript.restore();
+
+    testDependencyMap(assert, loader, info, utils);
   }
 
   function testLoadAll(assert, loader, info) {
