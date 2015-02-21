@@ -58,8 +58,15 @@ module.exports = function (config) {
       'PhantomJS',
       'Firefox',
       'Chrome',
+      'ChromeCanary',
       'Safari'
     ],
+    customLaunchers: {
+      ChromeExperimental: {
+        base: 'Chrome',
+        flags: ['--enable-javascript-harmony']
+      }
+    },
 
     // if browser does not capture in given timeout [ms], kill it
     // CLI --capture-timeout 5000
