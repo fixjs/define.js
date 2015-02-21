@@ -33,7 +33,7 @@ define([
 
       if (typeof moduleDefinition !== 'function') {
         console.error('Invalid input parameter to define a module');
-        return;
+        return false;
       }
 
       if (moduleName === undefined) {

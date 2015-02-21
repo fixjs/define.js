@@ -1,7 +1,7 @@
 define(function () {
   'use strict';
 
-  function testCreateScript(assert, utils, info, baseInfo) {
+  function testCreateScript(assert, utils, info, doc, baseInfo) {
 
     assert.strictEqual(typeof utils.getUrl, 'function', 'utils.getUrl is a dependency');
 
@@ -17,7 +17,7 @@ define(function () {
 
     el = utils.createScript(url, callback, errorCallback);
     assert.equal(typeof el, 'object', 'utils.createScript works ...');
-    
+
     assert.equal(typeof el.nodeName, 'string', 'utils.createScript works ...');
     assert.equal(el.nodeName.toLowerCase(), 'script', 'utils.createScript works ...');
 
@@ -43,11 +43,19 @@ define(function () {
 
   fix.test('utils.createScript', {
     message: 'utils.createScript works as a helper utils functions',
-    require: ['./utils.createScript', './var/info', './baseInfo']
-  }).then(function (assert, utils, info, baseInfo) {
+    module: {
+      beforeEach: function (assert) {
+        fix.stubInsertAndAppend();
+      },
+      afterEach: function () {
+        fix.restoreInsertAndAppend();
+      }
+    },
+    require: ['./utils.createScript', './var/info', './var/doc', './baseInfo']
+  }).then(function (assert, utils, info, doc, baseInfo) {
 
     assert.strictEqual(typeof utils.createScript, 'function', 'utils.createScript is a function');
-    testCreateScript(assert, utils, info, baseInfo);
+    testCreateScript(assert, utils, info, doc, baseInfo);
 
     global.utils = utils;
 

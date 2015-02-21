@@ -25,6 +25,12 @@
   global.QUNIT_BDD_OPTIONS = QUNIT_BDD_OPTIONS;
 
   QUnit.config.karmaIsInCharge = gKarma && typeof gKarma === 'object';
+
+  var AMD = {
+    testHelper: {}
+  };
+
+  global.AMD = AMD;
   /*
    * fix.test('utils', {
    *    message: 'testMessage',
@@ -65,7 +71,13 @@
         Array.prototype.push.apply(args, arguments);
 
         if ($.isFunction(options.resolver)) {
-          dfdResult = options.resolver.apply(undefined, args);
+          
+          try{
+            dfdResult = options.resolver.apply(undefined, args);
+          } catch(err){
+            console.log('[[Error on invoking the resolver function]]');
+          }
+          
           dfdResult.done(function (value) {
             args.push(value);
             deferred.then(function () {
@@ -134,6 +146,48 @@
     return testObserver;
 
     // return deferred;
+  };
+
+  fix.stubInsertAndAppend = function () {
+    if (AMD.testHelper.headIsStubbed) {
+      return;
+    }
+
+    var noop = function () {},
+      helper = AMD.testHelper;
+
+    var baseElement = document.getElementsByTagName('base')[0];
+    helper.head = document.head || document.getElementsByTagName('head')[0];
+    if (baseElement) {
+      helper.head = baseElement.parentNode;
+    }
+
+    Object.defineProperty(helper.head, 'insertBefore', {
+      get: function () {
+        return noop;
+      },
+      configurable: true
+    });
+
+    Object.defineProperty(helper.head, 'appendChild', {
+      get: function () {
+        return noop;
+      },
+      configurable: true
+    });
+    AMD.testHelper.headIsStubbed = true;
+  };
+
+  fix.restoreInsertAndAppend = function () {
+    if (AMD.testHelper.headIsStubbed) {
+      try {
+        delete AMD.testHelper.head.insertBefore;
+        delete AMD.testHelper.head.appendChild;
+      } catch (e) {
+        console.warn('Exception when removing the noop function for insertBefore and appendChild');
+      }
+      AMD.testHelper.headIsStubbed = false;
+    }
   };
 
   //this hack is used for loading sinon in global mode when karma is in charge

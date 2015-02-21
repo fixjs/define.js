@@ -1,11 +1,12 @@
 define(function () {
   'use strict';
 
-  function testMakeUrl(assert, utils, baseInfo) {
+  function testMakeUrl(assert, utils, baseInfo, info) {
     var origBaseUrl = baseInfo.baseUrl;
     baseInfo.baseUrl = '../spec';
-    
-    assert.equal(utils.makeUrl('fileName'), '../spec/fileName.js', 'utils.makeUrl works for simple file names');
+    var baseUrl = info.options.baseUrl || baseInfo.baseUrl;
+
+    assert.equal(utils.makeUrl('fileName'), baseUrl + '/fileName.js', 'utils.makeUrl works for simple file names');
     //More tests
 
     baseInfo.baseUrl = origBaseUrl;
@@ -25,7 +26,7 @@ define(function () {
     url3 = utils.getUrl(url);
 
     assert.ok((newUrl === url1) && (url1 === url2) && (url2 === url3), 'utils.getUrl works as expected!');
-    
+
     assert.ok(utils.makeUrl.calledOnce, 'utils.getUrl uses a cache system so that utils.makeUrl gets called just once for the same url');
 
     utils.makeUrl.restore();
@@ -33,11 +34,11 @@ define(function () {
 
   fix.test('utils.getUrl', {
     message: 'utils.getUrl works as a helper utils functions',
-    require: ['./utils.getUrl', './baseInfo']
-  }).then(function (assert, utils, baseInfo) {
+    require: ['./utils.getUrl', './baseInfo', './var/info']
+  }).then(function (assert, utils, baseInfo, info) {
     assert.strictEqual(typeof utils.makeUrl, 'function', 'utils.makeUrl is a function');
-    testMakeUrl(assert, utils, baseInfo);
-    
+    testMakeUrl(assert, utils, baseInfo, info);
+
     assert.strictEqual(typeof utils.getUrl, 'function', 'utils.getUrl is a function');
     testGetUrl(assert, utils, baseInfo);
   });
