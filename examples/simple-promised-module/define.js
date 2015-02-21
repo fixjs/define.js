@@ -1,5 +1,5 @@
 /**
- * DefineJS v0.2.4 2015-02-20T15:27Z
+ * DefineJS v0.2.4 2015-02-21T10:46Z
  * Copyright (c) 2014 Mehran Hatami and define.js contributors.
  * Available via the MIT license.
  * license found at http://github.com/fixjs/define.js/raw/master/LICENSE
@@ -107,7 +107,7 @@
     return fnData;
   };
 
-  function setup (moduleName, moduleDefinition, loader, args) {
+  function setup(moduleName, moduleDefinition, loader, args) {
     var moduleData = utils.execute(moduleDefinition, args);
 
     function setupModule(value) {
@@ -400,7 +400,7 @@
 
       if (typeof moduleDefinition !== 'function') {
         console.error('Invalid input parameter to define a module');
-        return;
+        return false;
       }
 
       if (moduleName === undefined) {

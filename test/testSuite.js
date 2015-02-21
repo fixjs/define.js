@@ -16,6 +16,7 @@
     './spec/utils.createScript',
     './spec/loader',
     './spec/amd',
+    // './spec/amd.define.patterns',
     './spec/define'
   ];
 

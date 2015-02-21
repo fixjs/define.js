@@ -22,9 +22,7 @@ define(function () {
     message: 'is a expose function for AMD functions and more DefineJS attributes',
     module: {
       beforeEach: function () {
-        var that = this;
-        this.mainCurrentScript = document.currentScript;
-        this.currentScript = $('<script>', {
+        var currentScript = $('<script>', {
           'src': 'spec/baseInfo.js',
           'global': 'GLOB',
           'base': '../spec/'
@@ -32,12 +30,13 @@ define(function () {
 
         Object.defineProperty(document, 'currentScript', {
           get: function () {
-            return that.currentScript;
-          }
+            return currentScript;
+          },
+          configurable: true
         });
       },
       afterEach: function () {
-        this.currentScript = this.mainCurrentScript;
+        delete document.currentScript;
       }
     },
     require: ['./baseInfo', './var/doc']

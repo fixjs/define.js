@@ -2,7 +2,7 @@ define([
   './var/info',
   './utils.execute'
 ], function (info, utils) {
-  function setup (moduleName, moduleDefinition, loader, args) {
+  function setup(moduleName, moduleDefinition, loader, args) {
     var moduleData = utils.execute(moduleDefinition, args);
 
     function setupModule(value) {
