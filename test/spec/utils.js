@@ -129,6 +129,22 @@ define(function () {
 
   fix.test('utils', {
     message: 'utils helper functions',
+    module: {
+      beforeEach: function () {
+        Array.origIsArray = Array.isArray;
+
+        global.origUint8Array = global.Uint8Array;
+        global.Uint8Array = {};
+      },
+      afterEach: function () {
+        Array.isArray = Array.origIsArray;
+        global.Uint8Array = global.origUint8Array;
+
+        Array.origIsArray = global.origUint8Array = undefined;
+        delete Array.origIsArray;
+        delete global.origUint8Array;
+      }
+    }
   }).then(function (assert, utils) {
     assert.strictEqual(typeof utils, 'function', 'utils is a function');
 
