@@ -31,8 +31,7 @@ module.exports = function (config) {
       }
     ],
     exclude: [
-      'src/*.promise.js',
-      'src/async.js'
+      'src/*.promise.js'
     ],
 
     // use dots reporter, as travis terminal does not support escaping sequences
