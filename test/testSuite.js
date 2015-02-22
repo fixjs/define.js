@@ -2,7 +2,6 @@
   'use strict';
 
   var specs = [
-    './spec/sample',
     './spec/var/emptyArray',
     './spec/var/doc',
     './spec/var/info',
@@ -17,6 +16,7 @@
     './spec/utils.createScript',
     './spec/utils.getScript',
     './spec/loader',
+    './spec/async',
     './spec/amd',
     './spec/define'
   ];
