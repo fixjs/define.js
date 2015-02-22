@@ -9,6 +9,7 @@ define(function () {
 
     fix.stubInsertAndAppend();
 
+    assert.stub(console, 'error');
     //Invalid Patterns
     returnValue = AMD.define('invalidModuleName', ['testModule'], {});
     assert.strictEqual(returnValue, false, 'For invalid define calls returnValue is false:0');
@@ -21,6 +22,11 @@ define(function () {
     returnValue = AMD.define({});
     assert.strictEqual(returnValue, false, 'For invalid define calls returnValue is false:2');
     returnValue = undefined;
+
+    assert.ok(console.error.calledThrice, 'Three console.error calls for each of above define calls');
+    assert.ok(console.error.alwaysCalledWith('Invalid input parameter to define a module'), 'All console.error calls with relavant message');
+
+    console.error.restore();
 
 
     info.options.baseUrl = 'lib';

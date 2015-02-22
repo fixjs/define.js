@@ -6,6 +6,7 @@
     './spec/var/doc',
     './spec/var/info',
     './spec/utils',
+    './spec/utils.isFunction',
     './spec/baseInfo',
     './spec/utils.execute',
     './spec/setup',
@@ -15,15 +16,21 @@
     './spec/utils.getUrl',
     './spec/utils.createScript',
     './spec/utils.getScript',
-    './spec/loader',
-    './spec/async',
-    './spec/amd',
-    './spec/define'
+    './spec/loader'
   ];
 
-  if(!QUnit.config.karmaIsInCharge){
+  if (!QUnit.config.karmaIsInCharge) {
     QUnit.start();
+  } else {
+    specs.push(
+      './spec/async'
+    );
   }
+
+  specs.push(
+    './spec/amd',
+    './spec/define'
+  );
 
   // console.log('\nTestSuite started to run unit tests for:');
 
