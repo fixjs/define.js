@@ -17,8 +17,6 @@
     './spec/utils.getScript',
     './spec/loader',
     './spec/amd',
-    // './spec/async',
-    // './spec/amd.define.patterns',
     './spec/define'
   ];
 
