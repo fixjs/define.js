@@ -9,3 +9,5 @@ before_script:
   - npm test
 after_script:
   - grunt coveralls
+addons:
+  firefox: "35.0"

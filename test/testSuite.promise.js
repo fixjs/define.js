@@ -1,20 +1,30 @@
-(function () {
-  'use strict';
+var requirejs = require('requirejs');
 
-  var specs = [
-    './spec/var/emptyArray',
-    './spec/var/doc',
-    './spec/var/info'
-  ];
+requirejs.config({
+  baseUrl: 'src',
+  nodeRequire: require
+});
 
-  if(!QUnit.config.karmaIsInCharge){
-    QUnit.start();
-  }
+requirejs([
+  // './utils',
+  // './main',
+  '../test/spec/async'
+], function (async) {
 
-  // console.log('\nTestSuite started to run unit tests for:');
+  // console.log('typeof utils:' + typeof utils);
+  // console.log('typeof async:' + typeof async);
 
-  define(specs, function () {
-    // console.log('TestSuite just kicked of the all the tests!!\nWait for the result!\nHopefully they will all pass!');
-  });
+  // QUnit.module('utils');
 
-}());
+  // QUnit.test('initial test', function (assert) {
+
+  //   assert.strictEqual(typeof function(){}, 'object', 'utils is an object');
+  //   // assert.strictEqual(typeof utils.isObject, 'function', 'utils.isObject is a function');
+  //   // assert.strictEqual(typeof utils.isFunction, 'function', 'utils.isFunction is a function');
+
+  //   // assert.strictEqual(typeof main, 'function', 'main is a function');
+
+  //   // assert.strictEqual(main, utils.main, 'main and utils.main are the same!');
+
+  // });
+});

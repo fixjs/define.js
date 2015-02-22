@@ -9,3 +9,4 @@ ignored
 defer.js
 define.angular.js
 .coveralls.yml
+test/qunit.main.js
