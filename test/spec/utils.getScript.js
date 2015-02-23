@@ -7,7 +7,7 @@ define(function () {
 
     var el = $('<script>', {
         src: 'lib/testModule.js'
-      }),
+      }).get(0),
       scriptEl,
       callback = sinon.stub();
 
