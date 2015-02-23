@@ -7,6 +7,13 @@ define(function () {
     var baseUrl = info.options.baseUrl || baseInfo.baseUrl;
 
     assert.equal(utils.makeUrl('fileName'), baseUrl + '/fileName.js', 'utils.makeUrl works for simple file names');
+
+    info.options.paths = {
+      'test': 'app/test'
+    };
+
+    assert.equal(utils.makeUrl('test/fileName'), baseUrl + '/app/test/fileName.js', 'utils.makeUrl works for specified paths');
+
     //More tests
 
     baseInfo.baseUrl = origBaseUrl;
