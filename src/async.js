@@ -1,18 +1,6 @@
 define(function () {
   var genCache = new Map();
 
-  //The official polyfill for promise.done()
-  if (typeof Promise.prototype.done !== 'function') {
-    Promise.prototype.done = function () {
-      var self = arguments.length ? this.then.apply(this, arguments) : this;
-      self.then(null, function (err) {
-        setTimeout(function () {
-          throw err;
-        }, 0);
-      });
-    };
-  }
-
   //A function by Forbes Lindesay which helps us code in synchronous style
   //using yield keyword, whereas the actual scenario is an asynchronous process
   //https://www.promisejs.org/generators/
