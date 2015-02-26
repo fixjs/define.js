@@ -16,10 +16,29 @@ define(function () {
     });
   }
 
-  function asyncTryCatchFN(async) {
+  function asyncThrowFN1(async) {
     return async(function * () {
       var str = yield getPromisedString();
       throw new Error('This is just a ' + str);
+    });
+  }
+
+  function asyncThrowFN2(async) {
+    return async(function * () {
+      throw new Error('This is just a simple error message!');
+      yield getPromisedString();
+    });
+  }
+
+  function asyncTryCatchFN(async) {
+    return async(function * (throwFN) {
+      var result;
+      try {
+        result = yield throwFN();
+      } catch (e) {
+        result = e;
+      }
+      return result;
     });
   }
 
@@ -47,38 +66,44 @@ define(function () {
       var asyncValue = asyncFN(async)(),
         asyncPromiseValue = asyncPromiseFN(async),
         rejectedPromise,
-        asyncTryCatch;
+        asyncTryCatch1,
+        asyncTryCatch2;
 
       rejectedPromise = asyncRejectedPromiseFN(async)
         .catch(function (str) {
           return 'Error: ' + str;
         });
 
-      asyncTryCatch = asyncTryCatchFN(async)()
+      asyncTryCatch1 = asyncTryCatchFN(async)(asyncThrowFN1(async))
         .catch(function (err) {
           return err;
         });
 
-      return Promise.all([asyncValue, asyncPromiseValue, rejectedPromise, asyncTryCatch]);
+      asyncTryCatch2 = asyncTryCatchFN(async)(asyncThrowFN2(async))
+        .catch(function (err) {
+          return err;
+        });
+
+      return Promise.all([asyncValue, asyncPromiseValue, rejectedPromise, asyncTryCatch1, asyncTryCatch2]);
     }
   }).then(function (assert, async, promisedArray) {
 
     assert.strictEqual(typeof async, 'function', 'async is actually a function');
-
     assert.strictEqual(typeof async.Promise, 'function', 'async.Promise is also a function');
 
     assert.ok($.isArray(promisedArray), 'both promised values are present');
-
-    assert.strictEqual(promisedArray.length, 4, 'promisedArray has two member as we expect');
+    assert.strictEqual(promisedArray.length, 5, 'promisedArray has two member as we expect');
 
     assert.strictEqual(promisedArray[0], 'This is just a simple promised string!', 'async works as expected!');
-
     assert.strictEqual(promisedArray[0], promisedArray[1], 'async and async.Promise both work as expected!');
 
     assert.strictEqual(promisedArray[2], 'Error: ' + promisedArray[0], 'async handles promise rejection');
 
-    assert.ok(promisedArray[3] instanceof Error, 'async handles errors and exceptions');
-    assert.strictEqual(promisedArray[3].message, 'This is just a simple promised string!', 'async handles errors and exceptions:message');
+    assert.ok(promisedArray[3] instanceof Error, 'async handles errors and exceptions:1');
+    assert.strictEqual(promisedArray[3].message, 'This is just a simple promised string!', 'async handles errors and exceptions:message1');
+    
+    assert.ok(promisedArray[4] instanceof Error, 'async handles errors and exceptions:2');
+    assert.strictEqual(promisedArray[4].message, 'This is just a simple error message!', 'async handles errors and exceptions:message2');
 
     var genFN,
       asyncGen1,
