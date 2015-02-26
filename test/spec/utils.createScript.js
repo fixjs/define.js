@@ -3,6 +3,20 @@ define(function () {
 
   var $ = global.jQuery;
 
+  function stubCreateElement(assert, el){
+    assert.stub(document, 'createElementNS')
+      .withArgs('http://www.w3.org/1999/xhtml', 'script')
+      .returns(el);
+    assert.stub(document, 'createElement')
+      .withArgs('script')
+      .returns(el);
+  }
+
+  function restoreCreateElement(){
+    document.createElementNS.restore();
+    document.createElement.restore();
+  }
+
   function testCreateScript(assert, utils, info, doc, baseInfo) {
 
     assert.strictEqual(typeof utils.getUrl, 'function', 'utils.getUrl is a dependency');
@@ -18,13 +32,6 @@ define(function () {
       callbackArg0,
       callbackArg1;
 
-    assert.stub(document, 'createElementNS')
-      .withArgs('http://www.w3.org/1999/xhtml', 'script')
-      .returns(el);
-    assert.stub(document, 'createElement')
-      .withArgs('script')
-      .returns(el);
-
     // assert.stub(el, 'attachEvent');
     assert.stub(el, 'addEventListener');
     assert.stub(el, 'removeEventListener');
@@ -34,7 +41,9 @@ define(function () {
     info.options.scriptType = undefined;
     baseInfo.baseElement = undefined;
 
+    stubCreateElement(assert, el);
     el = utils.createScript(url, callback, errorCallback);
+    restoreCreateElement();
 
     assert.ok(el.addEventListener.calledTwice, 'el.addEventListener for load and error');
 
@@ -67,7 +76,9 @@ define(function () {
 
     info.options.scriptType = 'my-own-datatype/javascript';
 
+    stubCreateElement(assert, el);
     el = utils.createScript(url, callback, errorCallback);
+    restoreCreateElement();
 
     assert.strictEqual(el.type, 'my-own-datatype/javascript', 'utils.createScript reads dataType from options ...');
 
@@ -78,8 +89,6 @@ define(function () {
 
     // el.attachEvent.restore();
     el.addEventListener.restore();
-    document.createElementNS.restore();
-    document.createElement.restore();
   }
 
   fix.test('utils.createScript', {

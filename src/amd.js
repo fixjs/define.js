@@ -58,9 +58,11 @@ define([
     }
 
     function fxrequire(array, fn) {
-      if (typeof fn !== 'function') {
-        console.error('Invalid input parameter to require a module');
-        return;
+      if (typeof array === 'string') {
+        array = [array];
+      } else if (typeof array === 'function') {
+        fn = array;
+        array = [];
       }
 
       if (utils.isArray(array) && array.length) {

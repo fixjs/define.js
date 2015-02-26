@@ -149,6 +149,20 @@ define(function () {
     assert.strictEqual(typeof info.modules, 'object', 'definejs core info.modules is an object');
   }
 
+  function testRequire(assert, utils){
+    assert.stub(utils, 'execute');
+    
+    AMD.require('testModule');
+
+    assert.ok(utils.execute.calledOnce, 'utils.execute to execute the callback, module already defined');
+
+    AMD.require(function(){});
+
+    assert.ok(utils.execute.calledTwice, 'utils.execute to execute the callback, no dependency specified');
+
+    utils.execute.restore();
+  }
+
   fix.test('amd', {
     message: 'amd is the main definejs module',
     module: {
@@ -168,26 +182,26 @@ define(function () {
         delete document.currentScript;
       }
     },
-    require: ['./amd', './loader']
-  }).then(function (assert, amd, loader) {
+    require: ['./amd', './loader', './utils']
+  }).then(function (assert, amd, loader, utils) {
     assert.strictEqual(typeof amd, 'function', 'amd is the module-definition which is a function');
     testAMD(assert, amd, loader);
 
     var info = testAMDDefine(assert);
-    testAMDDefineInTheNextTurn(info);
+    testAMDDefineInTheNextTurn(info, utils);
   });
 
-  function testAMDDefineInTheNextTurn(info) {
+  function testAMDDefineInTheNextTurn(info, utils) {
     fix.test('amd/define', {
       message: 'define:standard AMD functions work as they should',
       require: false
     }).then(function (assert) {
       continueTestingProcess(assert, info);
-      startTestingRequireInTheNextTurn();
+      startTestingRequireInTheNextTurn(utils);
     });
   }
 
-  function startTestingRequireInTheNextTurn() {
+  function startTestingRequireInTheNextTurn(utils) {
     fix.test('amd/require', {
       message: 'require:standard AMD functions work as they should',
       require: false,
@@ -231,6 +245,8 @@ define(function () {
       assert.deepEqual(allTestModules[1], testModuleObject1, 'AMD require works perfectly:1');
       assert.deepEqual(allTestModules[2], testModuleObject2, 'AMD require works perfectly:2');
       assert.deepEqual(allTestModules[3], testModuleObject3, 'AMD require works perfectly:3');
+
+      testRequire(assert, utils);
 
     });
   }

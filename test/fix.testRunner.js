@@ -58,6 +58,14 @@
       assert.mock = FN(this.mock, this);
       assert.sandbox = this.sandbox;
 
+      assert.stop = function(){
+        //assert.done
+        if(!assert.stopped){
+          done();
+          assert.stopped = true;
+        }
+      };
+
       if (typeof options.expect === 'number') {
         assert.expect(options.expect);
       }
@@ -80,15 +88,11 @@
           
           dfdResult.done(function (value) {
             args.push(value);
-            deferred.then(function () {
-              done();
-            });
+            deferred.then(assert.stop);
             deferred.resolve.apply(deferred, args);
           });
         } else {
-          deferred.then(function () {
-            done();
-          });
+          deferred.then(assert.stop);
           deferred.resolve.apply(deferred, args);
         }
       }

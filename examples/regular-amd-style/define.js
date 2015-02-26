@@ -1,5 +1,5 @@
 /**
- * DefineJS v0.2.4 2015-02-21T10:46Z
+ * DefineJS v0.2.4 2015-02-26T17:26Z
  * Copyright (c) 2014 Mehran Hatami and define.js contributors.
  * Available via the MIT license.
  * license found at http://github.com/fixjs/define.js/raw/master/LICENSE
@@ -7,6 +7,17 @@
 (function (g, undefined) {
   
   var global = g();
+  //The official polyfill for promise.done()
+  if (typeof Promise.prototype.done !== 'function') {
+    Promise.prototype.done = function () {
+      var self = arguments.length ? this.then.apply(this, arguments) : this;
+      self.then(null, function (err) {
+        setTimeout(function () {
+          throw err;
+        }, 0);
+      });
+    };
+  }
   var info = {
     options: {
       paths: null
@@ -97,13 +108,14 @@
 
   utils.execute = function (fn, args) {
     var fnData;
-    if (!utils.isArray(args)) {
-      args = emptyArray;
+    if (utils.isFunction(fn)) {
+      if (!utils.isArray(args)) {
+        args = emptyArray;
+      }
+      try {
+        fnData = fn.apply(undefined, args);
+      } catch (ignore) {}
     }
-    try {
-      fnData = fn.apply(undefined, args);
-    } catch (ignore) {}
-
     return fnData;
   };
 
@@ -425,9 +437,11 @@
     }
 
     function fxrequire(array, fn) {
-      if (typeof fn !== 'function') {
-        console.error('Invalid input parameter to require a module');
-        return;
+      if (typeof array === 'string') {
+        array = [array];
+      } else if (typeof array === 'function') {
+        fn = array;
+        array = [];
       }
 
       if (utils.isArray(array) && array.length) {

@@ -1,5 +1,5 @@
 /**
- * DefineJS v0.2.4 2015-02-21T10:46Z
+ * DefineJS v0.2.4 2015-02-26T17:26Z
  * Copyright (c) 2014 Mehran Hatami and define.js contributors.
  * Available via the MIT license.
  * license found at http://github.com/fixjs/define.js/raw/master/LICENSE
@@ -7,6 +7,17 @@
 (function (g, undefined) {
   
   var global = g();
+  //The official polyfill for promise.done()
+  if (typeof Promise.prototype.done !== 'function') {
+    Promise.prototype.done = function () {
+      var self = arguments.length ? this.then.apply(this, arguments) : this;
+      self.then(null, function (err) {
+        setTimeout(function () {
+          throw err;
+        }, 0);
+      });
+    };
+  }
   var info = {
     options: {
       paths: null
@@ -97,13 +108,14 @@
 
   utils.execute = function (fn, args) {
     var fnData;
-    if (!utils.isArray(args)) {
-      args = emptyArray;
+    if (utils.isFunction(fn)) {
+      if (!utils.isArray(args)) {
+        args = emptyArray;
+      }
+      try {
+        fnData = fn.apply(undefined, args);
+      } catch (ignore) {}
     }
-    try {
-      fnData = fn.apply(undefined, args);
-    } catch (ignore) {}
-
     return fnData;
   };
 
@@ -128,39 +140,32 @@
 
   var genCache = new Map();
 
-  //The official polyfill for promise.done()
-  if (typeof Promise.prototype.done !== 'function') {
-    Promise.prototype.done = function () {
-      var self = arguments.length ? this.then.apply(this, arguments) : this;
-      self.then(null, function (err) {
-        setTimeout(function () {
-          throw err;
-        }, 0);
-      });
-    };
-  }
-
   //A function by Forbes Lindesay which helps us code in synchronous style
   //using yield keyword, whereas the actual scenario is an asynchronous process
   //https://www.promisejs.org/generators/
   function forbesAsync(makeGenerator) {
     return function () {
       var generator = makeGenerator.apply(this, arguments);
-
+      console.log('>>>>generator covered:10');
       function handle(result) {
+        console.log('>>>>handle covered:12');
         // result => { done: [Boolean], value: [Object] }
         if (result.done) return Promise.resolve(result.value);
 
         return Promise.resolve(result.value).then(function (res) {
+          console.log('>>>>Promise.resolve covered:17');
           return handle(generator.next(res));
         }, function (err) {
+          console.log('>>>>rejection covered:20');
           return handle(generator.throw(err));
         });
       }
 
       try {
+        console.log('>>>>try handle call covered:26');
         return handle(generator.next());
       } catch (ex) {
+        console.log('>>>>catch covered:29');
         return Promise.reject(ex);
       }
     };
