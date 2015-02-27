@@ -58,11 +58,15 @@
       assert.mock = FN(this.mock, this);
       assert.sandbox = this.sandbox;
 
-      assert.stop = function(){
-        //assert.done
-        if(!assert.stopped){
+      assert.done = function () {
+        if (!assert.DONE) {
           done();
-          assert.stopped = true;
+          assert.DONE = true;
+        }
+      };
+      assert.stop = function () {
+        if (!$.isPlainObject(options) || options.done !== false) {
+          assert.done();
         }
       };
 
@@ -79,13 +83,13 @@
         Array.prototype.push.apply(args, arguments);
 
         if ($.isFunction(options.resolver)) {
-          
-          try{
+
+          try {
             dfdResult = options.resolver.apply(undefined, args);
-          } catch(err){
+          } catch (err) {
             console.log('[[Error on invoking the resolver function]]');
           }
-          
+
           dfdResult.done(function (value) {
             args.push(value);
             deferred.then(assert.stop);

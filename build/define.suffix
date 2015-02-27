@@ -1,9 +1,9 @@
   if (typeof exports === 'object') {
-    module.exports = defineModuleDefinition();
+    module.exports = amd();
   } else if (typeof define === 'function' && define.amd) {
-    define([], defineModuleDefinition);
+    define([], amd);
   } else {
-    var definejs = defineModuleDefinition();
+    var definejs = amd();
     if (baseInfo.baseGlobal && utils.isObject(global[baseInfo.baseGlobal])) {
       definejs(global[baseInfo.baseGlobal]);
     } else {

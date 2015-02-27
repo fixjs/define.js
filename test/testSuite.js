@@ -29,6 +29,7 @@
 
   specs.push(
     './spec/amd',
+    './spec/amd.use',
     './spec/define'
   );
 

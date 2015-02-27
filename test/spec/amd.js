@@ -123,7 +123,7 @@ define(function () {
 
     definejs = amd();
 
-    assert.strictEqual(typeof definejs, 'function', 'moduleDefinition:amd returns the main definejs function');
+    assert.strictEqual(typeof definejs, 'function', 'definition:amd returns the main definejs function');
 
     definejs(AMD);
 
@@ -149,18 +149,60 @@ define(function () {
     assert.strictEqual(typeof info.modules, 'object', 'definejs core info.modules is an object');
   }
 
-  function testRequire(assert, utils){
+  function testRequire(assert, utils) {
     assert.stub(utils, 'execute');
-    
+
     AMD.require('testModule');
 
     assert.ok(utils.execute.calledOnce, 'utils.execute to execute the callback, module already defined');
 
-    AMD.require(function(){});
+    AMD.require(function () {});
 
     assert.ok(utils.execute.calledTwice, 'utils.execute to execute the callback, no dependency specified');
 
     utils.execute.restore();
+  }
+
+  function testConfig(assert, info) {
+    var origOptions = info.options,
+      options;
+
+    info.options = {
+      someKey: 'someValue'
+    };
+
+    assert.stub(console, 'error');
+
+    AMD.config('');
+    AMD.config(true);
+    AMD.config(10);
+    assert.ok(console.error.calledThrice, 'console.error called when passing invalid config object');
+    assert.ok(console.error.alwaysCalledWith('Invalid parameter to set up the config'), 'console.error called with relavant message when passing invalid config object');
+
+    AMD.config({
+      someKey: 'someSpecificValue'
+    });
+
+    assert.strictEqual(info.options.someKey, 'someSpecificValue', 'config overrides the existing attributes');
+
+    console.error.restore();
+    assert.stub(console, 'error');
+
+    options = function () {};
+    options.desiredObj = {
+      specificKey: 'specificValue'
+    };
+
+    AMD.config(options);
+
+    assert.strictEqual(console.error.callCount, 0, 'config works even with functions as input object');
+
+    assert.strictEqual(typeof info.options.desiredObj, 'object', 'config could be used even to store objects in the options:typeof check');
+    assert.notStrictEqual(info.options.desiredObj, null, 'config could be used even to store objects in the options:null check');
+    assert.strictEqual(info.options.desiredObj.specificKey, 'specificValue', 'config could be used even to store objects in the options:internal attribute check');
+
+    info.options = origOptions;
+    console.error.restore();
   }
 
   fix.test('amd', {
@@ -182,73 +224,74 @@ define(function () {
         delete document.currentScript;
       }
     },
-    require: ['./amd', './loader', './utils']
-  }).then(function (assert, amd, loader, utils) {
+    require: ['./amd', './loader', './utils', './var/info'],
+    done: false
+  }).then(function (assert, amd, loader, utils, info) {
     assert.strictEqual(typeof amd, 'function', 'amd is the module-definition which is a function');
     testAMD(assert, amd, loader);
 
-    var info = testAMDDefine(assert);
-    testAMDDefineInTheNextTurn(info, utils);
+    testConfig(assert, info);
+
+    var dfInfo = testAMDDefine(assert);
+
+    assert.strictEqual(dfInfo, info, 'the info object stored in the AMD.define.info is the same ./var/info object.');
+
+    testAMDDefineInTheNextTurn(assert, dfInfo, utils);
   });
 
-  function testAMDDefineInTheNextTurn(info, utils) {
-    fix.test('amd/define', {
-      message: 'define:standard AMD functions work as they should',
-      require: false
-    }).then(function (assert) {
+  function testAMDDefineInTheNextTurn(assert, info, utils) {
+    setTimeout(function () {
       continueTestingProcess(assert, info);
-      startTestingRequireInTheNextTurn(utils);
-    });
+      setTimeout(function () {
+        startTestingRequireInTheNextTurn(assert, utils);
+      }, 10);
+    }, 10);
   }
 
-  function startTestingRequireInTheNextTurn(utils) {
-    fix.test('amd/require', {
-      message: 'require:standard AMD functions work as they should',
-      require: false,
-      resolver: function () {
-        var moduleNames = [
-          'testModule',
-          'testModule1',
-          'testModule2',
-          'testModule3',
-        ];
+  function startTestingRequireInTheNextTurn(assert, utils) {
+    var moduleNames = [
+      'testModule',
+      'testModule1',
+      'testModule2',
+      'testModule3',
+    ];
 
-        function requirePromise(moduleName) {
-          return new Promise(function (fulfill) {
-            AMD.require([moduleName], fulfill);
-          });
-        }
+    function requirePromise(moduleName) {
+      return new Promise(function (fulfill) {
+        AMD.require([moduleName], fulfill);
+      });
+    }
 
-        return Promise.all(moduleNames.map(requirePromise));
-      }
-    }).then(function (assert, allTestModules) {
+    Promise.all(moduleNames.map(requirePromise))
+      .then(function (allTestModules) {
 
-      var testModuleObject = {
-          name: 'testObject for the first pattern: testModule'
-        },
-        testModuleObject1 = {
-          name: 'testObject for the second pattern: testModule1',
-          deps: [testModuleObject]
-        },
-        testModuleObject2 = {
-          name: 'testObject for the 3th pattern: lib/testModule2.js'
-        },
-        testModuleObject3 = {
-          name: 'testObject for the 4th pattern: lib/testModule3.js',
-          deps: [testModuleObject1, testModuleObject2]
-        };
+        var testModuleObject = {
+            name: 'testObject for the first pattern: testModule'
+          },
+          testModuleObject1 = {
+            name: 'testObject for the second pattern: testModule1',
+            deps: [testModuleObject]
+          },
+          testModuleObject2 = {
+            name: 'testObject for the 3th pattern: lib/testModule2.js'
+          },
+          testModuleObject3 = {
+            name: 'testObject for the 4th pattern: lib/testModule3.js',
+            deps: [testModuleObject1, testModuleObject2]
+          };
 
-      assert.ok($.isArray(allTestModules), 'allTestModules is an array');
-      assert.strictEqual(allTestModules.length, 4, 'allTestModules.length is 4');
+        assert.ok($.isArray(allTestModules), 'allTestModules is an array');
+        assert.strictEqual(allTestModules.length, 4, 'allTestModules.length is 4');
 
-      assert.deepEqual(allTestModules[0], testModuleObject, 'AMD require works perfectly:0');
-      assert.deepEqual(allTestModules[1], testModuleObject1, 'AMD require works perfectly:1');
-      assert.deepEqual(allTestModules[2], testModuleObject2, 'AMD require works perfectly:2');
-      assert.deepEqual(allTestModules[3], testModuleObject3, 'AMD require works perfectly:3');
+        assert.deepEqual(allTestModules[0], testModuleObject, 'AMD require works perfectly:0');
+        assert.deepEqual(allTestModules[1], testModuleObject1, 'AMD require works perfectly:1');
+        assert.deepEqual(allTestModules[2], testModuleObject2, 'AMD require works perfectly:2');
+        assert.deepEqual(allTestModules[3], testModuleObject3, 'AMD require works perfectly:3');
 
-      testRequire(assert, utils);
+        testRequire(assert, utils);
 
-    });
+        assert.done();
+      });
   }
 
 });
