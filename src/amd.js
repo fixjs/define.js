@@ -4,130 +4,119 @@ define([
   './loader',
   './utils'
 ], function (info, emptyArray, loader, utils) {
-  function defineModuleDefinition() {
-    function fxdefine(moduleName, array, moduleDefinition) {
-      //define(moduleDefinition)
-      if (typeof moduleName === 'function') {
-        moduleDefinition = moduleName;
-        moduleName = undefined;
-        array = emptyArray;
+  function amd() {
+    if (amd.definejs) {
+      return amd.definejs;
+    }
+
+    var definejs = function (_) {
+      if (!utils.isObject(_)) {
+        _ = global;
       }
-      //define(array, moduleDefinition)
-      else if (utils.isArray(moduleName)) {
-        moduleDefinition = array;
-        array = moduleName;
-        moduleName = undefined;
-      }
-      /*
-       * Note: (Not a good practice)
-       * You can explicitly name modules yourself, but it makes the modules less portable
-       * if you move the file to another directory you will need to change the name.
-       */
-      else if (typeof moduleName === 'string') {
-        //define(moduleName, moduleDefinition)
-        if (typeof array === 'function') {
-          moduleDefinition = array;
+
+      _.define = function (moduleName, array, moduleDefinition) {
+        //define(moduleDefinition)
+        if (typeof moduleName === 'function') {
+          moduleDefinition = moduleName;
+          moduleName = undefined;
           array = emptyArray;
         }
-      }
-
-      if (typeof moduleDefinition !== 'function') {
-        console.error('Invalid input parameter to define a module');
-        return false;
-      }
-
-      if (moduleName === undefined) {
-        moduleName = utils.getFileName(document.currentScript.src);
-      }
-
-      info.definedModules[moduleName] = true;
-
-      if (utils.isArray(array) && array.length) {
-        loader.loadAll(array, function () {
-          var args = [],
-            i = 0,
-            len = array.length;
-          for (; i < len; i += 1) {
-            args.push(info.modules[utils.getFileName(array[i])]);
-          }
-          loader.setup(moduleName, moduleDefinition, args);
-        });
-      } else {
-        loader.setup(moduleName, moduleDefinition);
-      }
-    }
-
-    function fxrequire(array, fn) {
-      if (typeof array === 'string') {
-        array = [array];
-      } else if (typeof array === 'function') {
-        fn = array;
-        array = [];
-      }
-
-      if (utils.isArray(array) && array.length) {
-        loader.loadAll(array, function () {
-          var args = [],
-            i = 0,
-            len = array.length;
-          for (; i < len; i += 1) {
-            args.push(info.modules[utils.getFileName(array[i])]);
-          }
-          utils.execute(fn, args);
-        });
-      } else {
-        utils.execute(fn);
-      }
-    }
-
-    function promiseUse(array) {
-      return new Promise(function (fulfill) {
-        //this function accepts two params: fulfill, reject
-        fxrequire(array, fulfill);
-        //FIXME: think of a useful pattern for promised module rejection
-        console.log(
-          'Great to see that you are using this function on DefineJS (https://www.npmjs.org/package/definejs)\n',
-          'This function provides a way of requiring your defined modules using a Promise based coding style.\n',
-          'Actually as you might have noticed we are actively extending this module loader, and that\'s why we need your feedback on this.\n',
-          'You could join the chat room on Gitter (https://gitter.im/fixjs/define.js) and provide us with your great ideas and feedbacks.'
-        );
-        /*
-         * OPEN DISCUSSION:
-         * module rejection could offer a cool pattern when developing new modules
-         * but we first need to have the community's feedback on this
-         */
-      });
-    }
-
-    function fxconfig(cnfOptions) {
-      if (!utils.isObject(cnfOptions)) {
-        return;
-      }
-
-      var key;
-      for (key in cnfOptions) {
-        if (cnfOptions.hasOwnProperty(key)) {
-          info.options[key] = cnfOptions[key];
+        //define(array, moduleDefinition)
+        else if (utils.isArray(moduleName)) {
+          moduleDefinition = array;
+          array = moduleName;
+          moduleName = undefined;
         }
-      }
-    }
+        /*
+         * Note: (Not a good practice)
+         * You can explicitly name modules yourself, but it makes the modules less portable
+         * if you move the file to another directory you will need to change the name.
+         */
+        else if (typeof moduleName === 'string') {
+          //define(moduleName, moduleDefinition)
+          if (typeof array === 'function') {
+            moduleDefinition = array;
+            array = emptyArray;
+          }
+        }
 
-    fxrequire.config = fxconfig;
-    fxdefine.amd = {};
-    fxdefine.info = info;
+        if (typeof moduleDefinition !== 'function') {
+          console.error('Invalid input parameter to define a module');
+          return false;
+        }
 
-    function definejs(obj) {
-      if (!utils.isObject(obj)) {
-        obj = global;
-      }
-      obj.require = fxrequire;
-      obj.define = fxdefine;
-      obj.config = fxconfig;
-      obj.use = promiseUse;
-    }
+        if (moduleName === undefined) {
+          moduleName = utils.getFileName(document.currentScript.src);
+        }
 
+        info.definedModules[moduleName] = true;
+
+        if (utils.isArray(array) && array.length) {
+          loader.loadAll(array, function () {
+            var args = [],
+              i = 0,
+              len = array.length;
+            for (; i < len; i += 1) {
+              args.push(info.modules[utils.getFileName(array[i])]);
+            }
+            loader.setup(moduleName, moduleDefinition, args);
+          });
+        } else {
+          loader.setup(moduleName, moduleDefinition);
+        }
+      };
+
+      _.require = function (array, fn) {
+        if (typeof array === 'string') {
+          array = [array];
+        } else if (typeof array === 'function') {
+          fn = array;
+          array = [];
+        }
+
+        if (utils.isArray(array) && array.length) {
+          loader.loadAll(array, function () {
+            var args = [],
+              i = 0,
+              len = array.length;
+            for (; i < len; i += 1) {
+              args.push(info.modules[utils.getFileName(array[i])]);
+            }
+            utils.execute(fn, args);
+          });
+        } else {
+          utils.execute(fn);
+        }
+      };
+
+      _.use = function (array) {
+        return new Promise(function (fulfill) {
+          //need to come up with a solution for rejected states
+          _.require(array, fulfill);
+        });
+      };
+
+      _.config = function (cnfOptions) {
+        if (!utils.isObject(cnfOptions)) {
+          console.error('Invalid parameter to set up the config');
+          return;
+        }
+
+        var key;
+        for (key in cnfOptions) {
+          if (cnfOptions.hasOwnProperty(key)) {
+            info.options[key] = cnfOptions[key];
+          }
+        }
+      };
+
+      _.require.config = _.config;
+      _.define.amd = {};
+      _.define.info = info;
+    };
+
+    amd.definejs = definejs;
     return definejs;
   }
-
-  return defineModuleDefinition;
+  return amd;
 });
