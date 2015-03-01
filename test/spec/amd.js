@@ -115,7 +115,7 @@ define(function () {
     assert.ok(waitingListIsEmpty(info), 'There is no item in the waiting-list');
   }
 
-  function testAMD(assert, amd, loader) {
+  function testAMD(assert, amd, loader, g) {
     var definejs,
       info;
 
@@ -125,19 +125,22 @@ define(function () {
 
     assert.strictEqual(typeof definejs, 'function', 'definition:amd returns the main definejs function');
 
-    definejs(AMD);
+    definejs(g);
+    if (g === undefined) {
+      g = global;
+    }
 
-    assert.strictEqual(typeof AMD.define, 'function', 'definejs exposes the AMD define');
-    assert.strictEqual(typeof AMD.require, 'function', 'definejs exposes the AMD require');
-    assert.strictEqual(typeof AMD.define.amd, 'object', 'definejs exposes the standard define.amd object');
-    assert.strictEqual(typeof AMD.config, 'function', 'definejs exposes the AMD config on the global object');
-    assert.strictEqual(typeof AMD.require.config, 'function', 'definejs exposes the AMD config on the require function similar to RequireJS');
-    assert.equal(AMD.config, AMD.require.config, 'definejs exposes the same config function for both global.config and require.config');
-    assert.strictEqual(typeof AMD.use, 'function', 'definejs exposes the non-standard global.use function');
+    assert.strictEqual(typeof g.define, 'function', 'definejs exposes the AMD define');
+    assert.strictEqual(typeof g.require, 'function', 'definejs exposes the AMD require');
+    assert.strictEqual(typeof g.define.amd, 'object', 'definejs exposes the standard define.amd object');
+    assert.strictEqual(typeof g.config, 'function', 'definejs exposes the AMD config on the global object');
+    assert.strictEqual(typeof g.require.config, 'function', 'definejs exposes the AMD config on the require function similar to RequireJS');
+    assert.equal(g.config, g.require.config, 'definejs exposes the same config function for both global.config and require.config');
+    assert.strictEqual(typeof g.use, 'function', 'definejs exposes the non-standard global.use function');
 
-    info = AMD.define.info;
+    info = g.define.info;
 
-    assert.strictEqual(typeof AMD.define.info, 'object', 'definejs exposes the non-standard define.info object');
+    assert.strictEqual(typeof g.define.info, 'object', 'definejs exposes the non-standard define.info object');
 
     assert.notEqual(info.installed, null, 'definejs core info.installed is not null');
     assert.strictEqual(typeof info.installed, 'object', 'definejs core info.installed is an object');
@@ -205,6 +208,20 @@ define(function () {
     console.error.restore();
   }
 
+  function testGlobalDefine(assert, amd, loader) {
+    var gDefine = global.define,
+      gRequire = global.require,
+      gUse = global.use,
+      gConfig = global.config;
+
+    testAMD(assert, amd, loader, undefined);
+
+    global.define = gDefine;
+    global.require = gRequire;
+    global.use = gUse;
+    global.config = gConfig;
+  }
+
   fix.test('amd', {
     message: 'amd is the main definejs module',
     module: {
@@ -228,7 +245,10 @@ define(function () {
     done: false
   }).then(function (assert, amd, loader, utils, info) {
     assert.strictEqual(typeof amd, 'function', 'amd is the module-definition which is a function');
-    testAMD(assert, amd, loader);
+
+    testGlobalDefine(assert, amd, loader);
+
+    testAMD(assert, amd, loader, AMD);
 
     testConfig(assert, info);
 
