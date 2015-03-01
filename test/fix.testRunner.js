@@ -31,6 +31,28 @@
   };
 
   global.AMD = AMD;
+
+  //This allows us test the actual isArray urility function in utils
+  if (Array.isArray) {
+    Array.isArray = undefined;
+  }
+
+  // I know no better way of doing it, although I believe this type of use cases
+  // is one of the few that using eval is not a bad practice
+  var isGeneratorSupported;
+  fix.isGeneratorSupported = function () {
+    if (isGeneratorSupported !== undefined) {
+      return isGeneratorSupported;
+    }
+    try {
+      eval('(function *(){})');
+      isGeneratorSupported = true;
+    } catch (ignored) {
+      isGeneratorSupported = false;
+    }
+    return isGeneratorSupported;
+  };
+
   /*
    * fix.test('utils', {
    *    message: 'testMessage',
@@ -117,14 +139,15 @@
         require(path, callback);
       }
     });
-    // console.log(moduleName + '.js');
 
-    deferred.fail(function (moduleName) {
+    var failCallback = (function (moduleName) {
       return function () {
         console.log('((((fail on :' + moduleName + '))))');
         console.log('fail args:', arguments);
       };
     }(moduleName));
+
+    deferred.fail(failCallback);
 
     function wrap(moduleName, callback) {
       return function () {
@@ -161,7 +184,8 @@
       return;
     }
 
-    var noop = function () {},
+    var insertSpy = sinon.spy(),
+      appendSpy = sinon.spy(),
       helper = AMD.testHelper;
 
     var baseElement = document.getElementsByTagName('base')[0];
@@ -172,14 +196,14 @@
 
     Object.defineProperty(helper.head, 'insertBefore', {
       get: function () {
-        return noop;
+        return insertSpy;
       },
       configurable: true
     });
 
     Object.defineProperty(helper.head, 'appendChild', {
       get: function () {
-        return noop;
+        return appendSpy;
       },
       configurable: true
     });
@@ -197,6 +221,12 @@
       AMD.testHelper.headIsStubbed = false;
     }
   };
+
+  $(function(){
+    fix.testFrame = $('<iframe>', {
+      style: 'display:none;'
+    }).appendTo('body').get(0);
+  });
 
   //this hack is used for loading sinon in global mode when karma is in charge
   //using requirejs in karma.conf as a framework makes it difficult to load global sinon
