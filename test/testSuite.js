@@ -25,6 +25,7 @@
 
   if (fix.isGeneratorSupported()) {
     specs.push(
+      // './spec/loader.promise',
       './spec/async'
     );
   }
