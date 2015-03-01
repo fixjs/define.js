@@ -12,7 +12,7 @@ define(function () {
 
     assert.strictEqual(utils.isFunction(/x/), false, 'utils.isFunction is a function');
 
-    var global1 = getAnotherWindow(),
+    var global1 = fix.testFrame.contentWindow,
       f = global.Function(''),
       f1 = global1.Function('');
 
@@ -23,20 +23,6 @@ define(function () {
     assert.strictEqual(f instanceof global.Function, true, 'Functions are instances from within global objects:f in global');
     assert.strictEqual(utils.isFunction(f), true, 'utils.isFunction works for all functions even from different globals:f');
     assert.strictEqual(utils.isFunction(f1), true, 'utils.isFunction works for all functions even from different globals:f1');
-  }
-
-  function getAnotherWindow() {
-    var ifrm,
-      win;
-
-    ifrm = document.createElement('iframe');
-    ifrm.style.display = 'none';
-
-    document.body.appendChild(ifrm);
-    win = ifrm.contentWindow;
-    document.body.removeChild(ifrm);
-
-    return win;
   }
 
   fix.test('utils.isFunction', {

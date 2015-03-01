@@ -21,7 +21,9 @@
 
   if (!QUnit.config.karmaIsInCharge) {
     QUnit.start();
-  } else {
+  }
+
+  if (fix.isGeneratorSupported()) {
     specs.push(
       './spec/async'
     );

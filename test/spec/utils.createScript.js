@@ -3,7 +3,7 @@ define(function () {
 
   var $ = global.jQuery;
 
-  function stubCreateElement(assert, el){
+  function stubCreateElement(assert, el) {
     assert.stub(document, 'createElementNS')
       .withArgs('http://www.w3.org/1999/xhtml', 'script')
       .returns(el);
@@ -12,7 +12,7 @@ define(function () {
       .returns(el);
   }
 
-  function restoreCreateElement(){
+  function restoreCreateElement() {
     document.createElementNS.restore();
     document.createElement.restore();
   }
@@ -30,7 +30,9 @@ define(function () {
       origBaseElement = baseInfo.baseElement,
       url = 'lib/testModule',
       callbackArg0,
-      callbackArg1;
+      callbackArg1,
+      stubbed,
+      headInsertLastCall;
 
     // assert.stub(el, 'attachEvent');
     assert.stub(el, 'addEventListener');
@@ -75,14 +77,28 @@ define(function () {
     assert.strictEqual(el.charset, 'utf-8', 'utils.createScript works ...');
 
     info.options.scriptType = 'my-own-datatype/javascript';
+    info.options.xhtml = true;
+
+    //tests for baseElement
+    //<base href="http://www.w3schools.com/images/" target="_blank">
+    baseInfo.baseElement = $('<base>', {
+      href: '/baseUrl'
+    }).appendTo(baseInfo.head).get(0);
 
     stubCreateElement(assert, el);
     el = utils.createScript(url, callback, errorCallback);
+    stubbed = document.createElementNS;
     restoreCreateElement();
+    $(baseInfo.baseElement).remove();
 
     assert.strictEqual(el.type, 'my-own-datatype/javascript', 'utils.createScript reads dataType from options ...');
 
-    //tests for baseElement
+    //el, baseInfo.baseElement
+    headInsertLastCall = baseInfo.head.insertBefore.lastCall;
+    assert.strictEqual(headInsertLastCall.args[0], el, 'utils.createScript reads dataType from options ...');
+    assert.strictEqual(headInsertLastCall.args[1], baseInfo.baseElement, 'utils.createScript reads dataType from options ...');
+
+    assert.ok(stubbed.calledOnce, 'document.createElementNS gets called when { xhtml: true }');
 
     info.options.scriptType = origType;
     baseInfo.baseElement = origBaseElement;
