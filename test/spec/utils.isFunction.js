@@ -8,7 +8,7 @@ define(function () {
     //tests for environments that return incorrect `typeof` operator results.
     assert.equal(utils.isFunction(/x/), false, 'utils.isFunction works for regexps');
 
-    if (global.Uint8Array !== undefined) {
+    if (navigator.userAgent.search('PhantomJS') === -1) {
       assert.equal(utils.isFunction(global.Uint8Array), true, 'utils.isFunction works for Uint8Array');
     }
 
