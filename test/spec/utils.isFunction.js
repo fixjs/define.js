@@ -8,7 +8,9 @@ define(function () {
     //tests for environments that return incorrect `typeof` operator results.
     assert.equal(utils.isFunction(/x/), false, 'utils.isFunction works for regexps');
 
-    assert.equal(utils.isFunction(global.Uint8Array), true, 'utils.isFunction works for Uint8Array');
+    if (global.Uint8Array !== undefined) {
+      assert.equal(utils.isFunction(global.Uint8Array), true, 'utils.isFunction works for Uint8Array');
+    }
 
     assert.strictEqual(utils.isFunction(/x/), false, 'utils.isFunction is a function');
 
