@@ -1,5 +1,4 @@
 define(function () {
-  /* exported:true */
   var
   //Part of the utils functions are borrowed from lodash
     MAX_SAFE_INTEGER = Math.pow(2, 53) - 1,
@@ -70,8 +69,6 @@ define(function () {
     isPromiseAlike: function (obj) {
       return obj && isFunction(obj.then) || false;
     }
-    /* exported:false */
   });
-
   return utils;
 });
