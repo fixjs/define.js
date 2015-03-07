@@ -1,5 +1,5 @@
 /**
- * DefineJS v0.2.4 2015-03-01T11:51Z
+ * DefineJS v0.2.4 2015-03-02T07:52Z
  * Copyright (c) 2014 Mehran Hatami and define.js contributors.
  * Available via the MIT license.
  * license found at http://github.com/fixjs/define.js/raw/master/LICENSE
@@ -32,7 +32,6 @@
   var emptyArray = [];
 
 
-  /* exported:true */
   var
   //Part of the utils functions are borrowed from lodash
     MAX_SAFE_INTEGER = Math.pow(2, 53) - 1,
@@ -103,7 +102,6 @@
     isPromiseAlike: function (obj) {
       return obj && isFunction(obj.then) || false;
     }
-    /* exported:false */
   });
 
   utils.execute = function (fn, args) {
@@ -383,53 +381,94 @@
     }
   };
 
+  function core(_, amd) {
+    if (!utils.isObject(_)) {
+      _ = global;
+    }
+
+    _.define = function (moduleName, array, moduleDefinition) {
+      return core.define(amd, moduleName, array, moduleDefinition);
+    };
+
+    _.require = function (array, fn) {
+      return amd.require(array, fn);
+    };
+
+    _.use = function (array) {
+      return new Promise(function (fulfill) {
+        _.require(array, fulfill);
+      });
+    };
+
+    _.config = function (cnfOptions) {
+      if (!utils.isObject(cnfOptions)) {
+        console.error('Invalid parameter to set up the config');
+        return;
+      }
+
+      var key;
+      for (key in cnfOptions) {
+        if (cnfOptions.hasOwnProperty(key)) {
+          info.options[key] = cnfOptions[key];
+        }
+      }
+    };
+
+    _.require.config = _.config;
+    _.define.amd = {};
+    _.define.info = info;
+
+    return _;
+  }
+
+  core.define = function (amd, moduleName, array, moduleDefinition) {
+    //define(moduleDefinition)
+    if (typeof moduleName === 'function') {
+      moduleDefinition = moduleName;
+      moduleName = undefined;
+      array = emptyArray;
+    }
+    //define(array, moduleDefinition)
+    else if (utils.isArray(moduleName)) {
+      moduleDefinition = array;
+      array = moduleName;
+      moduleName = undefined;
+    }
+    /*
+     * Note: (Not a good practice)
+     * You can explicitly name modules yourself, but it makes the modules less portable
+     * if you move the file to another directory you will need to change the name.
+     */
+    else if (typeof moduleName === 'string') {
+      //define(moduleName, moduleDefinition)
+      if (typeof array === 'function') {
+        moduleDefinition = array;
+        array = emptyArray;
+      }
+    }
+
+    if (typeof moduleDefinition !== 'function') {
+      console.error('Invalid input parameter to define a module');
+      return false;
+    }
+
+    if (moduleName === undefined) {
+      moduleName = utils.getFileName(document.currentScript.src);
+    }
+
+    amd.define(moduleName, array, moduleDefinition);
+  };
+
   function amd() {
     if (amd.definejs) {
       return amd.definejs;
     }
 
     var definejs = function (_) {
-      if (!utils.isObject(_)) {
-        _ = global;
-      }
+      _ = core(_, amd);
 
-      _.define = function (moduleName, array, moduleDefinition) {
-        //define(moduleDefinition)
-        if (typeof moduleName === 'function') {
-          moduleDefinition = moduleName;
-          moduleName = undefined;
-          array = emptyArray;
-        }
-        //define(array, moduleDefinition)
-        else if (utils.isArray(moduleName)) {
-          moduleDefinition = array;
-          array = moduleName;
-          moduleName = undefined;
-        }
-        /*
-         * Note: (Not a good practice)
-         * You can explicitly name modules yourself, but it makes the modules less portable
-         * if you move the file to another directory you will need to change the name.
-         */
-        else if (typeof moduleName === 'string') {
-          //define(moduleName, moduleDefinition)
-          if (typeof array === 'function') {
-            moduleDefinition = array;
-            array = emptyArray;
-          }
-        }
-
-        if (typeof moduleDefinition !== 'function') {
-          console.error('Invalid input parameter to define a module');
-          return false;
-        }
-
-        if (moduleName === undefined) {
-          moduleName = utils.getFileName(document.currentScript.src);
-        }
-
+      amd.define = function (moduleName, array, moduleDefinition) {
         info.definedModules[moduleName] = true;
-
         if (utils.isArray(array) && array.length) {
           loader.loadAll(array, function () {
             var args = [],
@@ -445,7 +484,7 @@
         }
       };
 
-      _.require = function (array, fn) {
+      amd.require = function (array, fn) {
         if (typeof array === 'string') {
           array = [array];
         } else if (typeof array === 'function') {
@@ -467,31 +506,6 @@
           utils.execute(fn);
         }
       };
-
-      _.use = function (array) {
-        return new Promise(function (fulfill) {
-          //need to come up with a solution for rejected states
-          _.require(array, fulfill);
-        });
-      };
-
-      _.config = function (cnfOptions) {
-        if (!utils.isObject(cnfOptions)) {
-          console.error('Invalid parameter to set up the config');
-          return;
-        }
-
-        var key;
-        for (key in cnfOptions) {
-          if (cnfOptions.hasOwnProperty(key)) {
-            info.options[key] = cnfOptions[key];
-          }
-        }
-      };
-
-      _.require.config = _.config;
-      _.define.amd = {};
-      _.define.info = info;
     };
 
     amd.definejs = definejs;
