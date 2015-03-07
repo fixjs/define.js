@@ -20,8 +20,6 @@ define([
       baseInfo.baseUrl = '';
     }
   }
-  
   baseInfo();
-
   return baseInfo;
 });
