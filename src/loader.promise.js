@@ -53,6 +53,9 @@ define([
       }
       return promiseStorage[modulePath];
     },
+    loadGenerator: function * (modulePath) {
+      return yield loader.load(modulePath);
+    },
     loadPromise: function loadPromise(modulePath) {
       return async.Promise(function * (fulfill, reject) {
         var isFirstLoadDemand = false,
@@ -98,6 +101,9 @@ define([
             } else {
               //This code block allows using this library for regular javascript files
               //with no "define" or "require"
+              if (info.options.shim) {
+
+              }
               loader.install(moduleName, status);
             }
           }
@@ -108,7 +114,22 @@ define([
       return Promise.all(array.map(loader.load));
     },
     setup: function (moduleName, moduleDefinition, args) {
-      setup(moduleName, moduleDefinition, this, args);
+      setup(moduleName, moduleDefinition, loader, args);
+    },
+    define: function * (moduleName, array, definition) {
+      var args;
+      info.definedModules[moduleName] = true;
+      if (utils.isArray(array) && array.length) {
+        args = yield loader.loadAll(array);
+      }
+      loader.setup(moduleName, definition, args);
+    },
+    require: function * (array, fn) {
+      var args;
+      if (utils.isArray(array) && array.length) {
+        args = yield loader.loadAll(array);
+      }
+      utils.execute(fn, args);
     }
   };
   return loader;

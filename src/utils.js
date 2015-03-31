@@ -51,24 +51,47 @@ define(function () {
     return base;
   }
 
-  function utils(name, obj) {
-    if (typeof name === 'string') {
-      utils[name] = obj;
-    } else if (isObject(name)) {
-      extend(utils, name);
+  //borrowed from lodash
+  /**
+   * A specialized version of `_.forEach` for arrays without support for callback
+   * shorthands and `this` binding.
+   *
+   * @private
+   * @param {Array} array The array to iterate over.
+   * @param {Function} iteratee The function invoked per iteration.
+   * @returns {Array} Returns `array`.
+   */
+  function each(array, iteratee) {
+    var index = -1,
+      length = array.length;
+    while (++index < length) {
+      if (iteratee(array[index], index, array) === false) {
+        break;
+      }
     }
-    return utils;
+    return array;
   }
 
-  utils({
+  function getNested(base, path) {
+    var parts = path.split('.');
+    each(parts, function (part) {
+      return isObject(base = base[part]);
+    });
+    return base;
+  }
+
+  var utils = {
     extend: extend,
     isArray: isArray,
     isFunction: isFunction,
     isObject: isObject,
+    each: each,
+    getNested: getNested,
     isObjectLike: isObjectLike,
     isPromiseAlike: function (obj) {
       return obj && isFunction(obj.then) || false;
     }
-  });
+  };
+
   return utils;
 });

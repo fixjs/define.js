@@ -32,7 +32,7 @@ define(function () {
     require: ['./utils']
   }).then(function (assert, utils) {
 
-    assert.strictEqual(typeof utils, 'function', 'utils is a function');
+    assert.strictEqual(typeof utils, 'object', 'utils is a function');
     testIsFunction(assert, utils);
 
   });
