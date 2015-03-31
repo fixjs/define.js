@@ -13,28 +13,6 @@ define([
     var definejs = function (_) {
       _ = core(_, amd);
 
-      function * defineGenerator(moduleName, array, definition) {
-        var args;
-        info.definedModules[moduleName] = true;
-        if (utils.isArray(array) && array.length) {
-          args = yield loader.loadAll(array);
-        }
-        loader.setup(moduleName, definition, args);
-      }
-
-      function * requireGenerator(array, fn) {
-        var args;
-        if (utils.isArray(array) && array.length) {
-          args = yield loader.loadAll(array);
-        }
-        utils.execute(fn, args);
-      }
-
-      function * loadModuleGenerator(modulePath) {
-        var args = yield loader.loadAll([modulePath]);
-        return args[0];
-      }
-
       //the new CommonJS style
       function CJS(asyncFN) {
         return async(function * cjs() {
@@ -58,7 +36,7 @@ define([
         if (utils.isGenerator(definition)) {
           return _.define(CJS(async(definition)));
         }
-        async(defineGenerator)(moduleName, array, definition);
+        async(loader.define)(moduleName, array, definition);
       };
 
       amd.require = function (array, fn) {
@@ -66,9 +44,9 @@ define([
           return async(array)();
         }
         if (typeof array === 'string' && typeof fn === 'undefined') {
-          return async(loadModuleGenerator)(array);
+          return async(loader.loadGenerator)(array);
         }
-        async(requireGenerator)(array, fn);
+        async(loader.require)(array, fn);
       };
     };
 
