@@ -61,7 +61,7 @@ define(function () {
     assert.ok(callback.calledWith('failure'), 'loader.install calles the callback with the specified status:failure');
   }
 
-  function testGetScriptCallback(assert, loader, info, utils){
+  function testGetScriptCallback(assert, loader, info, utils) {
     assert.stub(loader, 'install');
 
     var getScriptCallback = utils.getScript.getCall(0).args[1];
@@ -199,7 +199,7 @@ define(function () {
 
   fix.test('loader', {
     message: 'loader provides a means for loading modules asyncrounously',
-    require: ['./loader', './var/info', './utils']
+    require: ['./loader', './var/info', './utils.shim']
   }).then(function (assert, loader, info, utils) {
 
     assert.strictEqual(typeof loader, 'object', 'loader is an object');
