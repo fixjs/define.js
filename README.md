@@ -37,6 +37,48 @@ define.Promise.resolve(jQuery)
   });
 ```
 
+- DefineJS offers a new helper function for generators:
+
+```javascript
+function * myFunc(collection){
+  var data = yield getData(collection);
+
+  //Do something
+
+  return data.app; 
+}
+```
+
+Now to call the function and start the chain you could easily do:
+
+```javascript
+myFunc.go('users')
+  .then(function(app){
+    //The app object comes from the myFunc's return value
+
+  })
+```
+
+Compared to a regular function `.go()` is similar To a `fn.call()` and to pass an array as the list of desired arguments similar to `fn.apply()` DefineJS offers another function named: `goWith()`:
+
+```javascript
+myFunc.goWith(['users'])
+  .then(function(app){
+    //The app object comes from the myFunc's return value
+
+  })
+```
+
+But if there is no need to pass any argument to the function:
+
+```javascript
+myFunc
+  .goThen(function(app){
+    //The app object comes from the myFunc's return value
+    
+  })
+```
+
 - DefineJS is not just an AMD module loader, it provides you with the luxury of setting up your application's asynchronous lifecycle without having to write down a huge `require` block, you could code using either of the new styles that DefineJS offers. If you don't like using IIFEs or if you are tired of the Pyramid of Doom when dealing with callbacks:
 
 ```javascript
