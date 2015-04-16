@@ -75,7 +75,7 @@ define(function () {
     global.opera = origOpera;
   }
 
-  function testCreateScript(assert, utils, info, doc, baseInfo) {
+  function testCreateScript(assert, utils, fix, doc, baseInfo) {
 
     assert.strictEqual(typeof utils.getUrl, 'function', 'utils.getUrl is a dependency');
 
@@ -84,7 +84,7 @@ define(function () {
       el = $('<script>', {
         src: 'lib/testModule.js'
       }).get(0),
-      origType = info.options.scriptType,
+      origType = fix.options.scriptType,
       origBaseElement = baseInfo.baseElement,
       url = 'lib/testModule',
       callbackArg0,
@@ -98,7 +98,7 @@ define(function () {
 
     // utils.createScript.withArgs('lib/testModule', callback, callback).returns(el);
 
-    info.options.scriptType = undefined;
+    fix.options.scriptType = undefined;
     baseInfo.baseElement = undefined;
 
     stubCreateElement(assert, el);
@@ -134,8 +134,8 @@ define(function () {
     assert.strictEqual(el.type, 'text/javascript', 'utils.createScript works ...');
     assert.strictEqual(el.charset, 'utf-8', 'utils.createScript works ...');
 
-    info.options.scriptType = 'my-own-datatype/javascript';
-    info.options.xhtml = true;
+    fix.options.scriptType = 'my-own-datatype/javascript';
+    fix.options.xhtml = true;
 
     //tests for baseElement
     //<base href="http://www.w3schools.com/images/" target="_blank">
@@ -158,29 +158,29 @@ define(function () {
 
     assert.ok(stubbed.calledOnce, 'document.createElementNS gets called when { xhtml: true }');
 
-    info.options.scriptType = origType;
+    fix.options.scriptType = origType;
     baseInfo.baseElement = origBaseElement;
 
     // el.attachEvent.restore();
     el.addEventListener.restore();
   }
 
-  fix.test('utils.createScript', {
-    message: 'utils.createScript works as a helper utils functions',
+  FIX.test('createScript', {
+    message: 'createScript works as a helper utils functions',
     module: {
       beforeEach: function () {
-        fix.stubInsertAndAppend();
+        FIX.stubInsertAndAppend();
       },
       afterEach: function () {
-        fix.restoreInsertAndAppend();
+        FIX.restoreInsertAndAppend();
       }
     },
-    require: ['./utils.createScript', './var/info', './var/doc', './baseInfo']
-  }).then(function (assert, utils, info, doc, baseInfo) {
+    require: ['./utils', './createScript', './var/fix', './var/doc', './baseInfo']
+  }).then(function (assert, utils, createScript, fix, doc, baseInfo) {
 
-    assert.strictEqual(typeof utils.createScript, 'function', 'utils.createScript is a function');
+    assert.strictEqual(typeof createScript, 'function', 'utils.createScript is a function');
 
-    testCreateScript(assert, utils, info, doc, baseInfo);
+    testCreateScript(assert, utils, fix, doc, baseInfo);
 
     testCreateScriptWithAttach(assert, utils);
 

@@ -19,8 +19,7 @@
   "smarttabs": true,
   "white": true,
   "predef": [
-    "fix",
-    "Promise"
+    "fix"
   ],
   "globals": {
     "define": false,
@@ -30,6 +29,7 @@
     "before": false,
     "beforeEach": false,
     "after": false,
-    "afterEach": false
+    "afterEach": false,
+    "Promise": false
   }
 }

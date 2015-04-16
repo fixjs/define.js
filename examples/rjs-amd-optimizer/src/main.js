@@ -1,3 +1,6 @@
+require.config({
+  baseUrl: 'src'
+});
 require(['app'], function (app) {
 
   if (app.utils.isObject(app.options)) {

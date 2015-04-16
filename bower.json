@@ -1,11 +1,13 @@
 {
   "name": "definejs",
   "description": "A JavaScript module loader, an implementation of AMD (Asynchronous Module Definition).",
-  "version": "0.2.4",
+  "version": "0.2.9",
   "main": "define.js",
   "ignore": [
+    "src",
+    "build",
+    "coverage",
     "test",
-    "impl",
     ".jshintrc",
     ".travis.yml",
     "CHANGELOG.md",
@@ -15,14 +17,14 @@
     "README.md",
     "Gruntfile.js",
     ".travis.yml",
-    ".gitignore",
-    "amdjs-tests"
+    ".gitignore"
   ],
   "devDependencies": {
     "requirejs": "~2.1.5",
     "jquery": ">= 1.8.0",
     "qunit": "~1.17.0",
     "sinon-qunit": "~2.0.0",
-    "sinon": "~1.12.2"
+    "sinon": "~1.12.2",
+    "lodash": "3.6.0-amd"
   }
 }

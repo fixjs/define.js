@@ -2,6 +2,7 @@ module.exports = function (grunt) {
   'use strict';
 
   var requirejs = require('./r'),
+    pkg = grunt.file.readJSON('package.json'),
     rdefineEnd = /\}\);[^}\w]*$/,
     embedVersionRgx = /@VERSION/g,
     embedDateRgx = /@DATE/g,
@@ -10,7 +11,7 @@ module.exports = function (grunt) {
     excluderRgx = /\/\*\s*ExcludeStart\s*\*\/[\w\W]*?\/\*\s*ExcludeEnd\s*\*\//gi;
 
   return function () {
-    var version = '0.2.4',
+    var version = pkg.version,
       done = this.async(),
       target = this.target,
       nameSuffix = (target === 'callback') ? '' : '.' + target,
@@ -61,8 +62,13 @@ module.exports = function (grunt) {
         // Remove the comma for anonymous defines
         contents = contents
           .replace(/(\s*)"define"(\,\s*)/, amdName ? '$1"' + amdName + '"$2' : '');
-
       }
+
+      if (contents.charAt(contents.length - 1) === '\n') {
+        // contents = contents.substring(1);
+        contents = contents.substring(0, contents.length-1);
+      }
+      
       return contents;
     }
 
@@ -84,12 +90,16 @@ module.exports = function (grunt) {
         definejs: 'define([]);'
       },
       name: 'define.amd',
-      strict:true,
+      strict: true,
       onBuildWrite: compileAll,
       out: writeTheCompiledFile,
 
       include: []
     };
+
+    if (target === 'promise') {
+      config.paths.defer = 'defer.promise';
+    }
 
     requirejs.optimize(config, function (response) {
       grunt.verbose.writeln(response);

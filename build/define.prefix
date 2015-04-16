@@ -7,14 +7,3 @@
 (function (g, undefined) {
   'use strict';
   var global = g();
-  //The official polyfill for promise.done()
-  if (typeof Promise.prototype.done !== 'function') {
-    Promise.prototype.done = function () {
-      var self = arguments.length ? this.then.apply(this, arguments) : this;
-      self.then(null, function (err) {
-        setTimeout(function () {
-          throw err;
-        }, 0);
-      });
-    };
-  }

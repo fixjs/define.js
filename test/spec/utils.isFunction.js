@@ -1,20 +1,20 @@
 define(function () {
   'use strict';
 
-  function testIsFunction(assert, utils) {
+  function testIsFunction(assert, isFunction) {
 
-    assert.strictEqual(typeof utils.isFunction, 'function', 'utils.isFunction is a function');
+    assert.strictEqual(typeof isFunction, 'function', 'isFunction is a function');
 
     //tests for environments that return incorrect `typeof` operator results.
-    assert.equal(utils.isFunction(/x/), false, 'utils.isFunction works for regexps');
+    assert.equal(isFunction(/x/), false, 'isFunction works for regexps');
 
     if (navigator.userAgent.search('PhantomJS') === -1) {
-      assert.equal(utils.isFunction(global.Uint8Array), true, 'utils.isFunction works for Uint8Array');
+      assert.equal(isFunction(global.Uint8Array), true, 'isFunction works for Uint8Array');
     }
 
-    assert.strictEqual(utils.isFunction(/x/), false, 'utils.isFunction is a function');
+    assert.strictEqual(isFunction(/x/), false, 'isFunction is a function');
 
-    var global1 = fix.testFrame.contentWindow,
+    var global1 = FIX.testFrame.contentWindow,
       f = global.Function(''),
       f1 = global1.Function('');
 
@@ -23,17 +23,17 @@ define(function () {
     assert.strictEqual(f1 instanceof global1.Function, true, 'Functions are instances from within global objects:f1 in global1');
     assert.strictEqual(f instanceof global1.Function, false, 'Functions are instances from within global objects:f in global1');
     assert.strictEqual(f instanceof global.Function, true, 'Functions are instances from within global objects:f in global');
-    assert.strictEqual(utils.isFunction(f), true, 'utils.isFunction works for all functions even from different globals:f');
-    assert.strictEqual(utils.isFunction(f1), true, 'utils.isFunction works for all functions even from different globals:f1');
+    assert.strictEqual(isFunction(f), true, 'isFunction works for all functions even from different globals:f');
+    assert.strictEqual(isFunction(f1), true, 'isFunction works for all functions even from different globals:f1');
   }
 
-  fix.test('utils.isFunction', {
-    message: 'utils.isFunction works as a helper utils function',
-    require: ['./utils']
-  }).then(function (assert, utils) {
+  FIX.test('isFunction', {
+    message: 'isFunction works as a helper utils function',
+    require: ['./utils/isFunction']
+  }).then(function (assert, isFunction) {
 
-    assert.strictEqual(typeof utils, 'object', 'utils is a function');
-    testIsFunction(assert, utils);
+    assert.strictEqual(typeof isFunction, 'function', 'utils is a function');
+    testIsFunction(assert, isFunction);
 
   });
 });

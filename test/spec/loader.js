@@ -8,60 +8,59 @@ define(function () {
       name: 'a sample moduleObject for testing: moduleName2'
     };
 
-  function testInstallSuccess(assert, loader, info) {
+  function testInstallSuccess(assert, loader, fix) {
     var moduleName = 'firstModule',
       fakeWaitingList = [],
       callback = sinon.stub();
 
-    info.waitingList = {};
-    info.installed = {};
-    info.failedList = {};
+    fix.waitingList = {};
+    fix.installed = {};
+    fix.failedList = {};
 
     fakeWaitingList.push(callback);
-    info.waitingList[moduleName] = fakeWaitingList;
+    fix.waitingList[moduleName] = fakeWaitingList;
 
     loader.install(moduleName, 'success');
 
-    assert.strictEqual(typeof info.installed[moduleName], 'boolean', 'info.installed[moduleName] exists after loader.install(...)');
-    assert.strictEqual(info.installed[moduleName], true, 'info.installed[moduleName] sets to true');
+    assert.strictEqual(typeof fix.installed[moduleName], 'boolean', 'fix.installed[moduleName] exists after loader.install(...)');
+    assert.strictEqual(fix.installed[moduleName], true, 'fix.installed[moduleName] sets to true');
 
-    assert.strictEqual(typeof info.failedList[moduleName], 'undefined', 'in successful operations failedList is empty');
+    assert.strictEqual(typeof fix.failedList[moduleName], 'undefined', 'in successful operations failedList is empty');
 
-    assert.strictEqual(info.waitingList[moduleName], fakeWaitingList, 'waitingList keeps the original array object when clearing');
+    assert.strictEqual(fix.waitingList[moduleName], fakeWaitingList, 'waitingList keeps the original array object when clearing');
     assert.strictEqual(fakeWaitingList.length, 0, 'waiting-list gets empty after installation');
 
     assert.ok(callback.calledOnce, 'loader.install calles all the callbacks in the waiting-list each exactly once!');
     assert.ok(callback.calledWith('success'), 'loader.install calles the callback with the specified status:success');
-
   }
 
-  function testInstallFailure(assert, loader, info) {
+  function testInstallFailure(assert, loader, fix) {
     var moduleName = 'secondModule',
       fakeWaitingList = [],
       callback = sinon.stub();
 
-    info.waitingList = {};
-    info.installed = {};
-    info.failedList = {};
+    fix.waitingList = {};
+    fix.installed = {};
+    fix.failedList = {};
 
     fakeWaitingList.push(callback);
-    info.waitingList['secondModule'] = fakeWaitingList;
+    fix.waitingList['secondModule'] = fakeWaitingList;
 
     loader.install(moduleName, 'failure');
 
-    assert.strictEqual(typeof info.failedList[moduleName], 'boolean', 'moduleName goes to info.failedList after failed process');
-    assert.strictEqual(info.failedList[moduleName], true, 'info.failedList[moduleName] sets to true');
+    assert.strictEqual(typeof fix.failedList[moduleName], 'boolean', 'moduleName goes to fix.failedList after failed process');
+    assert.strictEqual(fix.failedList[moduleName], true, 'fix.failedList[moduleName] sets to true');
 
-    assert.strictEqual(typeof info.installed[moduleName], 'undefined', 'in unsuccessful operations failedList is empty');
+    assert.strictEqual(typeof fix.installed[moduleName], 'undefined', 'in unsuccessful operations failedList is empty');
 
-    assert.strictEqual(info.waitingList[moduleName], fakeWaitingList, 'waitingList keeps the original array object when clearing');
+    assert.strictEqual(fix.waitingList[moduleName], fakeWaitingList, 'waitingList keeps the original array object when clearing');
     assert.strictEqual(fakeWaitingList.length, 0, 'waiting-list gets empty after installation');
 
     assert.ok(callback.calledOnce, 'loader.install calles all the callbacks in the waiting-list each exactly once!');
     assert.ok(callback.calledWith('failure'), 'loader.install calles the callback with the specified status:failure');
   }
 
-  function testGetScriptCallback(assert, loader, info, utils) {
+  function testGetScriptCallback(assert, loader, fix, utils) {
     assert.stub(loader, 'install');
 
     var getScriptCallback = utils.getScript.getCall(0).args[1];
@@ -72,20 +71,20 @@ define(function () {
 
     assert.ok(loader.install.calledOnce, 'utils.getScript has a callback which installs undefined modules itself');
 
-    info.definedModules['moduleName'] = true;
+    fix.definedModules['moduleName'] = true;
 
     getScriptCallback('moduleName', 'success');
 
     assert.ok(loader.install.calledOnce, 'utils.getScript has a callback which doesnt install the defined modules!');
 
-    info.definedModules['moduleName'] = undefined;
+    fix.definedModules['moduleName'] = undefined;
     loader.install.restore();
   }
 
-  function testDependencyMap(assert, loader, info, utils) {
+  function testDependencyMap(assert, loader, fix, utils) {
     var callback = sinon.stub();
 
-    info.options.dependencyMap = {
+    fix.options.dependencyMap = {
       'all': ['module1', 'module2']
     };
 
@@ -103,10 +102,10 @@ define(function () {
     utils.getScript.restore();
   }
 
-  function testLoad(assert, loader, info, utils) {
-    info.waitingList = {};
-    info.installed = {};
-    info.failedList = {};
+  function testLoad(assert, loader, fix, utils) {
+    fix.waitingList = {};
+    fix.installed = {};
+    fix.failedList = {};
 
     var callback = sinon.stub(),
       anotherCallback = sinon.stub(),
@@ -117,16 +116,16 @@ define(function () {
 
     loader.load('moduleName', callback);
 
-    assert.ok($.isArray(info.waitingList['moduleName']), 'loader.install calles all the callbacks in the waiting-list each exactly once!');
-    assert.strictEqual(info.waitingList['moduleName'][0], callback, 'loader.load stores callback functions in waitingList');
+    assert.ok($.isArray(fix.waitingList['moduleName']), 'loader.install calles all the callbacks in the waiting-list each exactly once!');
+    assert.strictEqual(fix.waitingList['moduleName'][0], callback, 'loader.load stores callback functions in waitingList');
     assert.ok(utils.getScript.calledOnce, 'utils.getScript gets called just once!');
 
     //callback test, if callback function passed to utils.getScript works as expected
-    testGetScriptCallback(assert, loader, info, utils);
+    testGetScriptCallback(assert, loader, fix, utils);
 
     loader.load('moduleName', anotherCallback);
 
-    assert.strictEqual(info.waitingList['moduleName'][1], anotherCallback, 'loader.load stores callback functions in waitingList');
+    assert.strictEqual(fix.waitingList['moduleName'][1], anotherCallback, 'loader.load stores callback functions in waitingList');
     assert.ok(utils.getScript.calledOnce, 'utils.getScript gets called just once!');
 
     loader.install('moduleName', 'success');
@@ -136,11 +135,11 @@ define(function () {
     assert.ok(anotherCallback.calledOnce, 'utils.getScript gets called just once!');
     assert.ok(anotherCallback.calledWith('success'), 'loader.install calles the callback with the specified status:success');
 
-    assert.strictEqual(info.waitingList['moduleName'].length, 0, 'loader.install clears the waitingList');
+    assert.strictEqual(fix.waitingList['moduleName'].length, 0, 'loader.install clears the waitingList');
 
 
     //FAKE VALUE SETUP
-    info.modules['moduleName'] = moduleObject;
+    fix.modules['moduleName'] = moduleObject;
 
     loader.load('moduleName', theOtherCallback);
     assert.ok(theOtherCallback.calledOnce, 'callback gets called just once!');
@@ -150,15 +149,15 @@ define(function () {
 
     utils.getScript.restore();
 
-    testDependencyMap(assert, loader, info, utils);
+    testDependencyMap(assert, loader, fix, utils);
   }
 
-  function testLoadAll(assert, loader, info) {
+  function testLoadAll(assert, loader, fix) {
     var callback = sinon.stub();
 
     //ANOTHER FAKE VALUE SETUP
-    info.modules['moduleName2'] = moduleObject2;
-    info.installed['moduleName2'] = true;
+    fix.modules['moduleName2'] = moduleObject2;
+    fix.installed['moduleName2'] = true;
 
     loader.loadAll(['moduleName', 'moduleName2'], callback);
 
@@ -177,33 +176,33 @@ define(function () {
     loader.load.restore();
   }
 
-  function testLoader(assert, loader, info, utils) {
-    var origWaitingList = info.waitingList,
-      origInstalled = info.installed,
-      origFailedList = info.failedList;
+  function testLoader(assert, loader, fix, utils) {
+    var origWaitingList = fix.waitingList,
+      origInstalled = fix.installed,
+      origFailedList = fix.failedList;
 
     assert.strictEqual(typeof loader.install, 'function', 'loader.install is a function');
-    testInstallSuccess(assert, loader, info);
-    testInstallFailure(assert, loader, info);
+    testInstallSuccess(assert, loader, fix);
+    testInstallFailure(assert, loader, fix);
 
     assert.strictEqual(typeof loader.load, 'function', 'loader.load is a function');
-    testLoad(assert, loader, info, utils);
+    testLoad(assert, loader, fix, utils);
 
     assert.strictEqual(typeof loader.loadAll, 'function', 'loader.loadAll is a function');
-    testLoadAll(assert, loader, info);
+    testLoadAll(assert, loader, fix);
 
-    info.waitingList = origWaitingList;
-    info.installed = origInstalled;
-    info.failedList = origFailedList;
+    fix.waitingList = origWaitingList;
+    fix.installed = origInstalled;
+    fix.failedList = origFailedList;
   }
 
-  fix.test('loader', {
+  FIX.test('loader', {
     message: 'loader provides a means for loading modules asyncrounously',
-    require: ['./loader', './var/info', './utils.shim']
-  }).then(function (assert, loader, info, utils) {
+    require: ['./loader', './var/fix', './utils.getShimObject']
+  }).then(function (assert, loader, fix, utils) {
 
     assert.strictEqual(typeof loader, 'object', 'loader is an object');
-    testLoader(assert, loader, info, utils);
+    testLoader(assert, loader, fix, utils);
 
   });
 });

@@ -4,36 +4,36 @@
   var specs = [
     './spec/var/emptyArray',
     './spec/var/doc',
-    './spec/var/info',
+    './spec/var/fix',
     './spec/utils',
     './spec/utils.isFunction',
     './spec/baseInfo',
-    './spec/utils.execute',
+    './spec/execute',
     './spec/setup',
-    './spec/setup.regular',
-    './spec/setup.promised',
-    './spec/utils.getFileName',
-    './spec/utils.getUrl',
-    './spec/utils.createScript',
-    './spec/utils.getScript',
-    './spec/loader'
+    // './spec/setup.regular',
+    // './spec/setup.promised',
+    './spec/getFileName'
+    // './spec/getUrl',
+    // './spec/createScript',
+    // './spec/getScript',
+    //'./spec/loader'
   ];
 
   if (!QUnit.config.karmaIsInCharge) {
     QUnit.start();
   }
 
-  if (fix.isGeneratorSupported()) {
+  if (FIX.isGeneratorSupported()) {
     specs.push(
       // './spec/loader.promise',
-      './spec/async'
+      //'./spec/promise'
     );
   }
 
   specs.push(
-    './spec/amd',
-    './spec/amd.use',
-    './spec/define'
+    // './spec/amd',
+    // './spec/amd.use',
+    //'./spec/define'
   );
 
   // console.log('\nTestSuite started to run unit tests for:');

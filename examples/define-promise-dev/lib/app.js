@@ -1,7 +1,6 @@
 define(function * (exports, module) {
 
-  var utils = yield require('utils'),
-    definejsSLN = yield require('definejs-sln'),
+  var definejsSLN = yield require('definejs-sln'),
     coSLN = yield require('co-sln'),
     $ = yield require('../vendor/jquery');
 
@@ -9,10 +8,22 @@ define(function * (exports, module) {
   console.log('coSLN>', coSLN);
 
   var app = {
+    label: 'definePromiseDevApp',
     body: $('body').get(0),
-    utils: utils,
-    lunch: function () {
-      console.log('App just got lunched!:' + this.body);
+    getShimModule2: function * () {
+      var shimModule2 = yield require('shimModule2');
+
+      console.log('app.getShimModule2(): => shimModule2:', shimModule2);
+
+      return shimModule2;
+    },
+    lunch: function * () {
+      var utils = yield require('utils');
+
+      console.log('app.lunch(): => this.body:' + this.body);
+      console.log('app.lunch(): => utils:' + utils);
+
+      return app;
     }
   };
 

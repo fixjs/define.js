@@ -6,7 +6,7 @@ old-files
 tmp.js
 root.html
 ignored
-defer.js
 define.angular.js
 .coveralls.yml
 ng-definejs
+tmp

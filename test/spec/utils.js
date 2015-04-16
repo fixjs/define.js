@@ -127,7 +127,7 @@ define(function () {
     testIsPromiseAlike(assert, utils);
   }
 
-  fix.test('utils', {
+  FIX.test('utils', {
     message: 'utils helper functions',
     module: {
       beforeEach: function () {

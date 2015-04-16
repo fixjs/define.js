@@ -2,7 +2,7 @@
   'use strict';
 
   var global = g(),
-    fix = {},
+    FIX = {},
     QUNIT_BDD_OPTIONS,
     $ = global.jQuery,
     gKarma = global.__karma__;
@@ -21,7 +21,7 @@
   }
 
   global.global = global;
-  global.fix = fix;
+  global.FIX = FIX;
   global.QUNIT_BDD_OPTIONS = QUNIT_BDD_OPTIONS;
 
   QUnit.config.karmaIsInCharge = gKarma && typeof gKarma === 'object';
@@ -40,7 +40,7 @@
   // I know no better way of doing it, although I believe this type of use cases
   // is one of the few that using eval is not a bad practice
   var isGeneratorSupported;
-  fix.isGeneratorSupported = function () {
+  FIX.isGeneratorSupported = function () {
     if (isGeneratorSupported !== undefined) {
       return isGeneratorSupported;
     }
@@ -54,7 +54,7 @@
   };
 
   /*
-   * fix.test('utils', {
+   * FIX.test('utils', {
    *    message: 'testMessage',
    *    expect : 21,
    *    import: [],
@@ -65,7 +65,7 @@
    *
    * });
    */
-  fix.test = function test(moduleName, options) {
+  FIX.test = function test(moduleName, options) {
     var deferred = $.Deferred(),
       testObserver,
       module = options.module;
@@ -109,7 +109,7 @@
           try {
             dfdResult = options.resolver.apply(undefined, args);
           } catch (err) {
-            console.log('[[Error on invoking the resolver function]]');
+            console.log('[[' + moduleName + ']][[Error on invoking the resolver function]]');
           }
 
           dfdResult.done(function (value) {
@@ -179,7 +179,7 @@
     // return deferred;
   };
 
-  fix.stubInsertAndAppend = function () {
+  FIX.stubInsertAndAppend = function () {
     if (AMD.testHelper.headIsStubbed) {
       return;
     }
@@ -210,7 +210,7 @@
     AMD.testHelper.headIsStubbed = true;
   };
 
-  fix.restoreInsertAndAppend = function () {
+  FIX.restoreInsertAndAppend = function () {
     if (AMD.testHelper.headIsStubbed) {
       try {
         delete AMD.testHelper.head.insertBefore;
@@ -223,7 +223,7 @@
   };
 
   $(function(){
-    fix.testFrame = $('<iframe>', {
+    FIX.testFrame = $('<iframe>', {
       style: 'display:none;'
     }).appendTo('body').get(0);
   });
