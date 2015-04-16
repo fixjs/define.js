@@ -56,7 +56,7 @@ define([
     return this.async().apply(undefined, args);
   };
   GeneratorFunction.prototype.goThen = function (onFulfilled, onRejected) {
-    return this.goWith(arguments).then(onFulfilled, onRejected);
+    return this.goWith().then(onFulfilled, onRejected);
   };
 
   function makeAsync(fn) {
