@@ -1,5 +1,5 @@
 /**
- * DefineJS v0.2.9 2015-04-16T21:14Z
+ * DefineJS v0.2.9 2015-04-16T21:42Z
  * Copyright (c) 2014 Mehran Hatami and define.js contributors.
  * Available via the MIT license.
  * license found at http://github.com/fixjs/define.js/raw/master/LICENSE
@@ -725,6 +725,7 @@
         }
         return fixRequire(array, fn);
       };
+      _.define.Promise = Promise;
     };
     amd.definejs = definejs;
     return definejs;
