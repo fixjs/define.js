@@ -7,45 +7,61 @@ DefineJS is a lightweight implementation of [AMD](https://github.com/amdjs/amdjs
 
 > The Asynchronous Module Definition (AMD) API specifies a mechanism for defining modules such that the module and its dependencies can be asynchronously loaded.
 
-## Installation
+##Latest on 0.2.9
+- DefineJS now allows passing an actual **es6 function generator** right to the promise chain:
 
-Install with [Bower](http://bower.io):
-
-```
-bower install --save definejs
-```
-
-The component can be used as a Common JS module, an AMD module, or a global.
-
-## API
-To use DefineJS in your JavaScript code, you could simply add it as a script tag:
-```html
-<script src="define.js"></script>
-```
-Then you should call the definejs function to expose the amd modules functions to your desired global object:
 ```javascript
-definejs(myGlobal);
-```
-The easier way of achieving this, is to pass your desired global object to the `global` attribute of the script tag:
-```html
-<script global="myGlobal" src="define.js"></script>
-```
-Or in case you need define and require functions as globals:
-```html
-<script global="window" src="define.js"></script>
-```
-Based on the known JavaScript bad practice when defining global objects, this way with explicitly assigning the AMD functions to a specific global object or to the global scope you could be aware of the state of your global scope and also the possible consequences.
+define.Promise.resolve(jQuery)
+  .then(function * ($) {
+    var db = {},
+      AsyncDB = yield require('asyncdb'),
+      pkg = yield $.getJSON('package.json');
 
-**Note**:
-- **define.promise.js**: To be able to use the latest DefineJS feature, which allows to use ES6 generators, instead of `define.js` you should add `define.promise.js` to your page:
-    ```html
-    <script global="window" src="define.promise.js"></script>
-    ```
-    The other parts are exactly the same.
+    //Not relevant but it is worth noting that AsyncDB is an async local data storage based on IndexedDB
+    AsyncDB.new('packages', db);
 
-- **Promises polyfill**: DefineJS doesn't provide you with any polyfills **YET** and in order to use its promise based features you are free to either add your own implementation of **Promises polyfill** or use a Modern browser with native **Promise** support.
+    var pageContent = yield $.get(pkg.repository.url);
 
-- **ES6 generators support**: The same is true for **ES6 generators** and as far as **ES6 generators** needs a new ES6 syntax to be supported in your page you could either use a **ES6 generators transpiler** or use a Modern browser with ES6 generators support.
+    $(pageContent).appendTo('.container');
+
+    var versionEl = $('.container span.version');
+
+    return yield db.packages.insert({
+      name: pkg.name,
+      version: pkg.version
+    });
+  })
+  .then(function (packageId) {
+    //a totally private and dedicated scope which has all it needs a packageId
+    //...
+  });
+```
+
+- DefineJS is not just an AMD module loader, it provides you with the luxury of setting up your application's asynchronous lifecycle without having to write down a huge `require` block, you could code using either of the new styles that DefineJS offers. If you don't like using IIFEs or if you are tired of the Pyramid of Doom when dealing with callbacks:
+
+```javascript
+config.go()
+  .then(firstPhase)
+  .then(secondPhase)
+  .then(finalPhase)
+  .catch(lifecycleInterruption)
+  .done(theEnd);
+
+function * sameLifecycle() {
+  var message;
+  try {
+    var packageInfo = yield config.go();
+    var app = yield firstPhase.go(packageInfo);
+    var shimModule2 = yield secondPhase.go(app);
+    message = yield finalPhase.go(shimModule2);
+  } catch (err) {
+    message = yield lifecycleInterruption.go(err);
+  }
+  theEnd(message);
+}
+``` 
+
+Take a thorough look at the two code block above. They both do the exact same thing without us needing to create IIFEs and using callbacks.
 
 #Features
 Other than regular AMD module pattern, DefineJS also offers couple of nonstandard but usefull modular coding patterns. To make it more readable and getting to know the new features once they get released here we have top down list of DefineJS features list.
@@ -217,6 +233,44 @@ To use AMD module definition functions(define and require) like what you have se
 <script global="window" src="define.js"></script>
 ```
 Then it could load any standard amd modules in your page.
+
+## Installation
+
+Install with [Bower](http://bower.io):
+
+```
+bower install --save definejs
+```
+
+The component can be used as a Common JS module, an AMD module, or a global.
+
+## API
+To use DefineJS in your JavaScript code, you could simply add it as a script tag:
+```html
+<script src="define.js"></script>
+```
+Then you should call the definejs function to expose the amd modules functions to your desired global object:
+```javascript
+definejs(myGlobal);
+```
+The easier way of achieving this, is to pass your desired global object to the `global` attribute of the script tag:
+```html
+<script global="myGlobal" src="define.js"></script>
+```
+Or in case you need define and require functions as globals:
+```html
+<script global="window" src="define.js"></script>
+```
+Based on the known JavaScript bad practice when defining global objects, this way with explicitly assigning the AMD functions to a specific global object or to the global scope you could be aware of the state of your global scope and also the possible consequences.
+
+**Note**:
+- **define.promise.js**: To be able to use the latest DefineJS feature, which allows to use ES6 generators, instead of `define.js` you should add `define.promise.js` to your page:
+    ```html
+    <script global="window" src="define.promise.js"></script>
+    ```
+    The other parts are exactly the same.
+
+- **Promises polyfill**: DefineJS doesn't reinvent the wheel but provides you with the official **Promises polyfill**s from [promisejs.org](https://www.promisejs.org/). You could find the latest version of the polyfill in the [polyfills](https://github.com/fixjs/define.js/tree/master/polyfills) folder.
 
 ## Testing
 
