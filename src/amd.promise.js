@@ -3,8 +3,9 @@ define([
   './fixDefine',
   './fixRequire',
   './amd.core',
+  './promise',
   './utils/isGenerator'
-], function (loader, fixDefine, fixRequire, core, isGenerator) {
+], function (loader, fixDefine, fixRequire, core, Promise, isGenerator) {
   function amd() {
     if (amd.definejs) {
       return amd.definejs;
@@ -50,6 +51,7 @@ define([
         }
         return fixRequire(array, fn);
       };
+      _.define.Promise = Promise;
     };
     amd.definejs = definejs;
     return definejs;
