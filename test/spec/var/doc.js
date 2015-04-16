@@ -1,7 +1,7 @@
 define(function () {
   'use strict';
 
-  fix.test('var doc', {
+  FIX.test('var doc', {
     message: 'is a shared object which points to the global document object!',
     require: './var/doc'
   }).then(function (assert, doc) {

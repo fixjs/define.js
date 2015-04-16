@@ -16,19 +16,40 @@
         exports: 'shimModule',
         deps: ['testAMDModule']
       },
+      'shimModule2': {
+        exports: 'shimModule2',
+        deps: ['shimModule']
+      },
       'jQuery': {
         exports: 'jQuery'
       }
     }
   });
 
-  fixjs.require(['shimModule'], function (shimModule) {
-    console.log('fixjs.require("shimModule"):', shimModule());
+  fixjs.define('testShimDeps', ['shimModule2', 'jQuery'], function (shimModule2, $) {
+    return {
+      shimModule2: shimModule2,
+      $: $,
+      body: $('body'),
+      name: 'testModule'
+    };
   });
 
-  //for those type of modules that are already loaded in the page
-  fixjs.require(['jQuery'], function (fixJQuery) {
-    console.log('fixjs.require("fixJQuery"):', fixJQuery);
+  function testShimRequire() {
+    fixjs.require(['jQuery', 'testShimDeps', 'shimModule'], function ($, testShimDeps, shimModule) {
+      console.log('fixjs.require("jQuery"):', $);
+      console.log('fixjs.require("testShimDeps"):', testShimDeps);
+      console.log('fixjs.require("shimModule"):', shimModule());
+    });
+  }
+
+  fixjs.require(['shimModule2', 'jQuery', 'shimModule'], function (shimModule2, $, shimModule) {
+    console.log('fixjs.require("shimModule2"):', shimModule2);
+    console.log('fixjs.require("jQuery"):', $);
+    console.log('fixjs.require("shimModule"):', shimModule());
+
+    //require the testShimDeps module in the next turn
+    setTimeout(testShimRequire, 0);
   });
 
 }(window));

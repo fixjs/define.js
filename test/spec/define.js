@@ -10,11 +10,11 @@ define(function () {
     assert.strictEqual(typeof GLOB.config, 'function', 'GLOB.config is a function');
     assert.equal(GLOB.config, GLOB.require.config, 'GLOB.config and GLOB.require.config are the same');
     assert.strictEqual(typeof GLOB.use, 'function', 'GLOB.use is a function (Nonstandard)');
-    assert.strictEqual(typeof GLOB.define.info, 'object', 'GLOB.define.info is an Object');
-    assert.strictEqual(typeof GLOB.define.info.options, 'object', 'GLOB.define.info has an Object attribute named options');
+    assert.strictEqual(typeof GLOB.define.fix, 'object', 'GLOB.define.fix is an Object');
+    assert.strictEqual(typeof GLOB.define.fix.options, 'object', 'GLOB.define.fix has an Object attribute named options');
   }
 
-  fix.test('definejs', {
+  FIX.test('definejs', {
     message: 'is a expose function for AMD functions and more DefineJS attributes'
   }).then(function (assert, definejs) {
     var TEST = {};

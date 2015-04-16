@@ -1,7 +1,7 @@
 define(function () {
   'use strict';
 
-  function testSetupForRegularAMD(assert, setup, info, loader) {
+  function testSetupForRegularAMD(assert, setup, fix, loader) {
     var testModuleObject = {
         name: 'moduleName:amd:object'
       },
@@ -11,22 +11,22 @@ define(function () {
     moduleDefinition = sinon.stub();
     moduleDefinition.returns(testModuleObject);
 
-    setup('regularAMDModuleName', moduleDefinition, loader, deps);
+    setup(loader, 'regularAMDModuleName', moduleDefinition, deps, deps);
 
     assert.ok(moduleDefinition.calledOnce, 'moduleDefinition gets called once to provide the module definition');
     assert.ok(moduleDefinition.calledWith('dependencies', 'as', 'args', 'come', 'here'));
   }
 
-  fix.test('setup/regular', {
+  FIX.test('setup/regular', {
     message: 'setup works for regular AMD modules',
-    require: ['./setup', './var/info'],
-    resolver: function (assert, setup, info) {
+    require: ['./setup', './var/fix'],
+    resolver: function (assert, setup, fix) {
       var loader = {
         install: sinon.stub()
       };
       loader.install.returns(undefined);
 
-      testSetupForRegularAMD(assert, setup, info, loader);
+      testSetupForRegularAMD(assert, setup, fix, loader);
 
       return new Promise(function (fulfill) {
         setTimeout(function () {
@@ -34,10 +34,10 @@ define(function () {
         }, 0);
       });
     }
-  }).then(function (assert, setup, info, loader) {
+  }).then(function (assert, setup, fix, loader) {
 
-    assert.notEqual(info.modules, null, 'info.modules is not null');
-    assert.notStrictEqual(typeof info.modules.regularAMDModuleName, 'undefined', 'module:regularAMDModuleName is setup now');
+    assert.notEqual(fix.modules, null, 'fix.modules is not null');
+    assert.notStrictEqual(typeof fix.modules.regularAMDModuleName, 'undefined', 'module:regularAMDModuleName is setup now');
 
     assert.ok(loader.install.calledOnce, 'moduleDefinition gets called once to provide the module definition');
     assert.ok(loader.install.calledWith('regularAMDModuleName', 'success'));

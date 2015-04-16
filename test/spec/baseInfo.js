@@ -36,7 +36,7 @@ define(function () {
     assert.strictEqual(baseInfo.baseGlobal, 'GLOB', 'baseInfo.baseGlobal  stores the correct value');
   }
 
-  fix.test('baseInfo', {
+  FIX.test('baseInfo', {
     message: 'is a expose function for AMD functions and more DefineJS attributes',
     module: {
       beforeEach: function (assert) {

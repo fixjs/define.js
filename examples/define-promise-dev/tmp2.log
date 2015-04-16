@@ -1,0 +1,49 @@
+config: => packageInfo: getPackageInfo {[[GeneratorStatus]]: "suspended", [[GeneratorFunction]]: function, [[GeneratorReceiver]]: Window}
+main.js:70 **********************firstPhase********************
+definejs-sln.js:6 [FIRST]4/4/2015, 10:28:03 AM
+definejs-sln.js:12 [SECOND]4/4/2015, 10:28:05 AM Error: rejected delayedObject {stack: (...), message: "rejected delayedObject"}
+definejs-sln.js:21 [FINAL]4/4/2015, 10:28:07 AM Actual value of delayedObject
+co-sln.js:6 [CO][FIRST]4/4/2015, 10:28:07 AM
+co-sln.js:21 [CO][SECOND]4/4/2015, 10:28:09 AM Error: rejected delayedObject {stack: (...), message: "rejected delayedObject"}
+co-sln.js:24 [CO][FINAL]4/4/2015, 10:28:11 AM Actual value of delayedObject
+app.js:7 definejsSLN> Actual value of delayedObject
+app.js:8 coSLN> Actual value of delayedObject
+main.js:73 firstPhase: => packageInfo: getPackageInfo {[[GeneratorStatus]]: "suspended", [[GeneratorFunction]]: function, [[GeneratorReceiver]]: Window}
+main.js:75 firstPhase: => app: Object {label: "definePromiseDevApp", body: body, getShimModule2: function, lunch: function}
+main.js:76 firstPhase: => shimModule(): [shimModule][testAMDModule]:
+  {"label":"testAMDModule.js","desc":"testAMDModule: This is just a test amd module!","message":"Lifecycle finished without any interruption!"}
+app.js:23 app.lunch(): => this.body:undefined
+app.js:24 app.lunch(): => utils:[object Object]
+main.js:86 **********************secondPhase********************
+app.js:16 app.getShimModule2(): => shimModule2: function* shimModule2(message) {
+    var testAMDModule = yield require('testAMDModule');
+
+    console.log('shimModule2 doesnt do anything specific it is just a function!');
+    console.log('shimModule2: => testAMDModule:', testAMDModule);
+
+    if(message){
+      testAMDModule.message = message;
+    }
+
+    return testAMDModule;
+  }
+main.js:89 secondPhase: => app.label:definePromiseDevApp
+main.js:90 secondPhase: => shimModule2:function* shimModule2(message) {
+    var testAMDModule = yield require('testAMDModule');
+
+    console.log('shimModule2 doesnt do anything specific it is just a function!');
+    console.log('shimModule2: => testAMDModule:', testAMDModule);
+
+    if(message){
+      testAMDModule.message = message;
+    }
+
+    return testAMDModule;
+  }
+main.js:96 **********************finalPhase********************
+shimModule2.js:7 shimModule2 doesnt do anything specific it is just a function!
+shimModule2.js:8 shimModule2: => testAMDModule: Object {label: "testAMDModule.js", desc: "testAMDModule: This is just a test amd module!", message: "Lifecycle finished without any interruption!"}
+main.js:99 finalPhase: => testAMDModule.label:testAMDModule.js
+main.js:100 finalPhase: => testAMDModule.desc:testAMDModule: This is just a test amd module!
+main.js:27 Lifecycle finished without any interruption!
+main.js:28 <<<<<finalPhase: The End!>>>>>

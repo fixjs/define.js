@@ -1,0 +1,8 @@
+{
+  "name": "define-promise-dev",
+  "version": "1.0.0",
+  "description": "A DefineJS working example to showcase the cool es6-generators based features",
+  "main": "lib/main.js",
+  "author": "Mehran Hatami",
+  "license": "MIT"
+}

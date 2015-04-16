@@ -20,6 +20,9 @@ module.exports = function (config) {
         pattern: 'src/{,*/}*.js',
         included: false
       }, {
+        pattern: 'src/utils/{,*/}*.js',
+        included: false
+      }, {
         pattern: 'test/testSuite.js',
         included: false
       }, {
@@ -37,7 +40,7 @@ module.exports = function (config) {
     // use dots reporter, as travis terminal does not support escaping sequences
     // possible values: 'dots', 'progress', 'junit', 'teamcity'
     // CLI --reporters progress
-    reporters: ['progress', 'coverage'],
+    reporters: ['progress'],//'coverage'
 
     preprocessors: {
       'src/{,*/}*.js': 'coverage'

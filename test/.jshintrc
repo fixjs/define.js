@@ -35,6 +35,7 @@
     "console",
     "sinon",
     "global",
-    "fix"
+    "fix",
+    "FIX"
   ]
 }

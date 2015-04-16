@@ -1,7 +1,7 @@
 define(function () {
   'use strict';
 
-  fix.test('var emptyArray', {
+  FIX.test('var emptyArray', {
     message: 'is a shared empty array!',
     require: './var/emptyArray'
   }).then(function (assert, emptyArray) {

@@ -52,7 +52,7 @@ define(function () {
     g.require.restore();
   }
 
-  fix.test('amd/use', {
+  FIX.test('amd/use', {
     message: 'use is a promise based helper function to require AMD modules',
     done: false,
     require: ['./amd']
@@ -68,7 +68,7 @@ define(function () {
 
     definejs(g);
 
-    testUse(assert, g);
+    // testUse(assert, g);
   });
 
 });

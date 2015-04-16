@@ -79,6 +79,9 @@ define(function () {
     baseUrl: 'lib'
   });
   </script>
+  <!--Global modules that have previously loaded manually in the page could be required using shim config-->
+  <script src='lib/shimModule2.js'></script>
+  <script src='config.js'></script>
   <script src='lib/main.js'></script>
 
   <script src="vendor/prism/prism.js"></script>
