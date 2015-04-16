@@ -1,26 +1,17 @@
 define([
-  './var/info',
-  './loader',
-  './utils',
+  './fixDefine',
+  './fixRequire',
   './amd.core'
-], function (info, loader, utils, core) {
+], function (fixDefine, fixRequire, core) {
   function amd() {
     if (amd.definejs) {
       return amd.definejs;
     }
-
     var definejs = function (_) {
       _ = core(_, amd);
-
-      amd.define = function (moduleName, array, moduleDefinition) {
-        loader.define(moduleName, array, moduleDefinition);
-      };
-
-      amd.require = function (array, fn) {
-        loader.require(array, fn);
-      };
+      amd.define = fixDefine;
+      amd.require = fixRequire;
     };
-
     amd.definejs = definejs;
     return definejs;
   }

@@ -1,24 +1,25 @@
 define([
-  './var/info',
-  './utils.execute'
-], function (info, utils) {
-  function setup(moduleName, moduleDefinition, loader, args) {
-    var moduleData = utils.execute(moduleDefinition, args);
-
-    function setupModule(value) {
-      if (value) {
-        info.modules[moduleName] = value;
-      } else {
-        info.modules[moduleName] = moduleData;
-      }
-      loader.install(moduleName, 'success');
-    }
-
-    if (utils.isPromiseAlike(moduleData)) {
-      moduleData.then(setupModule);
+  './var/fix',
+  './install',
+  './defer',
+  './execute',
+  './utils/isFunction',
+  './utils/isString'
+], function (fix, install, defer, execute, isFunction, isString) {
+  function setup(name, definition, deps) {
+    var dfd = defer();
+    if (!isString(name) || !isFunction(definition)) {
+      dfd.reject(new TypeError('Expected a string and a function'));
+      return;
     } else {
-      setTimeout(setupModule, 0);
+      return execute(definition, deps)
+        .then(function (value) {
+          fix.modules[name] = value;
+          install(name, 'success');
+          dfd.resolve(fix.modules[name]);
+        });
     }
+    return dfd.promise;
   }
   return setup;
 });
