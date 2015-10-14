@@ -8,6 +8,9 @@ DefineJS is a lightweight implementation of [AMD](https://github.com/amdjs/amdjs
 
 > The Asynchronous Module Definition (AMD) API specifies a mechanism for defining modules such that the module and its dependencies can be asynchronously loaded.
 
+##Note: DefineJS 0.3
+Sorry for such a delay in manining DefineJS, by the end of this year the new version will be released ...
+
 ##Latest on 0.2.9
 - DefineJS now allows passing an actual **es6 function generator** right to the promise chain:
 
