@@ -1,5 +1,4 @@
 # DefineJS
-[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/fixjs/define.js?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://secure.travis-ci.org/fixjs/define.js.png?branch=master)](http://travis-ci.org/fixjs/define.js)
 [![Code Climate](https://codeclimate.com/github/fixjs/define.js/badges/gpa.svg)](https://codeclimate.com/github/fixjs/define.js)
 [![Download stats](https://img.shields.io/npm/dm/definejs.svg)](https://www.npmjs.com/package/definejs)
