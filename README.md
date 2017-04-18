@@ -7,10 +7,10 @@ DefineJS is a lightweight implementation of [AMD](https://github.com/amdjs/amdjs
 
 > The Asynchronous Module Definition (AMD) API specifies a mechanism for defining modules such that the module and its dependencies can be asynchronously loaded.
 
-##Note: DefineJS 0.3
+## Note: DefineJS 0.3
 Sorry for such a delay in manining DefineJS, by the end of this month the new version will be released ...
 
-##Latest on 0.2.9
+## Latest on 0.2.9
 - DefineJS now allows passing an actual **es6 function generator** right to the promise chain:
 
 ```javascript
@@ -108,7 +108,7 @@ function * sameLifecycle() {
 
 Take a thorough look at the two code block above. They both do the exact same thing without us needing to create IIFEs and using callbacks.
 
-#Features
+# Features
 Other than regular AMD module pattern, DefineJS also offers couple of nonstandard but usefull modular coding patterns. To make it more readable and getting to know the new features once they get released here we have top down list of DefineJS features list.
 
 - [CommonJS/AMD Hybrid Format](#commonjsamd-hybrid-format): This hybrid format allows to write modules with a CommonJS similar syntax.
@@ -119,7 +119,7 @@ Other than regular AMD module pattern, DefineJS also offers couple of nonstandar
 - [use() vs require()](#use-vs-require): another nonstandard function called `use()` with a similar approach to the standard `require()` function  which allows to have partial execution code blocks without having to use different main files.
 - [AMD Module format](#amd-module-format)
 
-##CommonJS/AMD Hybrid Format
+## CommonJS/AMD Hybrid Format
 This hybrid syntax allows to write modules with a new syntax similar to CommonJS. This feature is now possible thanks to the ES6 generators.
 
 Let's imagine a CommonJS module like:
@@ -153,7 +153,7 @@ define(function* (exports, module) {
 
 As mentioned the new syntax is similar to the CommonJS coding style, with two specific differences. First the `yield` keyword and the next is the `define` wrapper with a `ES6 function generator`.
 
-##ES6 generators
+## ES6 generators
 This library provides you with a the possiblity of using ES6 generators and the `yield` keyword along with promises. You can use `yield` keyword to load your desired dependencies without getting through the callback hell.
 ```javascript
 //app.js
@@ -192,7 +192,7 @@ require(function* () {
 ```
 Give that a try and let us know how it feels to implement an asynchronous module definition with a fully synchronous looking code.
 
-##Promised Modules
+## Promised Modules
 Using the same AMD module style you can have privileged promise based modules. 
 All you need to do is just returning a promise in your modules, to make them promised modules. 
 To see how it works, just check out the [simple-promised-module](https://github.com/fixjs/define.js/tree/master/examples/simple-promised-module) example in the examples folder.
@@ -238,7 +238,7 @@ require(['promisedModule'],
 ```
 **Note**: we are still discussing about the proper way of handling the rejected state of a promised module. Any feedback or proposal is really appreciated.
 
-##use() vs require()
+## use() vs require()
 You can also have the same modules flow using a new offered syntax by DefineJS:
 ```javascript
 use(['dependency1', 'dependency2'])
@@ -257,7 +257,7 @@ use(['dependency1', 'dependency2'])
   });
 ```
 
-###AMD Module format
+### AMD Module format
 You can `define` and `require` your modules using the regular AMD format:
 ```javascript
 myGlobal.define([/*'dependency'*/], function(/*dependency*/]){
@@ -272,7 +272,7 @@ myGlobal.require([/*'moduleName'*/], function(/*moduleName*/]){
   
 });
 ```
-###Global define and require functions
+### Global define and require functions
 To use AMD module definition functions(define and require) like what you have seen so far, as global functions, you could simply add the script tag like:
 ```html
 <script global="window" src="define.js"></script>
