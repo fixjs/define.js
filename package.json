@@ -16,7 +16,7 @@
     "grunt-coveralls": "^1.0.0",
     "grunt-karma-coveralls": "^2.5.3",
     "grunt-replace": "^0.8.0",
-    "jshint-stylish": "^1.0.0",
+    "jshint-stylish": "^2.2.1",
     "karma": "~0.12.8",
     "karma-chrome-launcher": "~0.1.0",
     "karma-cli": "0.0.4",
